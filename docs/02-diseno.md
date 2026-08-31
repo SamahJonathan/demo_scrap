@@ -114,8 +114,44 @@ Procedencias posibles: `api_oc`, `api_licitacion`, `ocds`, `ficha_web`,
 | `proveedor_rut` | texto | sí | api_oc | `76.036.979-9` | dígito verificador |
 | `monto_ejecutado` | decimal | sí | api_oc | `975800` | ≥ 0 |
 | `monto_adjudicado` | decimal | no | api_licitacion | `167000000` | ver atribución |
-| `fecha_envio` | fecha | no | api_oc | `2025-05-15` | — |
+| `fecha_envio` | fecha | no | api_oc | `2025-05-02` | — |
+| `fecha_aceptacion` | fecha | no | api_oc | `2025-05-02` | ≥ `fecha_envio` |
 | `fecha_termino_estimada` | fecha | no | derivado | `2026-01-10` | adjudicación + duración |
+| `estado_vencimiento` | enum | sí | derivado | `calculado` | ver abajo |
+
+**Por qué `fecha_envio` y `fecha_aceptacion` viven acá y son necesarias.** El
+objetivo del programa es *seguir el ciclo de vida* del contrato. Una orden
+huérfana —el 56%— no tiene licitación, así que carece de `fecha_adjudicacion`,
+`duracion` y `es_renovable`. **Sus propias fechas son su único anclaje
+temporal.** Sin ellas, más de la mitad del dataset no tendría posición en el
+tiempo y el objetivo fallaría justo donde más datos hay.
+
+**Y por qué `fecha_termino_estimada` no se inventa para ellas.** Una compra ágil
+o un trato directo es una compra puntual, no un contrato con vigencia. Se ordena
+por `fecha_aceptacion` y su término queda sin calcular.
+
+**`estado_vencimiento` dice POR QUÉ falta, en vez de dejar un nulo mudo.** Un
+`NULL` mezcla tres situaciones distintas que exigen respuestas distintas:
+
+| Valor | Significa | Caso |
+|---|---|---|
+| `calculado` | Hay adjudicación y duración decodificable | El 44% con proceso y unidad conocida |
+| `no_declarado` | La fuente no publica duración | Las huérfanas: compra ágil, convenio marco, trato directo |
+| `unidad_desconocida` | Hay duración, pero su unidad no está decodificada | `UnidadTiempoDuracionContrato` distinto de 1 y 4 |
+
+La distinción no es cosmética. `no_declarado` es una característica de la
+modalidad de compra y no hay nada que arreglar. `unidad_desconocida` es una
+**deuda nuestra**: significa que apareció un valor del enum que todavía no
+sabemos leer, y es una señal de que hay que investigarlo.
+
+Es el mismo criterio que ya se aplica a las garantías, donde "no tiene
+garantías" y "no pudimos leerlas" son estados distintos. Un nulo que no explica
+su causa esconde el problema en vez de reportarlo.
+
+**Consecuencia declarada:** la pregunta de negocio 1 —qué contratos vencen—
+aplica al **44% con proceso**. El dashboard debe decir sobre qué universo
+calcula cada indicador, para que un total no parezca cubrir todo cuando cubre
+menos de la mitad.
 
 ### Licitacion — una fila por proceso, solo para el 44% que lo tiene
 
@@ -125,17 +161,20 @@ Procedencias posibles: `api_oc`, `api_licitacion`, `ocds`, `ficha_web`,
 | `nombre` | texto | sí | api_licitacion | `SERVICIO ACERCAMIENTO TRANSPORTE ESCOLAR` |
 | `fecha_publicacion` | fecha | no | api_licitacion | `2025-01-24` |
 | `fecha_adjudicacion` | fecha | no | api_licitacion | `2025-03-10` |
-| `monto_estimado` | decimal | no | api_licitacion | `522500000` |
 | `monto_adjudicado_total` | decimal | no | ocds | `441600000` |
 | `duracion_valor` | entero | no | api_licitacion | `10` |
 | `duracion_unidad` | enum | no | api_licitacion | `1`=horas, `4`=meses, otros `desconocido` |
 | `es_renovable` | bool | no | api_licitacion | `false` |
-| `permite_subcontratacion` | bool | no | api_licitacion | `true` |
-| `n_oferentes` | entero | no | ocds | `6` |
 
 **Por qué estos campos NO viven en el Contrato:** si una licitación origina cinco
-órdenes, replicar `n_oferentes` en las cinco haría que contar oferentes diera 30
-en vez de 6. Es el mismo error que se evitó con el monto adjudicado.
+órdenes, replicar su duración o su fecha de adjudicación en las cinco haría que
+cualquier conteo agregado las multiplicara por cinco. Es el mismo error que se
+evitó con el monto adjudicado.
+
+**Campos eliminados tras verificar el gate:** `monto_estimado`,
+`permite_subcontratacion` y `n_oferentes` no responden ninguna pregunta de
+negocio ni aparecen en el objetivo, que nombra vigencia, vencimiento, renovación
+y garantías. Se eliminan. Un campo "por si acaso" es deuda que nadie declara.
 
 ### Los cinco estados de una orden de compra
 

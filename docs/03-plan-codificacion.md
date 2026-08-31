@@ -346,9 +346,17 @@ y declare de dónde vino cada campo, para poder defender cada dato.
   `monto_adjudicado`, **entonces** sumo solo los ítems adjudicados a `X`, **no**
   el total de la licitación. Prorratear está prohibido: la fuente da el dato
   exacto.
-- **Dado** adjudicación y duración, **cuando** derivo `fecha_termino_estimada`,
-  **entonces** el cálculo respeta la unidad decodificada, y es `None` si la
-  unidad es `desconocido`.
+- **Dado** adjudicación y duración con unidad conocida, **cuando** derivo
+  `fecha_termino_estimada`, **entonces** el cálculo respeta la unidad y
+  `estado_vencimiento` queda en `calculado`.
+- **Dado** una OC huérfana, **cuando** reconstruyo, **entonces**
+  `fecha_termino_estimada` queda sin valor y `estado_vencimiento` en
+  `no_declarado`: una compra puntual no tiene vigencia y no se le inventa una.
+  Su anclaje temporal es `fecha_aceptacion`.
+- **Dado** una duración con `UnidadTiempoDuracionContrato` distinto de 1 o 4,
+  **cuando** reconstruyo, **entonces** `estado_vencimiento` queda en
+  `unidad_desconocida`. **No se adivina la unidad**, y ese valor es la señal de
+  que apareció un caso del enum que hay que investigar.
 
 **Comando de verificación:**
 ```bash
