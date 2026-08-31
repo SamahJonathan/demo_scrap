@@ -83,7 +83,8 @@ class Config(BaseSettings):
     hosted_inference_model: str = "claude-sonnet-5"
     inference_temperature: float = 0.0
     inference_max_tokens: int = 2048
-    inference_timeout_seconds: int = 1200
+    # 900 s: el Spike 0 midio ~204 s por documento en CPU.
+    inference_timeout_seconds: int = 900
 
     # --- Umbrales de calidad que hacen fallar la corrida -------------------
     max_quarantine_rate: float = 0.05

@@ -98,7 +98,95 @@ def construir_parser() -> argparse.ArgumentParser:
     )
     r.set_defaults(func=_cmd_correr)
 
+    # --- inferir (incremento 13) -------------------------------------------
+    i = subs.add_parser(
+        "inferir",
+        help="extrae clausulas y contradicciones. LENTO: minutos por documento",
+    )
+    i.add_argument("--base", type=Path, default=Path("data/contratos.db"))
+    i.add_argument("--limite", type=int, default=None, help="cuantas licitaciones")
+    i.set_defaults(func=_cmd_inferir)
+
     return parser
+
+
+def _cmd_inferir(args: argparse.Namespace) -> int:
+    """Corre la capa de inferencia en LOTE. Nunca en la ruta de un request.
+
+    Medido en el Spike 0: ~3,4 minutos por documento con el filtro de pasajes
+    puesto, y varios GB de RAM. Por eso vive aca y no en el dashboard.
+    """
+    import time
+
+    from contratos.cliente import Cliente
+    from contratos.fuentes import api_licitacion
+    from contratos.inferencia import elegir_modelo
+    from contratos.inferencia.extraccion import procesar
+    from contratos.inferencia.recuperacion import pasajes
+    from contratos.persistencia import (
+        abrir,
+        guardar_clausula,
+        guardar_discrepancia,
+        licitaciones_guardadas,
+    )
+    from contratos.web.exportar import _texto_plano
+
+    if not args.base.exists():
+        print(f"no existe {args.base}. Corre primero el pipeline.")
+        return 1
+
+    codigos = licitaciones_guardadas(args.base)[: args.limite]
+    if not codigos:
+        print("no hay licitaciones en la base.")
+        return 1
+
+    modelo = elegir_modelo()
+    print(f"modelo: {modelo.nombre} | licitaciones: {len(codigos)}")
+    print("Esto tarda minutos por documento. Es lote, no interactivo.")
+
+    clausulas = discrepancias = sin_pasajes = fallidas = 0
+    t0 = time.time()
+
+    with Cliente() as c:
+        for n, codigo in enumerate(codigos, 1):
+            lic = api_licitacion.detalle(c, codigo)
+            texto = _texto_plano(api_licitacion.bajar_ficha(c, lic))
+
+            if not pasajes(texto):
+                # El filtro responde sin gastar una llamada al modelo.
+                sin_pasajes += 1
+                print(f"  [{n}/{len(codigos)}] {codigo}: sin pasajes -> null, 0 s")
+                continue
+
+            t = time.time()
+            r = procesar(modelo, lic, texto, texto)
+            dt = time.time() - t
+
+            # Commit POR DOCUMENTO, no al final. Esta corrida puede durar horas
+            # sobre la cartera completa: hacer un solo commit al terminar
+            # significa que una caida en el documento 200 tira las 200 anteriores.
+            with abrir(args.base) as con:
+                if r.clausula:
+                    guardar_clausula(con, r.clausula)
+                    clausulas += 1
+                if r.discrepancia:
+                    guardar_discrepancia(con, r.discrepancia)
+                    discrepancias += 1
+            fallidas += len(r.respuestas_no_parseables)
+
+            print(
+                f"  [{n}/{len(codigos)}] {codigo}: {dt:.0f} s | "
+                f"clausula={'si' if r.clausula else 'no'} "
+                f"discrepancia={'si' if r.discrepancia else 'no'}"
+            )
+
+    print("")
+    print(f"  clausulas extraidas   : {clausulas}")
+    print(f"  discrepancias         : {discrepancias}")
+    print(f"  sin pasajes (0 s)     : {sin_pasajes}")
+    print(f"  respuestas no parseables: {fallidas}")
+    print(f"  duracion              : {(time.time() - t0) / 60:.1f} min")
+    return 0
 
 
 def _cmd_correr(args: argparse.Namespace) -> int:

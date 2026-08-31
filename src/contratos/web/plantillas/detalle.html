@@ -74,4 +74,27 @@
   </table>
 </div>
 {% endif %}
+
+{% if clausulas %}
+<div class="caja">
+  <b>Causales de término anticipado</b>
+  <p class="sub" style="margin:6px 0 10px">Lo único de esta página que produjo un
+  modelo de lenguaje, y por eso lo único que declara <b>qué modelo</b> lo produjo
+  y <b>en qué posición</b> del documento lo leyó. Están en la prosa de las bases:
+  ningún campo de la API las expone. Importan porque un contrato con causales
+  amplias puede caerse antes de su vencimiento, y entonces hay que relicitar
+  antes de lo que dice la fecha.</p>
+  {% for cl in clausulas %}
+  <table>
+    <tr><th style="width:22%">Causales leídas</th>
+        <td>{{ cl.texto.replace(" | ", " · ") }}</td></tr>
+    <tr><th>Fragmento de origen</th>
+        <td class="proc">…{{ cl.fragmento_origen }}…</td></tr>
+    <tr><th>Trazabilidad</th>
+        <td class="proc">modelo <b>{{ cl.modelo }}</b>, carácter
+        {{ cl.posicion_inicio }} de la ficha de {{ cl.licitacion_codigo }}</td></tr>
+  </table>
+  {% endfor %}
+</div>
+{% endif %}
 {% endblock %}

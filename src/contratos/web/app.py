@@ -219,6 +219,7 @@ def crear_app(base: Path | None = None) -> FastAPI:
             contrato = dict(fila)
             licitacion = None
             garantias: list[dict[str, Any]] = []
+            clausulas: list[dict[str, Any]] = []
             if contrato["codigo_licitacion"]:
                 lic = con.execute(
                     "SELECT * FROM licitacion WHERE codigo = ?",
@@ -232,6 +233,15 @@ def crear_app(base: Path | None = None) -> FastAPI:
                         (contrato["codigo_licitacion"],),
                     ).fetchall()
                 ]
+                # Cuelgan de la licitacion igual que las garantias: varias
+                # ordenes del mismo proceso comparten las mismas clausulas.
+                clausulas = [
+                    dict(cl)
+                    for cl in con.execute(
+                        "SELECT * FROM clausula_extraida WHERE licitacion_codigo = ?",
+                        (contrato["codigo_licitacion"],),
+                    ).fetchall()
+                ]
         finally:
             con.close()
 
@@ -242,6 +252,7 @@ def crear_app(base: Path | None = None) -> FastAPI:
                 "c": contrato,
                 "licitacion": licitacion,
                 "garantias": garantias,
+                "clausulas": clausulas,
                 # Sin procedencia el dato no es defendible: se muestra siempre.
                 "procedencias": {k: v.value for k, v in PROCEDENCIAS.items()},
             },

@@ -11,6 +11,7 @@ explorar; esto garantiza que haya algo que mostrar.
 from __future__ import annotations
 
 import html
+import re
 import sqlite3
 from datetime import date, datetime
 from pathlib import Path
@@ -40,6 +41,14 @@ th{color:var(--suave);font-weight:600;font-size:.76rem;text-transform:uppercase}
 .pie{color:var(--suave);font-size:.8rem;margin-top:30px;
      border-top:1px solid var(--linea);padding-top:12px}
 """
+
+
+def _texto_plano(html_crudo: str) -> str:
+    """Texto legible de una ficha, como lo recibe la capa de inferencia."""
+    sin_scripts = re.sub(
+        r"<(script|style)[^>]*>.*?</\1>", "", html_crudo, flags=re.S | re.I
+    )
+    return re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", sin_scripts)))
 
 
 def _tabla(filas: list[dict[str, Any]], limite: int = 40) -> str:
