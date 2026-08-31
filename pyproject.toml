@@ -35,6 +35,10 @@ contratos = "contratos.cli:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+# El esquema viaja con el paquete: sin esto, un instalado no encuentra el .sql
+[tool.setuptools.package-data]
+contratos = ["*.sql"]
+
 [tool.ruff]
 line-length = 88
 target-version = "py311"
