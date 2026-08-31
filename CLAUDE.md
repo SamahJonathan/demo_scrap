@@ -68,16 +68,16 @@ especificación. Al iniciar cada sesión, relee /docs antes de proponer nada.
 
 ## Estado actual
 
-**Fase en curso:** Fase 2 — Diseño.
-**Cerradas:** Fase 0, Spike 0 y Fase 1, con sus gates cumplidos.
+**Fase en curso:** Fase 3 — Codificación, desde el Incremento 0.
+**Cerradas:** Fase 0, Spike 0, Fase 1 y Fase 2, con sus gates verificados.
 
 | Fase | Estado | Entregable |
 |---|---|---|
 | Fase 0 — Repositorio y contexto | ✅ Cerrada | `CLAUDE.md`, `.gitignore`, `.env.example`, README, LICENSE |
 | Spike 0 — Validación de supuesto | ✅ Cerrado | `docs/00-spike.md` |
 | Fase 1 — Análisis | ✅ Cerrada | `docs/01-analisis.md` |
-| Fase 2 — Diseño | ⏳ Pendiente | `docs/02-diseno.md`, `docs/03-plan-codificacion.md` |
-| Fase 3 — Codificación | ⏳ Pendiente | Incrementos 0 a 9 |
+| Fase 2 — Diseño | ✅ Cerrada | `docs/02-diseno.md`, `docs/03-plan-codificacion.md` |
+| Fase 3 — Codificación | 🟡 En curso | Incrementos 0 a 13 |
 | Fase 4 — Cierre y presentación | ⏳ Pendiente | Documentación final |
 
 **Eje de la demo, decidido:** ciclo de vida contractual. Vencimientos,
