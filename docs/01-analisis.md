@@ -220,10 +220,69 @@ Además elimina el problema del rezago: si se parte de una OC ya publicada, su
 licitación existe con certeza. Partiendo al revés, la mayoría de las
 licitaciones recientes aparecería sin ejecución por el rezago de 1 a 2 meses.
 
-### 3.6 Pendiente de investigar
-- Datasets de Datos Abiertos y publicación OCDS. Hay que evaluarlos en serio y
-  justificar el descarte: "¿por qué no usaste el bulk?" es pregunta probable en
-  la entrevista.
+### 3.6 OCDS — evaluado, y NO se descarta
+
+**OCDS** es el *Open Contracting Data Standard*: el estándar internacional
+abierto para publicar datos de compras públicas, mantenido por la Open
+Contracting Partnership. Modela el proceso en cinco etapas —planning, tender,
+award, **contract**, implementation— y compila la historia de cada proceso en un
+*record* con identificador estable (`ocid`).
+
+**VERIFICADO.** ChileCompra publica en OCDS 1.1:
+
+```
+https://apis.mercadopublico.cl/OCDS/data/record/<codigo>
+```
+
+Dos hechos que cambian el diseño:
+
+1. **No requiere ticket.** Responde HTTP 200 sin autenticación: **no consume el
+   cupo de 10.000 requests diarios.**
+2. **Trae datos que la API REST no expone.**
+
+| Dato | API REST | OCDS | Ficha web |
+|---|---|---|---|
+| Monto estimado | ✅ | ✅ | ✅ |
+| **Monto adjudicado** | ❌ | ✅ $441.600.000 | ❌ |
+| **Quiénes ofertaron** | solo el número | ✅ los 6, con RUT | ✅ |
+| **Proveedores adjudicados** | ❌ | ✅ los 3, con identificador | ✅ |
+| **Cronología del proceso** | fechas sueltas | ✅ 10 *releases* fechados | parcial |
+| Duración y unidad del contrato | ✅ | ❌ | ✅ |
+| Renovación, subcontratación | ✅ | ❌ | ✅ |
+| **Garantías** | ❌ | ❌ (0 menciones) | ✅ sección 8 |
+| Enlace con orden de compra | ✅ desde la OC | ❌ | ❌ |
+| Cupo de requests | consume | **no consume** | no consume |
+
+**Hallazgo clave:** OCDS entrega el **monto adjudicado** y **quiénes ofertaron y
+ganaron**, que la API REST no da en el detalle de la licitación. Para el eje de
+ciclo de vida es material: el contrato se firma por el monto adjudicado
+($441,6M), no por el estimado ($522,5M).
+
+**El hueco que define el proyecto.** El estándar tiene una etapa `contract`, y
+Chile **la deja vacía**: no existe el array `contracts` en el record. Publica
+hasta la adjudicación. Ese hueco es exactamente lo que este proyecto reconstruye,
+y el estándar internacional respalda que ahí debería haber algo.
+
+**Otras limitaciones medidas:**
+- Cero menciones de garantías o cauciones.
+- Sus `documents` apuntan a la misma URL `ViewAttachment.aspx` protegida por
+  reCAPTCHA. No abre esa puerta.
+- **No se encontró listado masivo por fecha.** `listaAnnoMes`, `fecha/ddmmaaaa` y
+  variantes devuelven 404. Se consulta por código, uno a uno.
+
+**Decisión: se usan las cuatro fuentes, cada una para lo que hace mejor.**
+
+| Capa | Fuente | Por qué |
+|---|---|---|
+| Descubrimiento | API REST por fecha | Única con recorrido temporal |
+| Ejecución y enlace | API REST de OC | `CodigoLicitacion` solo está ahí |
+| Enriquecimiento | **OCDS** | Monto adjudicado, oferentes, cronología, sin gastar cupo |
+| Garantías y cláusulas | Ficha web | Única fuente que las tiene |
+
+La respuesta a "¿por qué no usaste el bulk?" no es que lo descartamos: **lo
+usamos donde es superior, y documentamos dónde no alcanza.**
+
+### 3.7 Pendiente de investigar
 - Términos de uso de la plataforma.
 - Diccionario de datos completo de cada endpoint y significado de cada estado.
 
