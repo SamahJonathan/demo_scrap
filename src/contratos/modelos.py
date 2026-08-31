@@ -167,3 +167,122 @@ class Garantia(BaseModel):
 
     # Sin trazabilidad al origen el dato no es defendible.
     fragmento_origen: str = Field(min_length=1)
+
+
+class UnidadDuracion(StrEnum):
+    """Decodificado cruzando la API contra la seccion 7 de la ficha.
+
+    Solo dos valores estan confirmados. Cualquier otro queda DESCONOCIDO y NO
+    se adivina: un plazo mal interpretado corrompe la fecha de vencimiento, que
+    es el eje de la demo.
+    """
+
+    HORAS = "horas"
+    MESES = "meses"
+    DESCONOCIDO = "desconocido"
+
+
+#   1 -> 36 en la API, "36 Horas" en la ficha de SENAMA
+#   4 -> 24 en la API, "24 Meses" en la ficha de Puerto Montt (y 10 Meses en Mostazal)
+_UNIDADES = {1: UnidadDuracion.HORAS, 4: UnidadDuracion.MESES}
+
+
+def decodificar_unidad(codigo: object) -> UnidadDuracion:
+    if not isinstance(codigo, int | str):
+        return UnidadDuracion.DESCONOCIDO
+    try:
+        return _UNIDADES.get(int(codigo), UnidadDuracion.DESCONOCIDO)
+    except ValueError:
+        return UnidadDuracion.DESCONOCIDO
+
+
+class ItemAdjudicado(BaseModel):
+    """Un item de la licitacion, con el proveedor al que se le adjudico.
+
+    Es lo que permite atribuir el monto EXACTO a cada proveedor en vez de
+    prorratear. En 2678-1-LR25 el reparto real va de 19 a 167 millones; por
+    partes iguales daria 88,3 a cada uno, un numero que no existe.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    correlativo: int
+    descripcion: str = ""
+    proveedor_rut: str | None = None
+    cantidad: Decimal = Decimal(0)
+    monto_unitario: Decimal = Decimal(0)
+
+    @property
+    def monto(self) -> Decimal:
+        return self.cantidad * self.monto_unitario
+
+
+class Licitacion(BaseModel):
+    """El proceso. Solo existe para el 44% de las ordenes que lo tiene.
+
+    Guarda lo que pertenece al proceso y seria redundante replicar en cada
+    orden: si una licitacion origina cinco ordenes, hay UNA fila aca.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    codigo: str = Field(min_length=1)
+    nombre: str = ""
+
+    fecha_publicacion: date | None = None
+    fecha_adjudicacion: date | None = None
+
+    duracion_valor: int | None = None
+    duracion_unidad: UnidadDuracion = UnidadDuracion.DESCONOCIDO
+    es_renovable: bool = False
+
+    items: tuple[ItemAdjudicado, ...] = ()
+    url_acta: str | None = None
+
+    # De OCDS, que no consume cupo de requests.
+    monto_adjudicado_total: Decimal | None = None
+    n_oferentes: int | None = None
+
+    def monto_adjudicado_a(self, proveedor_rut: str) -> Decimal | None:
+        """Suma los items adjudicados a un RUT. Atribucion exacta, sin prorrateo."""
+        if not proveedor_rut:
+            return None
+        propios = [i for i in self.items if i.proveedor_rut == proveedor_rut]
+        return sum((i.monto for i in propios), Decimal(0)) if propios else None
+
+    @property
+    def monto_adjudicado_por_items(self) -> Decimal:
+        """Total segun los items. Debe cuadrar con el award.value de OCDS."""
+        return sum((i.monto for i in self.items), Decimal(0))
+
+    @classmethod
+    def desde_api(cls, crudo: dict[str, Any]) -> Licitacion:
+        fechas = crudo.get("Fechas") or {}
+        adj = crudo.get("Adjudicacion") or {}
+        items = []
+        for it in (crudo.get("Items") or {}).get("Listado") or []:
+            a = it.get("Adjudicacion") or {}
+            items.append(
+                ItemAdjudicado(
+                    correlativo=int(it.get("Correlativo") or 0),
+                    descripcion=it.get("Descripcion") or "",
+                    proveedor_rut=(a.get("RutProveedor") or None),
+                    cantidad=Decimal(str(a.get("Cantidad") or 0)),
+                    monto_unitario=Decimal(str(a.get("MontoUnitario") or 0)),
+                )
+            )
+        return cls(
+            codigo=crudo["CodigoExterno"],
+            nombre=crudo.get("Nombre") or "",
+            fecha_publicacion=_fecha(fechas.get("FechaPublicacion")),
+            fecha_adjudicacion=_fecha(fechas.get("FechaAdjudicacion")),
+            duracion_valor=int(crudo["TiempoDuracionContrato"])
+            if str(crudo.get("TiempoDuracionContrato") or "").strip().isdigit()
+            else None,
+            duracion_unidad=decodificar_unidad(
+                crudo.get("UnidadTiempoDuracionContrato")
+            ),
+            es_renovable=bool(int(crudo.get("EsRenovable") or 0)),
+            items=tuple(items),
+            url_acta=adj.get("UrlActa") or None,
+        )

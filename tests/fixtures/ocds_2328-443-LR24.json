@@ -1,0 +1,261 @@
+{
+ "uri": "https://api.mercadopublico.cl/APISOCDS/OCDS/record/2328-443-LR24",
+ "version": "1.1",
+ "extensions": [
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_budget_breakdown_extension/master/extension.json",
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_location_extension/master/extension.json",
+  "https://gitlab.com/dncp-opendata/ocds_planning_items_extension",
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_valueBreakdown_extension/refs/heads/master/extension.json",
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_organizationClassification_extension/master/extension.json",
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_partyDetails_scale_extension/master/extension.json",
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_enquiry_extension/master/extension.json",
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_bid_extension/master/extension.json",
+  "https://gitlab.com/dncp-opendata/ocds_statusdetails_extension/-/raw/master/extension.json",
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_techniques_extension/master/extension.json",
+  "https://chilecompracl.visualstudio.com/a6a3f587-5f23-42f6-9255-ac5852fae1e7/_apis/git/repositories/fb91c43b-011b-434b-901d-9d36ec50c586/items?path=%2Fextension.json&versionDescriptor%5BversionOptions%5D=0&versionDescriptor%5BversionType%5D=0&versionDescriptor%5Bversion%5D=master&resolveLfs=true&%24format=octetStream&api-version=5.0",
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_contract_suppliers_extension/master/extension.json"
+ ],
+ "publisher": {
+  "name": "Dirección de Compras y Contratación Pública"
+ },
+ "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+ "publishedDate": "2025-03-10T16:59:20Z",
+ "records": [
+  {
+   "ocid": "ocds-70d2nz-2328-443-LR24",
+   "releases": [
+    {
+     "date": "2024-12-18T11:44:17Z",
+     "tag": [
+      "tender",
+      "tenderUpdate"
+     ],
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/tender/2328-443-LR24#2e7f07c9-2328-443-LR24"
+    },
+    {
+     "date": "2025-03-10T16:59:20Z",
+     "tag": [
+      "tender",
+      "tenderUpdate"
+     ],
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/tender/2328-443-LR24#ed590222-2328-443-LR24"
+    },
+    {
+     "date": "2025-03-10T16:59:28Z",
+     "tag": [
+      "award"
+     ],
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/award/2328-443-LR24#12141629-9464517"
+    }
+   ],
+   "compiledRelease": {
+    "ocid": "ocds-70d2nz-2328-443-LR24",
+    "id": "61d100b0-2328-443-LR24",
+    "date": "2024-11-15T10:36:48Z",
+    "tag": [
+     "compiled"
+    ],
+    "initiationType": "tender",
+    "parties": [
+     {
+      "name": "I MUNICIPALIDAD DE PUERTO MONTT | Unidad de Adquisiciones Dirección de Educación",
+      "id": "CL-MP-3321",
+      "identifier": {
+       "id": "692201000",
+       "legalName": "I MUNICIPALIDAD DE PUERTO MONTT",
+       "scheme": "CL-RUT"
+      },
+      "address": {
+       "streetAddress": "Avda. Presidente Ibañez Nº600 4TO PISO",
+       "region": "Región de los Lagos ",
+       "countryName": "Chile"
+      },
+      "contactPoint": {
+       "name": "Ignacio  Alvarez Velasquez"
+      },
+      "roles": [
+       "procuringEntity",
+       "buyer"
+      ],
+      "additionalIdentifiers": [
+       {
+        "id": "3321",
+        "legalName": "I MUNICIPALIDAD DE PUERTO MONTT",
+        "scheme": "CL-MP",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Comprador/Unidad/3321"
+       }
+      ]
+     },
+     {
+      "name": "Claudio Rodrigo | C&J LTDA",
+      "id": "CL-MP-754890",
+      "identifier": {
+       "id": "762965771",
+       "legalName": "COMERCIALIZADORA DE COMBUSTIBLES C&J LIMITADA",
+       "scheme": "CL-RUT"
+      },
+      "address": {
+       "streetAddress": "CALETA ANAHUAC N° S/N",
+       "region": "Región de los Lagos ",
+       "countryName": "Chile"
+      },
+      "contactPoint": {
+       "name": "CLAUDIO RODRIGO SIERPE FIERRO"
+      },
+      "roles": [
+       "supplier",
+       "tenderer"
+      ],
+      "additionalIdentifiers": [
+       {
+        "id": "754890",
+        "legalName": "COMERCIALIZADORA DE COMBUSTIBLES C&J LIMITADA",
+        "scheme": "CL-MP",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Empresa/BuscarProveedor/754890"
+       }
+      ]
+     },
+     {
+      "name": "EMPRESA NACIONAL DE ENERGIA ENEX S.A. | EMPRESA NACIONAL DE ENERGIA ENEX SA",
+      "id": "CL-MP-646792",
+      "identifier": {
+       "id": "920110002",
+       "legalName": "EMPRESA NACIONAL DE ENERGIA ENEX S.A.",
+       "scheme": "CL-RUT"
+      },
+      "address": {
+       "streetAddress": "AV. DEL CONDOR SUR N° 520",
+       "region": "Región Metropolitana de Santiago",
+       "countryName": "Chile"
+      },
+      "contactPoint": {
+       "name": "OSCAR ANDRÉS CARVAJAL MORENO"
+      },
+      "roles": [
+       "tenderer"
+      ],
+      "additionalIdentifiers": [
+       {
+        "id": "646792",
+        "legalName": "EMPRESA NACIONAL DE ENERGIA ENEX S.A.",
+        "scheme": "CL-MP",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Empresa/BuscarProveedor/646792"
+       }
+      ]
+     }
+    ],
+    "buyer": {
+     "name": "I MUNICIPALIDAD DE PUERTO MONTT | Unidad de Adquisiciones Dirección de Educación",
+     "id": "CL-MP-3321"
+    },
+    "tender": {
+     "id": "2328-443-LR24",
+     "title": "LICITACION PÚBLICA E-822024 “CONTRATO SUMINISTRO DE PETROLEO POR 2 AÑOS PARA CALDERAS ESTABLECIMIENTOS PERTENECIENTES AL D.A.E.M. DE LA COMUNA DE PUERTO MONTT”",
+     "description": "La presente licitación tiene por objeto el “CONTRATO SUMINISTRO DE PETROLEO POR 2 AÑOS PARA CALDERAS ESTABLECIMIENTOS PERTENECIENTES AL D.A.E.M. DE LA COMUNA DE PUERTO MONTT”.",
+     "status": "complete",
+     "procuringEntity": {
+      "name": "I MUNICIPALIDAD DE PUERTO MONTT | Unidad de Adquisiciones Dirección de Educación",
+      "id": "CL-MP-3321"
+     },
+     "items": [
+      {
+       "id": "42436020",
+       "description": "Combustibles, lubricantes y anticorrosivos / Combustibles líquidos / Petróleo y derivados / Diesel",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Global"
+       },
+       "classification": {
+        "id": "15101505",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/15101505"
+       }
+      }
+     ],
+     "procurementMethod": "open",
+     "procurementMethodDetails": "Licitación Pública Mayor a 5000 (LR)",
+     "tenderPeriod": {
+      "startDate": "2024-11-15T10:36:48Z",
+      "endDate": "2024-12-16T15:00:00Z",
+      "durationInDays": 31
+     },
+     "awardPeriod": {
+      "startDate": "2024-12-16T15:30:00Z",
+      "endDate": "2025-02-03T17:00:00Z",
+      "durationInDays": 1
+     },
+     "hasEnquiries": true,
+     "enquiryPeriod": {
+      "startDate": "2024-11-15T12:00:00Z",
+      "endDate": "2024-11-23T15:00:00Z",
+      "durationInDays": 8
+     },
+     "tenderers": [
+      {
+       "name": "EMPRESA NACIONAL DE ENERGIA ENEX S.A. | EMPRESA NACIONAL DE ENERGIA ENEX SA",
+       "id": "CL-MP-646792"
+      },
+      {
+       "name": "Claudio Rodrigo | C&J LTDA",
+       "id": "CL-MP-754890"
+      }
+     ]
+    },
+    "awards": [
+     {
+      "id": "9464517",
+      "title": "LICITACION PÚBLICA E-822024 “CONTRATO SUMINISTRO DE PETROLEO POR 2 AÑOS PARA CALDERAS ESTABLECIMIENTOS PERTENECIENTES AL D.A.E.M. DE LA COMUNA DE PUERTO MONTT”",
+      "description": "La presente licitación tiene por objeto el “CONTRATO SUMINISTRO DE PETROLEO POR 2 AÑOS PARA CALDERAS ESTABLECIMIENTOS PERTENECIENTES AL D.A.E.M. DE LA COMUNA DE PUERTO MONTT”.",
+      "status": "active",
+      "date": "2025-03-10T16:59:15Z",
+      "value": {
+       "amount": 783.193,
+       "currency": "CLP"
+      },
+      "documents": [
+       {
+        "id": "1",
+        "documentType": "awardNotice",
+        "title": "Página documentos del proceso de contratación",
+        "description": "Todos los documentos relacionados al proceso de contratación",
+        "url": "http://www.mercadopublico.cl/Procurement/Modules/Attachment/ViewAttachment.aspx?enc=xinMubJwDtECvmOdcmVbsfw19sidmY0euzzwRCEwlvNhF%2fXRUPgjYryXDwhQbx7zj5NZX8vD9%2fZlFzZFkV2Or7weGyHJl5jFBwopK7x1enrMe%2bFjIl6UzbVgXun58qZHZunOOIkRYnO0IVBVclzAAJDIygVLlAYNJhuLKMdUIerHv%2fPhrinO%2fD6qDalwmJ8GmSHvtdChqpPLHUxb%2fpgpj4GlwR7Z4OWdp%2fIZnjkzlZABn4McQo5%2bOqgJUJGgmu%2bp2hqv0wPQR5qiUZiFuaQ72rN92wx1YD%2bkUzhuVVU3VD9DNpRX%2fh2o%2b4Fz46w7om2i",
+        "format": "text/html",
+        "language": "es"
+       }
+      ],
+      "suppliers": [
+       {
+        "name": "Claudio Rodrigo | C&J LTDA",
+        "id": "CL-MP-754890"
+       }
+      ],
+      "items": [
+       {
+        "id": "42436020",
+        "description": "CONTRATO SUMINISTRO DE PETROLEO POR 2 AÑOS PARA CALDERAS ESTABLECIMIENTOS PERTENECIENTES AL D.A.E.M. DE LA COMUNA DE PUERTO MONTT",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Global",
+         "value": {
+          "amount": 783.193,
+          "currency": "CLP"
+         }
+        },
+        "classification": {
+         "id": "15101505",
+         "scheme": "UNSPSC",
+         "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/15101505"
+        }
+       }
+      ]
+     }
+    ],
+    "language": "es"
+   }
+  }
+ ],
+ "packages": [
+  "https://api.mercadopublico.cl/APISOCDS/OCDS/allrelease/2328-443-LR24"
+ ],
+ "publicationPolicy": "http://api.mercadopublico.cl/APISOCDS/Utilidades/Politicas/Actualizacion"
+}

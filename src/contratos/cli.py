@@ -54,7 +54,63 @@ def construir_parser() -> argparse.ArgumentParser:
     t.add_argument("--codigo", required=True, metavar="1002-183-SE25")
     t.set_defaults(func=_cmd_detalle_oc)
 
+    # --- licitacion (incremento 5) -----------------------------------------
+    lic = subs.add_parser(
+        "licitacion",
+        help="detalle de una licitación, su OCDS y las garantías de su ficha",
+    )
+    lic.add_argument("--codigo", required=True, metavar="2678-1-LR25")
+    lic.set_defaults(func=_cmd_licitacion)
+
     return parser
+
+
+def _cmd_licitacion(args: argparse.Namespace) -> int:
+    from contratos.cliente import Cliente
+    from contratos.fuentes import api_licitacion, ocds
+    from contratos.fuentes.ficha_web import FichaIlegible, parsear_garantias
+
+    with Cliente() as c:
+        lic = api_licitacion.detalle(c, args.codigo)
+        o = ocds.consultar(c, args.codigo)
+
+        print(f"{lic.codigo}  {lic.nombre[:58]}")
+        print(
+            f"  publicación -> adjudicación : {lic.fecha_publicacion} a "
+            f"{lic.fecha_adjudicacion}"
+        )
+        print(
+            f"  duración                    : {lic.duracion_valor} "
+            f"{lic.duracion_unidad.value}   renovable: {lic.es_renovable}"
+        )
+        print(f"  monto estimado   (ocds)     : {o.monto_estimado}")
+        print(f"  monto adjudicado (ocds)     : {o.monto_adjudicado}")
+        print(f"  suma de ítems    (api)      : {lic.monto_adjudicado_por_items}")
+        cuadra = o.monto_adjudicado == lic.monto_adjudicado_por_items
+        print(f"  ¿cuadran las dos fuentes?   : {'SI' if cuadra else 'NO'}")
+        print(f"  oferentes        (ocds)     : {o.n_oferentes}")
+
+        ruts = sorted({i.proveedor_rut for i in lic.items if i.proveedor_rut})
+        if ruts:
+            print(f"  adjudicado a {len(ruts)} proveedor(es):")
+            for r in ruts:
+                print(f"     {r:<16} {lic.monto_adjudicado_a(r)}")
+
+        try:
+            html = api_licitacion.bajar_ficha(c, lic)
+            garantias = parsear_garantias(html, lic.codigo)
+            print(f"  garantías (ficha web)       : {len(garantias)}")
+            for g in garantias:
+                unidad = "%" if g.monto_es_porcentaje else (g.moneda or "")
+                print(
+                    f"     {g.tipo.value:<20} {g.monto_valor} {unidad:<12} "
+                    f"vence {g.fecha_vencimiento}"
+                )
+        except FichaIlegible as e:
+            print(f"  garantías: NO SE PUDIERON LEER -> {e}")
+
+        print(f"requests emitidos: {c.emitidos}  |  caché: {c.aciertos_cache}")
+    return 0
 
 
 def _cmd_detalle_oc(args: argparse.Namespace) -> int:

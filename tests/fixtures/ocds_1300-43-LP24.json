@@ -1,0 +1,1318 @@
+{
+ "uri": "https://api.mercadopublico.cl/APISOCDS/OCDS/record/1300-43-LP24",
+ "version": "1.1",
+ "extensions": [
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_budget_breakdown_extension/master/extension.json",
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_location_extension/master/extension.json",
+  "https://gitlab.com/dncp-opendata/ocds_planning_items_extension",
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_valueBreakdown_extension/refs/heads/master/extension.json",
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_organizationClassification_extension/master/extension.json",
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_partyDetails_scale_extension/master/extension.json",
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_enquiry_extension/master/extension.json",
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_bid_extension/master/extension.json",
+  "https://gitlab.com/dncp-opendata/ocds_statusdetails_extension/-/raw/master/extension.json",
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_techniques_extension/master/extension.json",
+  "https://chilecompracl.visualstudio.com/a6a3f587-5f23-42f6-9255-ac5852fae1e7/_apis/git/repositories/fb91c43b-011b-434b-901d-9d36ec50c586/items?path=%2Fextension.json&versionDescriptor%5BversionOptions%5D=0&versionDescriptor%5BversionType%5D=0&versionDescriptor%5Bversion%5D=master&resolveLfs=true&%24format=octetStream&api-version=5.0",
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_contract_suppliers_extension/master/extension.json"
+ ],
+ "publisher": {
+  "name": "Dirección de Compras y Contratación Pública"
+ },
+ "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+ "publishedDate": "2025-07-07T18:01:28Z",
+ "records": [
+  {
+   "ocid": "ocds-70d2nz-1300-43-LP24",
+   "releases": [
+    {
+     "date": "2024-08-07T11:11:38Z",
+     "tag": [
+      "tender"
+     ],
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/tender/1300-43-LP24#d70a05f8-1300-43-LP24"
+    },
+    {
+     "date": "2024-08-30T15:30:10Z",
+     "tag": [
+      "tender",
+      "tenderUpdate"
+     ],
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/tender/1300-43-LP24#c81afb4c-1300-43-LP24"
+    },
+    {
+     "date": "2025-01-27T16:42:15Z",
+     "tag": [
+      "tender",
+      "tenderUpdate"
+     ],
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/tender/1300-43-LP24#305edf69-1300-43-LP24"
+    },
+    {
+     "date": "2025-03-10T16:38:54Z",
+     "tag": [
+      "tender",
+      "tenderUpdate"
+     ],
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/tender/1300-43-LP24#460c89a2-1300-43-LP24"
+    },
+    {
+     "date": "2025-03-10T16:39:08Z",
+     "tag": [
+      "award"
+     ],
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/award/1300-43-LP24#cbf745c0-9408875"
+    },
+    {
+     "date": "2025-05-07T13:34:24Z",
+     "tag": [
+      "planning"
+     ],
+     "buyer": {
+      "name": "SERVICIO NACIONAL DEL ADULTO MAYOR | Servicio Nacional del Adulto Mayor",
+      "id": "CL-MP-2296"
+     },
+     "planning": {
+      "budget": {
+       "id": "0177c1c8-3882-4bf8-9526-e09fd3b62a04",
+       "description": "Multi-source budget, see budget breakdown for details.",
+       "amount": {
+        "amount": 286366005.0,
+        "currency": "CLP"
+       },
+       "budgetBreakdown": [
+        {
+         "id": "2296-10-PC25",
+         "description": "Sección de Administración Interna",
+         "amount": {
+          "amount": 286366005.0,
+          "currency": "CLP"
+         },
+         "period": {
+          "startDate": "2025-01-01T00:00:00Z",
+          "endDate": "2025-01-01T00:00:00Z"
+         }
+        }
+       ]
+      },
+      "items": [
+       {
+        "id": "4749264",
+        "description": "Servicio de aseo ",
+        "quantity": 15.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 19091067.0,
+          "currency": "CLP"
+         }
+        },
+        "deliveryAddress": {
+         "countryName": "Chile",
+         "locality": "Tarapacá"
+        },
+        "projectID": "2296-10-PC25"
+       }
+      ]
+     },
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/planning/1300-43-LP24#77a2da3a-9408875"
+    },
+    {
+     "date": "2026-02-10T17:01:46Z",
+     "tag": [
+      "planning"
+     ],
+     "buyer": {
+      "name": "SERVICIO NACIONAL DEL ADULTO MAYOR | Servicio Nacional del Adulto Mayor",
+      "id": "CL-MP-2296"
+     },
+     "planning": {
+      "budget": {
+       "id": "77bbf0df-b934-4147-943a-cc18b444ff3e",
+       "description": "Multi-source budget, see budget breakdown for details.",
+       "amount": {
+        "amount": 314266005.0,
+        "currency": "CLP"
+       },
+       "budgetBreakdown": [
+        {
+         "id": "2296-10-PC25",
+         "description": "Sección de Administración Interna",
+         "amount": {
+          "amount": 286366005.0,
+          "currency": "CLP"
+         },
+         "period": {
+          "startDate": "2025-01-01T00:00:00Z",
+          "endDate": "2025-01-01T00:00:00Z"
+         }
+        },
+        {
+         "id": "2296-15-PC26",
+         "description": "Envejecimiento Activo",
+         "amount": {
+          "amount": 27900000.0,
+          "currency": "CLP"
+         },
+         "period": {
+          "startDate": "2026-01-01T00:00:00Z",
+          "endDate": "2026-01-01T00:00:00Z"
+         }
+        }
+       ]
+      },
+      "items": [
+       {
+        "id": "4749264",
+        "description": "Servicio de aseo ",
+        "quantity": 15.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 19091067.0,
+          "currency": "CLP"
+         }
+        },
+        "deliveryAddress": {
+         "countryName": "Chile",
+         "locality": "Tarapacá"
+        },
+        "projectID": "2296-10-PC25"
+       },
+       {
+        "id": "5282812",
+        "description": "INI26-EACT-04 - SERVICIOS DE ASEO",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 27900000.0,
+          "currency": "CLP"
+         }
+        },
+        "deliveryAddress": {
+         "countryName": "Chile",
+         "locality": "Arica y Parinacota"
+        },
+        "projectID": "2296-15-PC26"
+       }
+      ]
+     },
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/planning/1300-43-LP24#d0b68d1c-9408875"
+    },
+    {
+     "date": "2026-02-11T17:17:50Z",
+     "tag": [
+      "planning"
+     ],
+     "buyer": {
+      "name": "SERVICIO NACIONAL DEL ADULTO MAYOR | Servicio Nacional del Adulto Mayor",
+      "id": "CL-MP-2296"
+     },
+     "planning": {
+      "budget": {
+       "id": "1bc918b1-a831-478d-b36a-eb503df081e7",
+       "description": "Multi-source budget, see budget breakdown for details.",
+       "amount": {
+        "amount": 314266005.0,
+        "currency": "CLP"
+       },
+       "budgetBreakdown": [
+        {
+         "id": "2296-15-PC26",
+         "description": "Envejecimiento Activo",
+         "amount": {
+          "amount": 27900000.0,
+          "currency": "CLP"
+         },
+         "period": {
+          "startDate": "2026-01-01T00:00:00Z",
+          "endDate": "2026-01-01T00:00:00Z"
+         }
+        },
+        {
+         "id": "2296-10-PC25",
+         "description": "Sección de Administración Interna",
+         "amount": {
+          "amount": 286366005.0,
+          "currency": "CLP"
+         },
+         "period": {
+          "startDate": "2025-01-01T00:00:00Z",
+          "endDate": "2025-01-01T00:00:00Z"
+         }
+        }
+       ]
+      },
+      "items": [
+       {
+        "id": "5282812",
+        "description": "INI26-EACT-04 - SERVICIOS DE ASEO",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 27900000.0,
+          "currency": "CLP"
+         }
+        },
+        "deliveryAddress": {
+         "countryName": "Chile",
+         "locality": "Arica y Parinacota"
+        },
+        "projectID": "2296-15-PC26"
+       },
+       {
+        "id": "4749264",
+        "description": "Servicio de aseo ",
+        "quantity": 15.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 19091067.0,
+          "currency": "CLP"
+         }
+        },
+        "deliveryAddress": {
+         "countryName": "Chile",
+         "locality": "Tarapacá"
+        },
+        "projectID": "2296-10-PC25"
+       }
+      ]
+     },
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/planning/1300-43-LP24#43a43ac9-9408875"
+    },
+    {
+     "date": "2026-03-06T19:56:07Z",
+     "tag": [
+      "planning"
+     ],
+     "buyer": {
+      "name": "SERVICIO NACIONAL DEL ADULTO MAYOR | Servicio Nacional del Adulto Mayor",
+      "id": "CL-MP-2296"
+     },
+     "planning": {
+      "budget": {
+       "id": "b3dfd38c-f8b6-4628-82a9-77c6a17efd67",
+       "description": "Multi-source budget, see budget breakdown for details.",
+       "amount": {
+        "amount": 314266005.0,
+        "currency": "CLP"
+       },
+       "budgetBreakdown": [
+        {
+         "id": "2296-10-PC25",
+         "description": "Sección de Administración Interna",
+         "amount": {
+          "amount": 286366005.0,
+          "currency": "CLP"
+         },
+         "period": {
+          "startDate": "2025-01-01T00:00:00Z",
+          "endDate": "2025-01-01T00:00:00Z"
+         }
+        },
+        {
+         "id": "2296-15-PC26",
+         "description": "Envejecimiento Activo",
+         "amount": {
+          "amount": 27900000.0,
+          "currency": "CLP"
+         },
+         "period": {
+          "startDate": "2026-01-01T00:00:00Z",
+          "endDate": "2026-01-01T00:00:00Z"
+         }
+        }
+       ]
+      },
+      "items": [
+       {
+        "id": "4749264",
+        "description": "Servicio de aseo ",
+        "quantity": 15.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 19091067.0,
+          "currency": "CLP"
+         }
+        },
+        "deliveryAddress": {
+         "countryName": "Chile",
+         "locality": "Tarapacá"
+        },
+        "projectID": "2296-10-PC25"
+       },
+       {
+        "id": "5282812",
+        "description": "INI26-EACT-04 - SERVICIOS DE ASEO",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 27900000.0,
+          "currency": "CLP"
+         }
+        },
+        "deliveryAddress": {
+         "countryName": "Chile",
+         "locality": "Arica y Parinacota"
+        },
+        "projectID": "2296-15-PC26"
+       }
+      ]
+     },
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/planning/1300-43-LP24#d10f79b7-9408875"
+    },
+    {
+     "date": "2026-04-03T14:53:38Z",
+     "tag": [
+      "planning"
+     ],
+     "buyer": {
+      "name": "SERVICIO NACIONAL DEL ADULTO MAYOR | Servicio Nacional del Adulto Mayor",
+      "id": "CL-MP-2296"
+     },
+     "planning": {
+      "budget": {
+       "id": "c8f2b223-e9eb-40a9-a913-297f19667431",
+       "description": "Multi-source budget, see budget breakdown for details.",
+       "amount": {
+        "amount": 314266005.0,
+        "currency": "CLP"
+       },
+       "budgetBreakdown": [
+        {
+         "id": "2296-15-PC26",
+         "description": "Envejecimiento Activo",
+         "amount": {
+          "amount": 27900000.0,
+          "currency": "CLP"
+         },
+         "period": {
+          "startDate": "2026-01-01T00:00:00Z",
+          "endDate": "2026-01-01T00:00:00Z"
+         }
+        },
+        {
+         "id": "2296-10-PC25",
+         "description": "Sección de Administración Interna",
+         "amount": {
+          "amount": 286366005.0,
+          "currency": "CLP"
+         },
+         "period": {
+          "startDate": "2025-01-01T00:00:00Z",
+          "endDate": "2025-01-01T00:00:00Z"
+         }
+        }
+       ]
+      },
+      "items": [
+       {
+        "id": "5282812",
+        "description": "INI26-EACT-04 - SERVICIOS DE ASEO",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 27900000.0,
+          "currency": "CLP"
+         }
+        },
+        "deliveryAddress": {
+         "countryName": "Chile",
+         "locality": "Arica y Parinacota"
+        },
+        "projectID": "2296-15-PC26"
+       },
+       {
+        "id": "4749264",
+        "description": "Servicio de aseo ",
+        "quantity": 15.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 19091067.0,
+          "currency": "CLP"
+         }
+        },
+        "deliveryAddress": {
+         "countryName": "Chile",
+         "locality": "Tarapacá"
+        },
+        "projectID": "2296-10-PC25"
+       }
+      ]
+     },
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/planning/1300-43-LP24#5bbe425e-9408875"
+    },
+    {
+     "date": "2026-04-23T16:32:29Z",
+     "tag": [
+      "planning"
+     ],
+     "buyer": {
+      "name": "SERVICIO NACIONAL DEL ADULTO MAYOR | Servicio Nacional del Adulto Mayor",
+      "id": "CL-MP-2296"
+     },
+     "planning": {
+      "budget": {
+       "id": "8d5ba987-36ae-4c27-b177-ed1acb54ec94",
+       "description": "Multi-source budget, see budget breakdown for details.",
+       "amount": {
+        "amount": 314266005.0,
+        "currency": "CLP"
+       },
+       "budgetBreakdown": [
+        {
+         "id": "2296-10-PC25",
+         "description": "Sección de Administración Interna",
+         "amount": {
+          "amount": 286366005.0,
+          "currency": "CLP"
+         },
+         "period": {
+          "startDate": "2025-01-01T00:00:00Z",
+          "endDate": "2025-01-01T00:00:00Z"
+         }
+        },
+        {
+         "id": "2296-15-PC26",
+         "description": "Envejecimiento Activo",
+         "amount": {
+          "amount": 27900000.0,
+          "currency": "CLP"
+         },
+         "period": {
+          "startDate": "2026-01-01T00:00:00Z",
+          "endDate": "2026-01-01T00:00:00Z"
+         }
+        }
+       ]
+      },
+      "items": [
+       {
+        "id": "4749264",
+        "description": "Servicio de aseo ",
+        "quantity": 15.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 19091067.0,
+          "currency": "CLP"
+         }
+        },
+        "deliveryAddress": {
+         "countryName": "Chile",
+         "locality": "Tarapacá"
+        },
+        "projectID": "2296-10-PC25"
+       },
+       {
+        "id": "5282812",
+        "description": "INI26-EACT-04 - SERVICIOS DE ASEO",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 27900000.0,
+          "currency": "CLP"
+         }
+        },
+        "deliveryAddress": {
+         "countryName": "Chile",
+         "locality": "Arica y Parinacota"
+        },
+        "projectID": "2296-15-PC26"
+       }
+      ]
+     },
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/planning/1300-43-LP24#9e4e476d-9408875"
+    },
+    {
+     "date": "2026-04-28T16:51:53Z",
+     "tag": [
+      "planning"
+     ],
+     "buyer": {
+      "name": "SERVICIO NACIONAL DEL ADULTO MAYOR | Servicio Nacional del Adulto Mayor",
+      "id": "CL-MP-2296"
+     },
+     "planning": {
+      "budget": {
+       "id": "a436f0d9-cb07-47bb-b355-0941391ca2bc",
+       "description": "Multi-source budget, see budget breakdown for details.",
+       "amount": {
+        "amount": 314266005.0,
+        "currency": "CLP"
+       },
+       "budgetBreakdown": [
+        {
+         "id": "2296-15-PC26",
+         "description": "Envejecimiento Activo",
+         "amount": {
+          "amount": 27900000.0,
+          "currency": "CLP"
+         },
+         "period": {
+          "startDate": "2026-01-01T00:00:00Z",
+          "endDate": "2026-01-01T00:00:00Z"
+         }
+        },
+        {
+         "id": "2296-10-PC25",
+         "description": "Sección de Administración Interna",
+         "amount": {
+          "amount": 286366005.0,
+          "currency": "CLP"
+         },
+         "period": {
+          "startDate": "2025-01-01T00:00:00Z",
+          "endDate": "2025-01-01T00:00:00Z"
+         }
+        }
+       ]
+      },
+      "items": [
+       {
+        "id": "5282812",
+        "description": "INI26-EACT-04 - SERVICIOS DE ASEO",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 27900000.0,
+          "currency": "CLP"
+         }
+        },
+        "deliveryAddress": {
+         "countryName": "Chile",
+         "locality": "Arica y Parinacota"
+        },
+        "projectID": "2296-15-PC26"
+       },
+       {
+        "id": "4749264",
+        "description": "Servicio de aseo ",
+        "quantity": 15.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 19091067.0,
+          "currency": "CLP"
+         }
+        },
+        "deliveryAddress": {
+         "countryName": "Chile",
+         "locality": "Tarapacá"
+        },
+        "projectID": "2296-10-PC25"
+       }
+      ]
+     },
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/planning/1300-43-LP24#4b74b12c-9408875"
+    },
+    {
+     "date": "2026-05-08T16:22:31Z",
+     "tag": [
+      "planning"
+     ],
+     "buyer": {
+      "name": "SERVICIO NACIONAL DEL ADULTO MAYOR | Servicio Nacional del Adulto Mayor",
+      "id": "CL-MP-2296"
+     },
+     "planning": {
+      "budget": {
+       "id": "ce7495d7-cdb8-4694-a415-499a5fe5c635",
+       "description": "Multi-source budget, see budget breakdown for details.",
+       "amount": {
+        "amount": 314266005.0,
+        "currency": "CLP"
+       },
+       "budgetBreakdown": [
+        {
+         "id": "2296-10-PC25",
+         "description": "Sección de Administración Interna",
+         "amount": {
+          "amount": 286366005.0,
+          "currency": "CLP"
+         },
+         "period": {
+          "startDate": "2025-01-01T00:00:00Z",
+          "endDate": "2025-01-01T00:00:00Z"
+         }
+        },
+        {
+         "id": "2296-15-PC26",
+         "description": "Envejecimiento Activo",
+         "amount": {
+          "amount": 27900000.0,
+          "currency": "CLP"
+         },
+         "period": {
+          "startDate": "2026-01-01T00:00:00Z",
+          "endDate": "2026-01-01T00:00:00Z"
+         }
+        }
+       ]
+      },
+      "items": [
+       {
+        "id": "4749264",
+        "description": "Servicio de aseo ",
+        "quantity": 15.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 19091067.0,
+          "currency": "CLP"
+         }
+        },
+        "deliveryAddress": {
+         "countryName": "Chile",
+         "locality": "Tarapacá"
+        },
+        "projectID": "2296-10-PC25"
+       },
+       {
+        "id": "5282812",
+        "description": "INI26-EACT-04 - SERVICIOS DE ASEO",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 27900000.0,
+          "currency": "CLP"
+         }
+        },
+        "deliveryAddress": {
+         "countryName": "Chile",
+         "locality": "Arica y Parinacota"
+        },
+        "projectID": "2296-15-PC26"
+       }
+      ]
+     },
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/planning/1300-43-LP24#d7c0184b-9408875"
+    },
+    {
+     "date": "2026-07-03T16:16:39Z",
+     "tag": [
+      "planning"
+     ],
+     "buyer": {
+      "name": "SERVICIO NACIONAL DEL ADULTO MAYOR | Servicio Nacional del Adulto Mayor",
+      "id": "CL-MP-2296"
+     },
+     "planning": {
+      "budget": {
+       "id": "4ed70d97-ae06-45ac-9d4e-f652a96e5cd9",
+       "description": "Multi-source budget, see budget breakdown for details.",
+       "amount": {
+        "amount": 314266005.0,
+        "currency": "CLP"
+       },
+       "budgetBreakdown": [
+        {
+         "id": "2296-15-PC26",
+         "description": "Envejecimiento Activo",
+         "amount": {
+          "amount": 27900000.0,
+          "currency": "CLP"
+         },
+         "period": {
+          "startDate": "2026-01-01T00:00:00Z",
+          "endDate": "2026-01-01T00:00:00Z"
+         }
+        },
+        {
+         "id": "2296-10-PC25",
+         "description": "Sección de Administración Interna",
+         "amount": {
+          "amount": 286366005.0,
+          "currency": "CLP"
+         },
+         "period": {
+          "startDate": "2025-01-01T00:00:00Z",
+          "endDate": "2025-01-01T00:00:00Z"
+         }
+        }
+       ]
+      },
+      "items": [
+       {
+        "id": "5282812",
+        "description": "INI26-EACT-04 - SERVICIOS DE ASEO",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 27900000.0,
+          "currency": "CLP"
+         }
+        },
+        "deliveryAddress": {
+         "countryName": "Chile",
+         "locality": "Arica y Parinacota"
+        },
+        "projectID": "2296-15-PC26"
+       },
+       {
+        "id": "4749264",
+        "description": "Servicio de aseo ",
+        "quantity": 15.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 19091067.0,
+          "currency": "CLP"
+         }
+        },
+        "deliveryAddress": {
+         "countryName": "Chile",
+         "locality": "Tarapacá"
+        },
+        "projectID": "2296-10-PC25"
+       }
+      ]
+     },
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/planning/1300-43-LP24#d2d10a4e-9408875"
+    },
+    {
+     "date": "2026-08-11T17:03:05Z",
+     "tag": [
+      "planning"
+     ],
+     "buyer": {
+      "name": "SERVICIO NACIONAL DEL ADULTO MAYOR | Servicio Nacional del Adulto Mayor",
+      "id": "CL-MP-2296"
+     },
+     "planning": {
+      "budget": {
+       "id": "be208ee2-6858-4aec-8666-c2f2242ed8f0",
+       "description": "Multi-source budget, see budget breakdown for details.",
+       "amount": {
+        "amount": 314266005.0,
+        "currency": "CLP"
+       },
+       "budgetBreakdown": [
+        {
+         "id": "2296-10-PC25",
+         "description": "Sección de Administración Interna",
+         "amount": {
+          "amount": 286366005.0,
+          "currency": "CLP"
+         },
+         "period": {
+          "startDate": "2025-01-01T00:00:00Z",
+          "endDate": "2025-01-01T00:00:00Z"
+         }
+        },
+        {
+         "id": "2296-15-PC26",
+         "description": "Envejecimiento Activo",
+         "amount": {
+          "amount": 27900000.0,
+          "currency": "CLP"
+         },
+         "period": {
+          "startDate": "2026-01-01T00:00:00Z",
+          "endDate": "2026-01-01T00:00:00Z"
+         }
+        }
+       ]
+      },
+      "items": [
+       {
+        "id": "4749264",
+        "description": "Servicio de aseo ",
+        "quantity": 15.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 19091067.0,
+          "currency": "CLP"
+         }
+        },
+        "deliveryAddress": {
+         "countryName": "Chile",
+         "locality": "Tarapacá"
+        },
+        "projectID": "2296-10-PC25"
+       },
+       {
+        "id": "5282812",
+        "description": "INI26-EACT-04 - SERVICIOS DE ASEO",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 27900000.0,
+          "currency": "CLP"
+         }
+        },
+        "deliveryAddress": {
+         "countryName": "Chile",
+         "locality": "Arica y Parinacota"
+        },
+        "projectID": "2296-15-PC26"
+       }
+      ]
+     },
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/planning/1300-43-LP24#74131f04-9408875"
+    },
+    {
+     "date": "2025-04-07T00:00:00Z",
+     "tag": [
+      "contract"
+     ],
+     "buyer": {
+      "name": "SERVICIO NACIONAL DEL ADULTO MAYOR | Servicio Nacional del Adulto Mayor",
+      "id": "CL-MP-2296"
+     },
+     "contracts": [
+      {
+       "id": "2296-21-CL25",
+       "awardID": "9408875",
+       "title": "Servicio de Aseo Casa Encuentro Arica R258",
+       "description": "CONTRATACIÓN SERVICIOS DE ASEO Y MANTENCIONES CASA PARA UN ENVEJECER ACTIVO DE LA COMUNA DE ARICA, REGIÓN DE ARICA Y PARINACOTA\nE1O2RT9",
+       "status": "active",
+       "period": {
+        "startDate": "2025-04-07T00:00:00Z",
+        "endDate": "2028-04-07T00:00:00Z",
+        "durationInDays": 1096
+       },
+       "value": {
+        "amount": 1900000.0,
+        "currency": "CLP"
+       },
+       "items": [
+        {
+         "id": "709756",
+         "description": "Servicios de limpieza de edificios",
+         "quantity": 1.0,
+         "unit": {
+          "name": "Unidad",
+          "value": {
+           "amount": 1900000.0,
+           "currency": "CLP"
+          }
+         },
+         "classification": {
+          "id": "76111501",
+          "scheme": "UNSPSC",
+          "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/76111501"
+         }
+        }
+       ],
+       "dateCreated": "2025-08-04T11:16:59Z",
+       "suppliers": [
+        {
+         "name": "S&M GREEN PRO SERVICIOS INTEGRALES SPA|S&M GREEN PRO",
+         "id": "1188681"
+        }
+       ]
+      }
+     ],
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/contract/1300-43-LP24#a4471da7-9408875"
+    }
+   ],
+   "compiledRelease": {
+    "ocid": "ocds-70d2nz-1300-43-LP24",
+    "id": "e7e4d095-1300-43-LP24",
+    "date": "2024-08-07T11:11:35Z",
+    "tag": [
+     "compiled"
+    ],
+    "initiationType": "tender",
+    "parties": [
+     {
+      "name": "SERVICIO NACIONAL DEL ADULTO MAYOR | Servicio Nacional del Adulto Mayor",
+      "id": "CL-MP-2296",
+      "identifier": {
+       "id": "619610008",
+       "legalName": "SERVICIO NACIONAL DEL ADULTO MAYOR",
+       "scheme": "CL-RUT"
+      },
+      "address": {
+       "streetAddress": "Catedral N°1575, Oficina 21, Santiago",
+       "region": "Región de Arica y Parinacota",
+       "countryName": "Chile"
+      },
+      "contactPoint": {
+       "name": "Fabián Hernán Herrera Mejías"
+      },
+      "roles": [
+       "procuringEntity",
+       "buyer"
+      ],
+      "additionalIdentifiers": [
+       {
+        "id": "2296",
+        "legalName": "SERVICIO NACIONAL DEL ADULTO MAYOR",
+        "scheme": "CL-MP",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Comprador/Unidad/2296"
+       }
+      ]
+     },
+     {
+      "name": "CARLOS ARTURO PALMA VILLAGRÁN | Carlos Arturo",
+      "id": "CL-MP-1060556",
+      "identifier": {
+       "id": "52904676",
+       "legalName": "CARLOS ARTURO PALMA VILLAGRAN",
+       "scheme": "CL-RUT"
+      },
+      "address": {
+       "streetAddress": "MEDIO ORIENTE 831 OF 605 VERGARA N° No hay Dato",
+       "region": "Región de Valparaíso ",
+       "countryName": "Chile"
+      },
+      "contactPoint": {
+       "name": "CARLOS ARTURO PALMA VILLAGRÁN"
+      },
+      "roles": [
+       "tenderer"
+      ],
+      "additionalIdentifiers": [
+       {
+        "id": "1060556",
+        "legalName": "CARLOS ARTURO PALMA VILLAGRAN",
+        "scheme": "CL-MP",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Empresa/BuscarProveedor/1060556"
+       }
+      ]
+     },
+     {
+      "name": "ELMER DEL ROSARIO | ELMER DEL ROSARIO",
+      "id": "CL-MP-914495",
+      "identifier": {
+       "id": "765224349",
+       "legalName": "SOCIEDAD COMERCIAL Y DE SERV. M&E LTDA",
+       "scheme": "CL-RUT"
+      },
+      "address": {
+       "streetAddress": "COLON 650  OF 142",
+       "region": "Región de Arica y Parinacota"
+      },
+      "contactPoint": {
+       "name": "ELMER DEL ROSARIO BRAZ HUANCA"
+      },
+      "roles": [
+       "tenderer"
+      ],
+      "additionalIdentifiers": [
+       {
+        "id": "914495",
+        "legalName": "SOCIEDAD COMERCIAL Y DE SERV. M&E LTDA",
+        "scheme": "CL-MP",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Empresa/BuscarProveedor/914495"
+       }
+      ]
+     },
+     {
+      "name": "L&D EIRL | L&D EIRL",
+      "id": "CL-MP-1070059",
+      "identifier": {
+       "id": "768279071",
+       "legalName": "SERVICIOS DE LIMPIEZA Y DESINFECCIÓN INDUSTRIAL LU",
+       "scheme": "CL-RUT"
+      },
+      "address": {
+       "streetAddress": "Baquedano 635 local 29 Cosmocentro ",
+       "region": "Región de Arica y Parinacota",
+       "countryName": "Chile"
+      },
+      "contactPoint": {
+       "name": "Luis Ernesto   Guzmán Loyola"
+      },
+      "roles": [
+       "tenderer"
+      ],
+      "additionalIdentifiers": [
+       {
+        "id": "1070059",
+        "legalName": "SERVICIOS DE LIMPIEZA Y DESINFECCIÓN INDUSTRIAL LU",
+        "scheme": "CL-MP",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Empresa/BuscarProveedor/1070059"
+       }
+      ]
+     },
+     {
+      "name": "S&M GREEN PRO SERVICIOS INTEGRALES SPA | S&M GREEN PRO",
+      "id": "CL-MP-1188681",
+      "identifier": {
+       "id": "773649456",
+       "legalName": "S&M GREEN PRO SERVICIOS INTEGRALES SPA",
+       "scheme": "CL-RUT"
+      },
+      "address": {
+       "streetAddress": "CARLOS VILLARROEL T 426",
+       "region": "Región de Arica y Parinacota",
+       "countryName": "Chile"
+      },
+      "contactPoint": {
+       "name": "Carolina Antonella Martínez Bruzzo"
+      },
+      "roles": [
+       "supplier",
+       "tenderer"
+      ],
+      "additionalIdentifiers": [
+       {
+        "id": "1188681",
+        "legalName": "S&M GREEN PRO SERVICIOS INTEGRALES SPA",
+        "scheme": "CL-MP",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Empresa/BuscarProveedor/1188681"
+       }
+      ],
+      "details": {
+       "scale": "small",
+       "classifications": [
+        {
+         "Id": "NPDM",
+         "Scheme": "CL-DCCP-SM",
+         "Description": "Negocio propiedad de mujeres",
+         "Uri": "https://api.mercadopublico.cl/APISOCDS/Utilidades/Politicas/Actualizacion#SelloMujer"
+        }
+       ]
+      }
+     }
+    ],
+    "buyer": {
+     "name": "SERVICIO NACIONAL DEL ADULTO MAYOR | Servicio Nacional del Adulto Mayor",
+     "id": "CL-MP-2296"
+    },
+    "planning": {
+     "budget": {
+      "id": "be208ee2-6858-4aec-8666-c2f2242ed8f0",
+      "description": "Multi-source budget, see budget breakdown for details.",
+      "amount": {
+       "amount": 314266005.0,
+       "currency": "CLP"
+      },
+      "budgetBreakdown": [
+       {
+        "id": "2296-10-PC25",
+        "description": "Sección de Administración Interna",
+        "amount": {
+         "amount": 286366005.0,
+         "currency": "CLP"
+        },
+        "period": {
+         "startDate": "2025-01-01T00:00:00Z",
+         "endDate": "2025-01-01T00:00:00Z"
+        }
+       },
+       {
+        "id": "2296-15-PC26",
+        "description": "Envejecimiento Activo",
+        "amount": {
+         "amount": 27900000.0,
+         "currency": "CLP"
+        },
+        "period": {
+         "startDate": "2026-01-01T00:00:00Z",
+         "endDate": "2026-01-01T00:00:00Z"
+        }
+       }
+      ]
+     },
+     "items": [
+      {
+       "id": "4749264",
+       "description": "Servicio de aseo ",
+       "quantity": 15.0,
+       "unit": {
+        "name": "Unidad",
+        "value": {
+         "amount": 19091067.0,
+         "currency": "CLP"
+        }
+       },
+       "deliveryAddress": {
+        "countryName": "Chile",
+        "locality": "Tarapacá"
+       },
+       "projectID": "2296-10-PC25"
+      },
+      {
+       "id": "5282812",
+       "description": "INI26-EACT-04 - SERVICIOS DE ASEO",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad",
+        "value": {
+         "amount": 27900000.0,
+         "currency": "CLP"
+        }
+       },
+       "deliveryAddress": {
+        "countryName": "Chile",
+        "locality": "Arica y Parinacota"
+       },
+       "projectID": "2296-15-PC26"
+      }
+     ]
+    },
+    "tender": {
+     "id": "1300-43-LP24",
+     "title": "Servicio de Aseo Casa Encuentro Arica R258",
+     "description": "CONTRATACIÓN SERVICIOS DE ASEO Y MANTENCIONES CASA PARA UN ENVEJECER ACTIVO DE LA COMUNA DE ARICA, REGIÓN DE ARICA Y PARINACOTA\r\nE1O2RT9",
+     "status": "complete",
+     "procuringEntity": {
+      "name": "SERVICIO NACIONAL DEL ADULTO MAYOR | Servicio Nacional del Adulto Mayor",
+      "id": "CL-MP-2296"
+     },
+     "items": [
+      {
+       "id": "42192800",
+       "description": "Servicios de limpieza industrial / Servicios de limpieza / Servicios de limpieza de edificios y oficinas en general / Servicios de limpieza de edificios",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad"
+       },
+       "classification": {
+        "id": "76111501",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/76111501"
+       }
+      }
+     ],
+     "procurementMethod": "open",
+     "procurementMethodDetails": "Licitación Pública Mayor 1000 UTM (LP)",
+     "tenderPeriod": {
+      "startDate": "2024-08-07T11:11:35Z",
+      "endDate": "2024-08-30T15:30:00Z",
+      "durationInDays": 1
+     },
+     "awardPeriod": {
+      "startDate": "2024-08-30T15:35:00Z",
+      "endDate": "2024-09-25T15:35:00Z",
+      "durationInDays": 1
+     },
+     "hasEnquiries": false,
+     "enquiryPeriod": {
+      "startDate": "2024-08-12T09:00:00Z",
+      "endDate": "2024-08-26T16:00:00Z",
+      "durationInDays": 14
+     },
+     "tenderers": [
+      {
+       "name": "CARLOS ARTURO PALMA VILLAGRÁN | Carlos Arturo",
+       "id": "CL-MP-1060556"
+      },
+      {
+       "name": "L&D EIRL | L&D EIRL",
+       "id": "CL-MP-1070059"
+      },
+      {
+       "name": "S&M GREEN PRO SERVICIOS INTEGRALES SPA | S&M GREEN PRO",
+       "id": "CL-MP-1188681"
+      },
+      {
+       "name": "ELMER DEL ROSARIO | ELMER DEL ROSARIO",
+       "id": "CL-MP-914495"
+      }
+     ]
+    },
+    "awards": [
+     {
+      "id": "9408875",
+      "title": "Servicio de Aseo Casa Encuentro Arica R258",
+      "description": "CONTRATACIÓN SERVICIOS DE ASEO Y MANTENCIONES CASA PARA UN ENVEJECER ACTIVO DE LA COMUNA DE ARICA, REGIÓN DE ARICA Y PARINACOTA\r\nE1O2RT9",
+      "status": "active",
+      "date": "2025-03-10T16:38:51Z",
+      "value": {
+       "amount": 1900000.0,
+       "currency": "CLP"
+      },
+      "documents": [
+       {
+        "id": "1",
+        "documentType": "awardNotice",
+        "title": "Página documentos del proceso de contratación",
+        "description": "Todos los documentos relacionados al proceso de contratación",
+        "url": "http://www.mercadopublico.cl/Procurement/Modules/Attachment/ViewAttachment.aspx?enc=pqqzy6SXGnnxRn7rkMZBE%2baex5QYtgNWEblfbtMNezobWuluM8n%2f7H1N6F5ORlVqRJuisO5%2fPHKhhUvWDhkVCuNEuxB6PT2wH6vtTF8kn78CQpK0PWyQDY7JPxebRaFnL9putZXBsUkA7uwy%2b2u07Gyox%2bYPUB2xMFXSjmPo51p%2bhnuOTBHDb%2beej%2bjiMxQVAzYvenf73yHUiEoM%2b01WBecY3yV8aa13o6kPgueews0QjacZtOyEYBPRofmSAutMRz4Xxce6DiI%2foLyn8iSFw9qTTpTtxauYjiNEsVIiLLrsCdI22Bv7sf7YbpTDGsXu",
+        "format": "text/html",
+        "language": "es"
+       }
+      ],
+      "suppliers": [
+       {
+        "name": "S&M GREEN PRO SERVICIOS INTEGRALES SPA | S&M GREEN PRO",
+        "id": "CL-MP-1188681"
+       }
+      ],
+      "items": [
+       {
+        "id": "42192800",
+        "description": "CONTRATACIÓN DE SERVICIOS DE ASEO Y\r\nMANTENCIÓN DE LA CASA DE ENCUENTRO DE ADULTO MAYOR PARA LA COMUNA DE ARICA",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 1900000.0,
+          "currency": "CLP"
+         }
+        },
+        "classification": {
+         "id": "76111501",
+         "scheme": "UNSPSC",
+         "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/76111501"
+        }
+       }
+      ]
+     }
+    ],
+    "contracts": [
+     {
+      "id": "2296-21-CL25",
+      "awardID": "9408875",
+      "title": "Servicio de Aseo Casa Encuentro Arica R258",
+      "description": "CONTRATACIÓN SERVICIOS DE ASEO Y MANTENCIONES CASA PARA UN ENVEJECER ACTIVO DE LA COMUNA DE ARICA, REGIÓN DE ARICA Y PARINACOTA\nE1O2RT9",
+      "status": "active",
+      "period": {
+       "startDate": "2025-04-07T00:00:00Z",
+       "endDate": "2028-04-07T00:00:00Z",
+       "durationInDays": 1096
+      },
+      "value": {
+       "amount": 1900000.0,
+       "currency": "CLP"
+      },
+      "items": [
+       {
+        "id": "709756",
+        "description": "Servicios de limpieza de edificios",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 1900000.0,
+          "currency": "CLP"
+         }
+        },
+        "classification": {
+         "id": "76111501",
+         "scheme": "UNSPSC",
+         "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/76111501"
+        }
+       }
+      ],
+      "dateCreated": "2025-08-04T11:16:59Z"
+     }
+    ],
+    "language": "es"
+   }
+  }
+ ],
+ "packages": [
+  "https://api.mercadopublico.cl/APISOCDS/OCDS/allrelease/1300-43-LP24",
+  "https://api.mercadopublico.cl/APISOCDS/OCDS/planning/1300-43-LP24",
+  "https://api.mercadopublico.cl/APISOCDS/OCDS/contract/1300-43-LP24"
+ ],
+ "publicationPolicy": "http://api.mercadopublico.cl/APISOCDS/Utilidades/Politicas/Actualizacion"
+}
