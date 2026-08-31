@@ -461,6 +461,13 @@ python -m contratos.cli correr --fecha 2025-05-15 --limite 20
 python -m contratos.cli correr --fecha 2025-05-15 --limite 20
 sqlite3 data/contratos.db "SELECT COUNT(*) FROM contrato;"
 ```
+**Medido: 10 tests en 2,4 s**, bajo el presupuesto de 25. La doble corrida sobre
+150 contratos deja 150 filas, no 300.
+
+**Los montos van como TEXT.** SQLite no tiene DECIMAL y REAL introduce error de
+coma flotante en pesos. Un test guarda 783,193 —el litro de diesel de Puerto
+Montt— y exige recuperarlo exacto.
+
 Salida esperada: `20` después de la segunda corrida, no `40`. La segunda corrida
 además reporta `requests emitidos: 0` porque todo sale de caché.
 
