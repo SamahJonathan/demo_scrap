@@ -325,8 +325,12 @@ responde trata del Registro de Proveedores, no del consumo de datos. La licencia
 CC0 del OCDS es la declaración más específica encontrada.
 
 ### 3.8 Pendiente de investigar
-- Términos de uso de la plataforma.
-- Diccionario de datos completo de cada endpoint y significado de cada estado.
+
+- Diccionario de datos completo de cada endpoint y significado de cada
+  `CodigoEstado`. Se decodificaron solo los valores encontrados en la muestra.
+- Resto del enum `UnidadTiempoDuracionContrato`: solo `1` (horas) y `4` (meses)
+  están confirmados.
+- Si OCDS expone algún listado por fecha bajo otra ruta no probada.
 
 ---
 
