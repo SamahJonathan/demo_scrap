@@ -1,0 +1,1307 @@
+{
+ "uri": "https://api.mercadopublico.cl/APISOCDS/OCDS/record/2678-1-LR25",
+ "version": "1.1",
+ "extensions": [
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_budget_breakdown_extension/master/extension.json",
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_location_extension/master/extension.json",
+  "https://gitlab.com/dncp-opendata/ocds_planning_items_extension",
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_valueBreakdown_extension/refs/heads/master/extension.json",
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_organizationClassification_extension/master/extension.json",
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_partyDetails_scale_extension/master/extension.json",
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_enquiry_extension/master/extension.json",
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_bid_extension/master/extension.json",
+  "https://gitlab.com/dncp-opendata/ocds_statusdetails_extension/-/raw/master/extension.json",
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_techniques_extension/master/extension.json",
+  "https://chilecompracl.visualstudio.com/a6a3f587-5f23-42f6-9255-ac5852fae1e7/_apis/git/repositories/fb91c43b-011b-434b-901d-9d36ec50c586/items?path=%2Fextension.json&versionDescriptor%5BversionOptions%5D=0&versionDescriptor%5BversionType%5D=0&versionDescriptor%5Bversion%5D=master&resolveLfs=true&%24format=octetStream&api-version=5.0",
+  "https://raw.githubusercontent.com/open-contracting-extensions/ocds_contract_suppliers_extension/master/extension.json"
+ ],
+ "publisher": {
+  "name": "Dirección de Compras y Contratación Pública"
+ },
+ "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+ "publishedDate": "2025-03-10T18:56:11Z",
+ "records": [
+  {
+   "ocid": "ocds-70d2nz-2678-1-LR25",
+   "releases": [
+    {
+     "date": "2025-01-24T16:14:57Z",
+     "tag": [
+      "tender"
+     ],
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/tender/2678-1-LR25#fa807731-2678-1-LR25"
+    },
+    {
+     "date": "2025-02-04T16:27:00Z",
+     "tag": [
+      "tender"
+     ],
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/tender/2678-1-LR25#ef3414e0-2678-1-LR25"
+    },
+    {
+     "date": "2025-02-04T16:28:29Z",
+     "tag": [
+      "tender"
+     ],
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/tender/2678-1-LR25#2439deaa-2678-1-LR25"
+    },
+    {
+     "date": "2025-02-24T14:58:06Z",
+     "tag": [
+      "tender"
+     ],
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/tender/2678-1-LR25#71ce1859-2678-1-LR25"
+    },
+    {
+     "date": "2025-02-24T16:00:04Z",
+     "tag": [
+      "tender",
+      "tenderUpdate"
+     ],
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/tender/2678-1-LR25#67f7b0c3-2678-1-LR25"
+    },
+    {
+     "date": "2025-02-26T10:32:41Z",
+     "tag": [
+      "tender",
+      "tenderUpdate"
+     ],
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/tender/2678-1-LR25#da5db761-2678-1-LR25"
+    },
+    {
+     "date": "2025-03-10T18:56:11Z",
+     "tag": [
+      "tender",
+      "tenderUpdate"
+     ],
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/tender/2678-1-LR25#1a6cc6bc-2678-1-LR25"
+    },
+    {
+     "date": "2025-03-10T18:56:19Z",
+     "tag": [
+      "award"
+     ],
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/award/2678-1-LR25#7fc9e492-9490014"
+    },
+    {
+     "date": "2025-03-11T13:46:18Z",
+     "tag": [
+      "planning"
+     ],
+     "buyer": {
+      "name": "I MUNICIPALIDAD DE MOSTAZAL | I MUNICIPALIDAD DE MOSTAZAL",
+      "id": "CL-MP-3667"
+     },
+     "planning": {
+      "budget": {
+       "id": "c46a433a-21d5-4e1a-9962-7410a150c8d6",
+       "description": "Multi-source budget, see budget breakdown for details.",
+       "amount": {
+        "amount": 33000000.0,
+        "currency": "CLP"
+       },
+       "budgetBreakdown": [
+        {
+         "id": "3667-17-PC25",
+         "description": "SALIDAS PEDAGÓGICAS - CULTURALES DE LOS ESTABLECIMIENTOS EDUCACIONALES DE LA COMUNA DE MOSTAZAL.",
+         "amount": {
+          "amount": 15000000.0,
+          "currency": "CLP"
+         },
+         "period": {
+          "startDate": "2025-05-01T00:00:00Z",
+          "endDate": "2025-05-01T00:00:00Z"
+         }
+        },
+        {
+         "id": "3667-33-PC25",
+         "description": "PROYECTO EXTRAESCOLAR DEL DEPARTAMENTO DE EDUCACIÓN DE MOSTAZAL",
+         "amount": {
+          "amount": 18000000.0,
+          "currency": "CLP"
+         },
+         "period": {
+          "startDate": "2025-05-01T00:00:00Z",
+          "endDate": "2025-05-01T00:00:00Z"
+         }
+        }
+       ]
+      },
+      "items": [
+       {
+        "id": "4670916",
+        "description": "SUMINISTRO DE TRANSPORTE PARA SALIDAS PEDAGÓGICAS",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 15000000.0,
+          "currency": "CLP"
+         }
+        },
+        "deliveryAddress": {
+         "countryName": "Chile",
+         "locality": "Libertador General Bernardo O'Higgins"
+        },
+        "projectID": "3667-17-PC25"
+       },
+       {
+        "id": "4723716",
+        "description": "SERVICIO DE TRANSPORTE PARA EXTRAESCOLAR",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 18000000.0,
+          "currency": "CLP"
+         }
+        },
+        "deliveryAddress": {
+         "countryName": "Chile",
+         "locality": "Libertador General Bernardo O'Higgins"
+        },
+        "projectID": "3667-33-PC25"
+       }
+      ]
+     },
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/planning/2678-1-LR25#371328b5-9490014"
+    },
+    {
+     "date": "2025-03-12T14:11:03Z",
+     "tag": [
+      "planning"
+     ],
+     "buyer": {
+      "name": "I MUNICIPALIDAD DE MOSTAZAL | I MUNICIPALIDAD DE MOSTAZAL",
+      "id": "CL-MP-3667"
+     },
+     "planning": {
+      "budget": {
+       "id": "772a1f38-c755-4b7d-ae3f-4b1c859c365e",
+       "description": "Multi-source budget, see budget breakdown for details.",
+       "amount": {
+        "amount": 33000000.0,
+        "currency": "CLP"
+       },
+       "budgetBreakdown": [
+        {
+         "id": "3667-33-PC25",
+         "description": "PROYECTO EXTRAESCOLAR DEL DEPARTAMENTO DE EDUCACIÓN DE MOSTAZAL",
+         "amount": {
+          "amount": 18000000.0,
+          "currency": "CLP"
+         },
+         "period": {
+          "startDate": "2025-05-01T00:00:00Z",
+          "endDate": "2025-05-01T00:00:00Z"
+         }
+        },
+        {
+         "id": "3667-17-PC25",
+         "description": "SALIDAS PEDAGÓGICAS - CULTURALES DE LOS ESTABLECIMIENTOS EDUCACIONALES DE LA COMUNA DE MOSTAZAL.",
+         "amount": {
+          "amount": 15000000.0,
+          "currency": "CLP"
+         },
+         "period": {
+          "startDate": "2025-05-01T00:00:00Z",
+          "endDate": "2025-05-01T00:00:00Z"
+         }
+        }
+       ]
+      },
+      "items": [
+       {
+        "id": "4723716",
+        "description": "SERVICIO DE TRANSPORTE PARA EXTRAESCOLAR",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 18000000.0,
+          "currency": "CLP"
+         }
+        },
+        "deliveryAddress": {
+         "countryName": "Chile",
+         "locality": "Libertador General Bernardo O'Higgins"
+        },
+        "projectID": "3667-33-PC25"
+       },
+       {
+        "id": "4670916",
+        "description": "SUMINISTRO DE TRANSPORTE PARA SALIDAS PEDAGÓGICAS",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 15000000.0,
+          "currency": "CLP"
+         }
+        },
+        "deliveryAddress": {
+         "countryName": "Chile",
+         "locality": "Libertador General Bernardo O'Higgins"
+        },
+        "projectID": "3667-17-PC25"
+       }
+      ]
+     },
+     "url": "https://api.mercadopublico.cl/APISOCDS/OCDS/planning/2678-1-LR25#e45dcb15-9490014"
+    }
+   ],
+   "compiledRelease": {
+    "ocid": "ocds-70d2nz-2678-1-LR25",
+    "id": "a929d024-2678-1-LR25",
+    "date": "2025-01-24T16:14:00Z",
+    "tag": [
+     "compiled"
+    ],
+    "initiationType": "tender",
+    "parties": [
+     {
+      "name": "I MUNICIPALIDAD DE MOSTAZAL | I MUNICIPALIDAD DE MOSTAZAL",
+      "id": "CL-MP-3667",
+      "identifier": {
+       "id": "690805006",
+       "legalName": "I MUNICIPALIDAD DE MOSTAZAL",
+       "scheme": "CL-RUT"
+      },
+      "address": {
+       "streetAddress": "DAEM MOSTAZAL Calle Riquelme 65. Esquina de referencia:  San Guillermo con Riquelme",
+       "region": "Región del Libertador General Bernardo O´Higgins",
+       "countryName": "Chile"
+      },
+      "contactPoint": {
+       "name": "Carmen Gloria Soto Poblete"
+      },
+      "roles": [
+       "procuringEntity",
+       "buyer"
+      ],
+      "additionalIdentifiers": [
+       {
+        "id": "3667",
+        "legalName": "I MUNICIPALIDAD DE MOSTAZAL",
+        "scheme": "CL-MP",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Comprador/Unidad/3667"
+       }
+      ]
+     },
+     {
+      "name": "CARLOS REMIGIO ANTIGUEN VEGA | carlos remigio",
+      "id": "CL-MP-877742",
+      "identifier": {
+       "id": "102005953",
+       "legalName": "CARLOS REMIGIO ANTIGUEN VEGA",
+       "scheme": "CL-RUT"
+      },
+      "address": {
+       "streetAddress": "JOSE COLL GARAU N° 55",
+       "region": "Región del Libertador General Bernardo O´Higgins"
+      },
+      "contactPoint": {
+       "name": "carlos remigio antiguen vega"
+      },
+      "roles": [
+       "supplier",
+       "tenderer"
+      ],
+      "additionalIdentifiers": [
+       {
+        "id": "877742",
+        "legalName": "CARLOS REMIGIO ANTIGUEN VEGA",
+        "scheme": "CL-MP",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Empresa/BuscarProveedor/877742"
+       }
+      ]
+     },
+     {
+      "name": "FABIÁN ALBERTO GÁRATE CARO | fabian alberto",
+      "id": "CL-MP-1113062",
+      "identifier": {
+       "id": "131257260",
+       "legalName": "FABIÁN ALBERTO GÁRATE CARO",
+       "scheme": "CL-RUT"
+      },
+      "address": {
+       "streetAddress": "pasaje A n15 villa violeta parra  angostura",
+       "region": "Región del Libertador General Bernardo O´Higgins",
+       "countryName": "Chile"
+      },
+      "contactPoint": {
+       "name": "fabian alberto garate caro"
+      },
+      "roles": [
+       "tenderer"
+      ],
+      "additionalIdentifiers": [
+       {
+        "id": "1113062",
+        "legalName": "FABIÁN ALBERTO GÁRATE CARO",
+        "scheme": "CL-MP",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Empresa/BuscarProveedor/1113062"
+       }
+      ]
+     },
+     {
+      "name": "JUANA LUZ GONZÁLEZ ARAYA | Juana Luz",
+      "id": "CL-MP-1022120",
+      "identifier": {
+       "id": "111754780",
+       "legalName": "JUANA LUZ GONZÁLEZ ARAYA",
+       "scheme": "CL-RUT"
+      },
+      "address": {
+       "streetAddress": "Villa Santa Luisa, numero 10",
+       "region": "Región del Libertador General Bernardo O´Higgins",
+       "countryName": "Chile"
+      },
+      "contactPoint": {
+       "name": "JUANA LUZ GONZÁLEZ ARAYA"
+      },
+      "roles": [
+       "supplier",
+       "tenderer"
+      ],
+      "additionalIdentifiers": [
+       {
+        "id": "1022120",
+        "legalName": "JUANA LUZ GONZÁLEZ ARAYA",
+        "scheme": "CL-MP",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Empresa/BuscarProveedor/1022120"
+       }
+      ]
+     },
+     {
+      "name": "MARGARITA DEL CARMEN MORALES TRUJILLO | Margarita  Del Carmen",
+      "id": "CL-MP-844257",
+      "identifier": {
+       "id": "100478110",
+       "legalName": "MARGARITA DEL CARMEN MORALES TRUJILLO",
+       "scheme": "CL-RUT"
+      },
+      "address": {
+       "streetAddress": "Central 74",
+       "region": "Región del Libertador General Bernardo O´Higgins"
+      },
+      "contactPoint": {
+       "name": "Margarita  Del Carme Morales Trujillo"
+      },
+      "roles": [
+       "supplier",
+       "tenderer"
+      ],
+      "additionalIdentifiers": [
+       {
+        "id": "844257",
+        "legalName": "MARGARITA DEL CARMEN MORALES TRUJILLO",
+        "scheme": "CL-MP",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Empresa/BuscarProveedor/844257"
+       }
+      ]
+     },
+     {
+      "name": "ROBERTO ALFONSO SANTIBÁÑEZ ACEITUNO | rogemar",
+      "id": "CL-MP-158271",
+      "identifier": {
+       "id": "11756584K",
+       "legalName": "ROBERTO ALFONSO SANTIBÁÑEZ ACEITUNO",
+       "scheme": "CL-RUT"
+      },
+      "address": {
+       "streetAddress": "San Guillermo Nº 621",
+       "region": "Región del Libertador General Bernardo O´Higgins",
+       "countryName": "Chile"
+      },
+      "contactPoint": {
+       "name": "Roberto Santibañez Aceituno  "
+      },
+      "roles": [
+       "supplier",
+       "tenderer"
+      ],
+      "additionalIdentifiers": [
+       {
+        "id": "158271",
+        "legalName": "ROBERTO ALFONSO SANTIBÁÑEZ ACEITUNO",
+        "scheme": "CL-MP",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Empresa/BuscarProveedor/158271"
+       }
+      ]
+     },
+     {
+      "name": "Sociedad de Transporte Jiménez Hermanos Ltda. | Sociedad de Transporte Jiménez Hermanos Ltda.",
+      "id": "CL-MP-955388",
+      "identifier": {
+       "id": "760369799",
+       "legalName": "Sociedad de Transporte Jimenez Hermanos Ltda.",
+       "scheme": "CL-RUT"
+      },
+      "address": {
+       "streetAddress": "Arturo Prat 230",
+       "region": "Región del Libertador General Bernardo O´Higgins"
+      },
+      "contactPoint": {
+       "name": "Angel Emilio Jiménez Blazquez"
+      },
+      "roles": [
+       "supplier",
+       "tenderer"
+      ],
+      "additionalIdentifiers": [
+       {
+        "id": "955388",
+        "legalName": "Sociedad de Transporte Jimenez Hermanos Ltda.",
+        "scheme": "CL-MP",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Empresa/BuscarProveedor/955388"
+       }
+      ]
+     }
+    ],
+    "buyer": {
+     "name": "I MUNICIPALIDAD DE MOSTAZAL | I MUNICIPALIDAD DE MOSTAZAL",
+     "id": "CL-MP-3667"
+    },
+    "planning": {
+     "budget": {
+      "id": "772a1f38-c755-4b7d-ae3f-4b1c859c365e",
+      "description": "Multi-source budget, see budget breakdown for details.",
+      "amount": {
+       "amount": 33000000.0,
+       "currency": "CLP"
+      },
+      "budgetBreakdown": [
+       {
+        "id": "3667-33-PC25",
+        "description": "PROYECTO EXTRAESCOLAR DEL DEPARTAMENTO DE EDUCACIÓN DE MOSTAZAL",
+        "amount": {
+         "amount": 18000000.0,
+         "currency": "CLP"
+        },
+        "period": {
+         "startDate": "2025-05-01T00:00:00Z",
+         "endDate": "2025-05-01T00:00:00Z"
+        }
+       },
+       {
+        "id": "3667-17-PC25",
+        "description": "SALIDAS PEDAGÓGICAS - CULTURALES DE LOS ESTABLECIMIENTOS EDUCACIONALES DE LA COMUNA DE MOSTAZAL.",
+        "amount": {
+         "amount": 15000000.0,
+         "currency": "CLP"
+        },
+        "period": {
+         "startDate": "2025-05-01T00:00:00Z",
+         "endDate": "2025-05-01T00:00:00Z"
+        }
+       }
+      ]
+     },
+     "items": [
+      {
+       "id": "4723716",
+       "description": "SERVICIO DE TRANSPORTE PARA EXTRAESCOLAR",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad",
+        "value": {
+         "amount": 18000000.0,
+         "currency": "CLP"
+        }
+       },
+       "deliveryAddress": {
+        "countryName": "Chile",
+        "locality": "Libertador General Bernardo O'Higgins"
+       },
+       "projectID": "3667-33-PC25"
+      },
+      {
+       "id": "4670916",
+       "description": "SUMINISTRO DE TRANSPORTE PARA SALIDAS PEDAGÓGICAS",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad",
+        "value": {
+         "amount": 15000000.0,
+         "currency": "CLP"
+        }
+       },
+       "deliveryAddress": {
+        "countryName": "Chile",
+        "locality": "Libertador General Bernardo O'Higgins"
+       },
+       "projectID": "3667-17-PC25"
+      }
+     ]
+    },
+    "tender": {
+     "id": "2678-1-LR25",
+     "title": "SERVICIO ACERCAMIENTO DE TRANSPORTE ESCOLAR 2025",
+     "description": "ES NECESARIO CONTRATAR EL SERVICIO DE TRANSPORTE ESCOLAR DE ACERCAMIENTO PARA LOS ESTUDIANTES DE LOS ESTABLECIMIENTOS EDUCACIONALES DE LA COMUNA DE MOSTAZAL PARA EL AÑO  ESCOLAR 2025.",
+     "status": "complete",
+     "value": {
+      "amount": 522500000.0,
+      "currency": "CLP"
+     },
+     "procuringEntity": {
+      "name": "I MUNICIPALIDAD DE MOSTAZAL | I MUNICIPALIDAD DE MOSTAZAL",
+      "id": "CL-MP-3667"
+     },
+     "items": [
+      {
+       "id": "42558451",
+       "description": "Servicios de transporte, almacenaje y correo / Transporte de pasajeros / Transporte de pasajeros por carretera / Servicios de autobuses contratados",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad"
+       },
+       "classification": {
+        "id": "78111803",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+       }
+      },
+      {
+       "id": "42558452",
+       "description": "Servicios de transporte, almacenaje y correo / Transporte de pasajeros / Transporte de pasajeros por carretera / Servicios de autobuses contratados",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad"
+       },
+       "classification": {
+        "id": "78111803",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+       }
+      },
+      {
+       "id": "42558453",
+       "description": "Servicios de transporte, almacenaje y correo / Transporte de pasajeros / Transporte de pasajeros por carretera / Servicios de autobuses contratados",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad"
+       },
+       "classification": {
+        "id": "78111803",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+       }
+      },
+      {
+       "id": "42558454",
+       "description": "Servicios de transporte, almacenaje y correo / Transporte de pasajeros / Transporte de pasajeros por carretera / Servicios de autobuses contratados",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad"
+       },
+       "classification": {
+        "id": "78111803",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+       }
+      },
+      {
+       "id": "42558455",
+       "description": "Servicios de transporte, almacenaje y correo / Transporte de pasajeros / Transporte de pasajeros por carretera / Servicios de autobuses contratados",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad"
+       },
+       "classification": {
+        "id": "78111803",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+       }
+      },
+      {
+       "id": "42558456",
+       "description": "Servicios de transporte, almacenaje y correo / Transporte de pasajeros / Transporte de pasajeros por carretera / Servicios de autobuses contratados",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad"
+       },
+       "classification": {
+        "id": "78111803",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+       }
+      },
+      {
+       "id": "42558457",
+       "description": "Servicios de transporte, almacenaje y correo / Transporte de pasajeros / Transporte de pasajeros por carretera / Servicios de autobuses contratados",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad"
+       },
+       "classification": {
+        "id": "78111803",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+       }
+      },
+      {
+       "id": "42558458",
+       "description": "Servicios de transporte, almacenaje y correo / Transporte de pasajeros / Transporte de pasajeros por carretera / Servicios de autobuses contratados",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad"
+       },
+       "classification": {
+        "id": "78111803",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+       }
+      },
+      {
+       "id": "42558459",
+       "description": "Servicios de transporte, almacenaje y correo / Transporte de pasajeros / Transporte de pasajeros por carretera / Servicios de autobuses contratados",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad"
+       },
+       "classification": {
+        "id": "78111803",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+       }
+      },
+      {
+       "id": "42558460",
+       "description": "Servicios de transporte, almacenaje y correo / Transporte de pasajeros / Transporte de pasajeros por carretera / Servicios de autobuses contratados",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad"
+       },
+       "classification": {
+        "id": "78111803",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+       }
+      },
+      {
+       "id": "42558461",
+       "description": "Servicios de transporte, almacenaje y correo / Transporte de pasajeros / Transporte de pasajeros por carretera / Servicios de autobuses contratados",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad"
+       },
+       "classification": {
+        "id": "78111803",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+       }
+      },
+      {
+       "id": "42558462",
+       "description": "Servicios de transporte, almacenaje y correo / Transporte de pasajeros / Transporte de pasajeros por carretera / Servicios de autobuses contratados",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad"
+       },
+       "classification": {
+        "id": "78111803",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+       }
+      },
+      {
+       "id": "42558463",
+       "description": "Servicios de transporte, almacenaje y correo / Transporte de pasajeros / Transporte de pasajeros por carretera / Servicios de autobuses contratados",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad"
+       },
+       "classification": {
+        "id": "78111803",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+       }
+      },
+      {
+       "id": "42558464",
+       "description": "Servicios de transporte, almacenaje y correo / Transporte de pasajeros / Transporte de pasajeros por carretera / Servicios de autobuses contratados",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad"
+       },
+       "classification": {
+        "id": "78111803",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+       }
+      },
+      {
+       "id": "42558465",
+       "description": "Servicios de transporte, almacenaje y correo / Transporte de pasajeros / Transporte de pasajeros por carretera / Servicios de autobuses contratados",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad"
+       },
+       "classification": {
+        "id": "78111803",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+       }
+      },
+      {
+       "id": "42558466",
+       "description": "Servicios de transporte, almacenaje y correo / Transporte de pasajeros / Transporte de pasajeros por carretera / Servicios de autobuses contratados",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad"
+       },
+       "classification": {
+        "id": "78111803",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+       }
+      },
+      {
+       "id": "42558467",
+       "description": "Servicios de transporte, almacenaje y correo / Transporte de pasajeros / Transporte de pasajeros por carretera / Servicios de autobuses contratados",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad"
+       },
+       "classification": {
+        "id": "78111803",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+       }
+      },
+      {
+       "id": "42558468",
+       "description": "Servicios de transporte, almacenaje y correo / Transporte de pasajeros / Transporte de pasajeros por carretera / Servicios de autobuses contratados",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad"
+       },
+       "classification": {
+        "id": "78111803",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+       }
+      },
+      {
+       "id": "42558469",
+       "description": "Servicios de transporte, almacenaje y correo / Transporte de pasajeros / Transporte de pasajeros por carretera / Servicios de autobuses contratados",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad"
+       },
+       "classification": {
+        "id": "78111803",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+       }
+      },
+      {
+       "id": "42558470",
+       "description": "Servicios de transporte, almacenaje y correo / Transporte de pasajeros / Transporte de pasajeros por carretera / Servicios de autobuses contratados",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad"
+       },
+       "classification": {
+        "id": "78111803",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+       }
+      },
+      {
+       "id": "42558471",
+       "description": "Servicios de transporte, almacenaje y correo / Transporte de pasajeros / Transporte de pasajeros por carretera / Servicios de autobuses contratados",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad"
+       },
+       "classification": {
+        "id": "78111803",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+       }
+      },
+      {
+       "id": "42558472",
+       "description": "Servicios de transporte, almacenaje y correo / Transporte de pasajeros / Transporte de pasajeros por carretera / Servicios de autobuses contratados",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad"
+       },
+       "classification": {
+        "id": "78111803",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+       }
+      },
+      {
+       "id": "42558473",
+       "description": "Servicios de transporte, almacenaje y correo / Transporte de pasajeros / Transporte de pasajeros por carretera / Servicios de autobuses contratados",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad"
+       },
+       "classification": {
+        "id": "78111803",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+       }
+      },
+      {
+       "id": "42558474",
+       "description": "Servicios de transporte, almacenaje y correo / Transporte de pasajeros / Transporte de pasajeros por carretera / Servicios de autobuses contratados",
+       "quantity": 1.0,
+       "unit": {
+        "name": "Unidad"
+       },
+       "classification": {
+        "id": "78111803",
+        "scheme": "UNSPSC",
+        "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+       }
+      }
+     ],
+     "procurementMethod": "open",
+     "procurementMethodDetails": "Licitación Pública Mayor a 5000 (LR)",
+     "tenderPeriod": {
+      "startDate": "2025-01-24T16:14:00Z",
+      "endDate": "2025-02-24T16:00:00Z",
+      "durationInDays": 31
+     },
+     "awardPeriod": {
+      "startDate": "2025-02-24T16:12:00Z",
+      "endDate": "2025-02-27T15:00:00Z",
+      "durationInDays": 1
+     },
+     "hasEnquiries": true,
+     "enquiryPeriod": {
+      "startDate": "2025-01-24T17:30:00Z",
+      "endDate": "2025-01-30T19:21:00Z",
+      "durationInDays": 6
+     },
+     "tenderers": [
+      {
+       "name": "JUANA LUZ GONZÁLEZ ARAYA | Juana Luz",
+       "id": "CL-MP-1022120"
+      },
+      {
+       "name": "FABIÁN ALBERTO GÁRATE CARO | fabian alberto",
+       "id": "CL-MP-1113062"
+      },
+      {
+       "name": "ROBERTO ALFONSO SANTIBÁÑEZ ACEITUNO | rogemar",
+       "id": "CL-MP-158271"
+      },
+      {
+       "name": "MARGARITA DEL CARMEN MORALES TRUJILLO | Margarita  Del Carmen",
+       "id": "CL-MP-844257"
+      },
+      {
+       "name": "CARLOS REMIGIO ANTIGUEN VEGA | carlos remigio",
+       "id": "CL-MP-877742"
+      },
+      {
+       "name": "Sociedad de Transporte Jiménez Hermanos Ltda. | Sociedad de Transporte Jiménez Hermanos Ltda.",
+       "id": "CL-MP-955388"
+      }
+     ]
+    },
+    "awards": [
+     {
+      "id": "9490014",
+      "title": "SERVICIO ACERCAMIENTO DE TRANSPORTE ESCOLAR 2025",
+      "description": "ES NECESARIO CONTRATAR EL SERVICIO DE TRANSPORTE ESCOLAR DE ACERCAMIENTO PARA LOS ESTUDIANTES DE LOS ESTABLECIMIENTOS EDUCACIONALES DE LA COMUNA DE MOSTAZAL PARA EL AÑO  ESCOLAR 2025.",
+      "status": "active",
+      "date": "2025-03-10T18:56:05Z",
+      "value": {
+       "amount": 441600000.0,
+       "currency": "CLP"
+      },
+      "documents": [
+       {
+        "id": "1",
+        "documentType": "awardNotice",
+        "title": "Página documentos del proceso de contratación",
+        "description": "Todos los documentos relacionados al proceso de contratación",
+        "url": "http://www.mercadopublico.cl/Procurement/Modules/Attachment/ViewAttachment.aspx?enc=YucRcFVIJy613sdSYZP6pOM5HK2EGBDVb5d%2foAl8%2fwiJlWbpa5E5js5MMtMFx3uPXJfQ4VuUinbgFm2PadOd%2fppMAn3HraKHI9ncbpdjpB124vfvF%2bbff%2bji7qpjQOvrP2IA7fNzfsZK2ykYOac8AdgtcuLtNWlSLBddlOoI8npOcDGIIJtZQ3JeJTP7fTsw3qVFE42QpwEvIVfJ%2bl1GUndkpM2DdrgM8mGT0e3Gf0n8LxXa6p02RsxjSKl8GMWnPkHvcZftNPKZUEer5fBz%2fBKPqoPJpZEXIw%2bFzvWoDMeFuQi8xRwEzDx%2fa6Pd5stk",
+        "format": "text/html",
+        "language": "es"
+       }
+      ],
+      "suppliers": [
+       {
+        "name": "JUANA LUZ GONZÁLEZ ARAYA | Juana Luz",
+        "id": "CL-MP-1022120"
+       },
+       {
+        "name": "ROBERTO ALFONSO SANTIBÁÑEZ ACEITUNO | rogemar",
+        "id": "CL-MP-158271"
+       },
+       {
+        "name": "MARGARITA DEL CARMEN MORALES TRUJILLO | Margarita  Del Carmen",
+        "id": "CL-MP-844257"
+       },
+       {
+        "name": "CARLOS REMIGIO ANTIGUEN VEGA | carlos remigio",
+        "id": "CL-MP-877742"
+       },
+       {
+        "name": "Sociedad de Transporte Jiménez Hermanos Ltda. | Sociedad de Transporte Jiménez Hermanos Ltda.",
+        "id": "CL-MP-955388"
+       }
+      ],
+      "items": [
+       {
+        "id": "42558451",
+        "description": "LINEA 1 - SERVICIO DE BUS PARA 44 PASAJETOS (RECORRIDO DETALLADO EN LAS BASES DE LICITACIÓN - ESPECIFICACIONES TÉCNICAS) -ESCUELA GABRIELA MISTRAL, COLEGIO ANDRÉS BELLO, LICEO ALBERTO HURTADO Y COLEGIO CAMINO REAL.",
+        "quantity": 10.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 2450000.0,
+          "currency": "CLP"
+         }
+        },
+        "classification": {
+         "id": "78111803",
+         "scheme": "UNSPSC",
+         "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+        }
+       },
+       {
+        "id": "42558452",
+        "description": "LINEA 2 - SERVICIO DE BUS PARA 44 PASAJETOS (RECORRIDO DETALLADO EN LAS BASES DE LICITACIÓN - ESPECIFICACIONES TÉCNICAS) -LICEO ELVIRA SANCHEZ DE GARCES Y ESCUELA EL RINCÓN.",
+        "quantity": 10.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 2350000.0,
+          "currency": "CLP"
+         }
+        },
+        "classification": {
+         "id": "78111803",
+         "scheme": "UNSPSC",
+         "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+        }
+       },
+       {
+        "id": "42558453",
+        "description": "LINEA 3 - SERVICIO DE BUS PARA 44 PASAJETOS (RECORRIDO DETALLADO EN LAS BASES DE LICITACIÓN - ESPECIFICACIONES TÉCNICAS) - LICEO ELVIRA SÁNCHEZ DE GARCES Y LICEO ALBERTO HURTADO.",
+        "quantity": 10.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 2450000.0,
+          "currency": "CLP"
+         }
+        },
+        "classification": {
+         "id": "78111803",
+         "scheme": "UNSPSC",
+         "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+        }
+       },
+       {
+        "id": "42558454",
+        "description": "LINEA 4 - SERVICIO DE BUS PARA 44 PASAJETOS (RECORRIDO DETALLADO EN LAS BASES DE LICITACIÓN - ESPECIFICACIONES TÉCNICAS) - LICEO ELVIRA SÁNCHEZ DE GARCES.",
+        "quantity": 10.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 2450000.0,
+          "currency": "CLP"
+         }
+        },
+        "classification": {
+         "id": "78111803",
+         "scheme": "UNSPSC",
+         "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+        }
+       },
+       {
+        "id": "42558455",
+        "description": "LINEA 5 - SERVICIO DE BUS PARA 44 PASAJETOS (RECORRIDO DETALLADO EN LAS BASES DE LICITACIÓN - ESPECIFICACIONES TÉCNICAS) - ESCUELA HIJOS DEL SOL.",
+        "quantity": 10.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 2350000.0,
+          "currency": "CLP"
+         }
+        },
+        "classification": {
+         "id": "78111803",
+         "scheme": "UNSPSC",
+         "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+        }
+       },
+       {
+        "id": "42558456",
+        "description": "LINEA 6 - SERVICIO DE BUS PARA 44 PASAJETOS (RECORRIDO DETALLADO EN LAS BASES DE LICITACIÓN - ESPECIFICACIONES TÉCNICAS) - ESCUELA  HIJOS DEL SOL.",
+        "quantity": 10.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 2350000.0,
+          "currency": "CLP"
+         }
+        },
+        "classification": {
+         "id": "78111803",
+         "scheme": "UNSPSC",
+         "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+        }
+       },
+       {
+        "id": "42558457",
+        "description": "LINEA 7 - SERVICIO DE BUS PARA 33 PASAJETOS (RECORRIDO DETALLADO EN LAS BASES DE LICITACIÓN - ESPECIFICACIONES TÉCNICAS) -ESCUELA SAN FRANCISCO DE ASÍS.",
+        "quantity": 10.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 2300000.0,
+          "currency": "CLP"
+         }
+        },
+        "classification": {
+         "id": "78111803",
+         "scheme": "UNSPSC",
+         "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+        }
+       },
+       {
+        "id": "42558458",
+        "description": "LINEA 8 - SERVICIO DE BUS PARA 44 PASAJETOS (RECORRIDO DETALLADO EN LAS BASES DE LICITACIÓN - ESPECIFICACIONES TÉCNICAS) -LICEO ALBERTO HURTADO, ESCUELA GABRIELA MISTRAL, LICEO ELVIRA SANCHEZ DE GARCES Y COLEGIO ANDRES BELLO.",
+        "quantity": 10.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 2450000.0,
+          "currency": "CLP"
+         }
+        },
+        "classification": {
+         "id": "78111803",
+         "scheme": "UNSPSC",
+         "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+        }
+       },
+       {
+        "id": "42558459",
+        "description": "LINEA 9 - SERVICIO DE BUS PARA 33 PASAJETOS (RECORRIDO DETALLADO EN LAS BASES DE LICITACIÓN - ESPECIFICACIONES TÉCNICAS) -LICEO ALBERTO HURTADO.",
+        "quantity": 10.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 2300000.0,
+          "currency": "CLP"
+         }
+        },
+        "classification": {
+         "id": "78111803",
+         "scheme": "UNSPSC",
+         "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+        }
+       },
+       {
+        "id": "42558460",
+        "description": "LINEA 10 - SERVICIO DE BUS PARA 33 PASAJETOS (RECORRIDO DETALLADO EN LAS BASES DE LICITACIÓN - ESPECIFICACIONES TÉCNICAS) - LICEO ELVIRA SÁNCHEZ DE GARCES.",
+        "quantity": 10.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 2300000.0,
+          "currency": "CLP"
+         }
+        },
+        "classification": {
+         "id": "78111803",
+         "scheme": "UNSPSC",
+         "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+        }
+       },
+       {
+        "id": "42558461",
+        "description": "LINEA 1 - FURGÓN ESCOLAR DE PREFERENCIA CAPACIDAD 27+1 (RECORRIDO DETALLADO EN LAS BASES DE LICITACIÓN - ESPECIFICACIONES TÉCNICAS) - JARDÍN INFANTIL CREANDO SUEÑOS.",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 23500000.0,
+          "currency": "CLP"
+         }
+        },
+        "classification": {
+         "id": "78111803",
+         "scheme": "UNSPSC",
+         "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+        }
+       },
+       {
+        "id": "42558462",
+        "description": "LINEA 2 - FURGÓN ESCOLAR DE PREFERENCIA CAPACIDAD 27+1 (RECORRIDO DETALLADO EN LAS BASES DE LICITACIÓN - ESPECIFICACIONES TÉCNICAS) - JARDÍN INFANTIL HUELLAS DE NIÑOS.",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 24000000.0,
+          "currency": "CLP"
+         }
+        },
+        "classification": {
+         "id": "78111803",
+         "scheme": "UNSPSC",
+         "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+        }
+       },
+       {
+        "id": "42558463",
+        "description": "LINEA 3 - FURGÓN ESCOLAR DE PREFERENCIA CAPACIDAD 27+1 (RECORRIDO DETALLADO EN LAS BASES DE LICITACIÓN - ESPECIFICACIONES TÉCNICAS) - JARDÍN INFANTIL LOS PUNTITOS.",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 23500000.0,
+          "currency": "CLP"
+         }
+        },
+        "classification": {
+         "id": "78111803",
+         "scheme": "UNSPSC",
+         "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+        }
+       },
+       {
+        "id": "42558465",
+        "description": "LINEA 5 - FURGÓN ESCOLAR DE PREFERENCIA CAPACIDAD 27+1 (RECORRIDO DETALLADO EN LAS BASES DE LICITACIÓN - ESPECIFICACIONES TÉCNICAS) - ESCUELA ESPECIAL MARÍA ALICIA PONCE.",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 19400000.0,
+          "currency": "CLP"
+         }
+        },
+        "classification": {
+         "id": "78111803",
+         "scheme": "UNSPSC",
+         "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+        }
+       },
+       {
+        "id": "42558468",
+        "description": "LINEA 8 - FURGÓN ESCOLAR DE PREFERENCIA CAPACIDAD 27+1 (RECORRIDO DETALLADO EN LAS BASES DE LICITACIÓN - ESPECIFICACIONES TÉCNICAS) - ESCUELA DE PARVULOS LAURITA VICUÑA.",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 19000000.0,
+          "currency": "CLP"
+         }
+        },
+        "classification": {
+         "id": "78111803",
+         "scheme": "UNSPSC",
+         "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+        }
+       },
+       {
+        "id": "42558469",
+        "description": "LINEA 9 - FURGÓN ESCOLAR DE PREFERENCIA CAPACIDAD 27+1 (RECORRIDO DETALLADO EN LAS BASES DE LICITACIÓN - ESPECIFICACIONES TÉCNICAS) - COLEGIO CAMINO REAL.",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 19000000.0,
+          "currency": "CLP"
+         }
+        },
+        "classification": {
+         "id": "78111803",
+         "scheme": "UNSPSC",
+         "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+        }
+       },
+       {
+        "id": "42558470",
+        "description": "LINEA 10 - FURGÓN ESCOLAR DE PREFERENCIA CAPACIDAD 27+1 (RECORRIDO DETALLADO EN LAS BASES DE LICITACIÓN - ESPECIFICACIONES TÉCNICAS) - ESCUELA HIJOS DEL SOL.",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 18900000.0,
+          "currency": "CLP"
+         }
+        },
+        "classification": {
+         "id": "78111803",
+         "scheme": "UNSPSC",
+         "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+        }
+       },
+       {
+        "id": "42558471",
+        "description": "LINEA 11 - FURGÓN ESCOLAR DE PREFERENCIA CAPACIDAD 27+1 (RECORRIDO DETALLADO EN LAS BASES DE LICITACIÓN - ESPECIFICACIONES TÉCNICAS) - ESCUELA SAN FRANCISCO DE ASÍS.",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 18900000.0,
+          "currency": "CLP"
+         }
+        },
+        "classification": {
+         "id": "78111803",
+         "scheme": "UNSPSC",
+         "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+        }
+       },
+       {
+        "id": "42558473",
+        "description": "LINEA 13 - FURGÓN ESCOLAR DE PREFERENCIA CAPACIDAD 27+1 (RECORRIDO DETALLADO EN LAS BASES DE LICITACIÓN - ESPECIFICACIONES TÉCNICAS) - ESCUELA SAN FRANCISCO DE ASÍS Y CAMINO REAL.",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 19000000.0,
+          "currency": "CLP"
+         }
+        },
+        "classification": {
+         "id": "78111803",
+         "scheme": "UNSPSC",
+         "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+        }
+       },
+       {
+        "id": "42558474",
+        "description": "LINEA 14 - FURGÓN ESCOLAR DE PREFERENCIA CAPACIDAD 27+1 (RECORRIDO DETALLADO EN LAS BASES DE LICITACIÓN - ESPECIFICACIONES TÉCNICAS) - LICEO ELVIRA SÁNCHEZ.",
+        "quantity": 1.0,
+        "unit": {
+         "name": "Unidad",
+         "value": {
+          "amount": 18900000.0,
+          "currency": "CLP"
+         }
+        },
+        "classification": {
+         "id": "78111803",
+         "scheme": "UNSPSC",
+         "uri": "http://api.mercadopublico.cl/APISOCDS/Productos/Categoria/78111803"
+        }
+       }
+      ]
+     }
+    ],
+    "language": "es"
+   }
+  }
+ ],
+ "packages": [
+  "https://api.mercadopublico.cl/APISOCDS/OCDS/allrelease/2678-1-LR25",
+  "https://api.mercadopublico.cl/APISOCDS/OCDS/planning/2678-1-LR25"
+ ],
+ "publicationPolicy": "http://api.mercadopublico.cl/APISOCDS/Utilidades/Politicas/Actualizacion"
+}

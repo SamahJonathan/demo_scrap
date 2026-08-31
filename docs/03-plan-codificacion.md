@@ -320,7 +320,14 @@ python -m contratos.cli licitacion --codigo 2678-1-LR25
 Salida esperada: tabla con estimado, adjudicado, duración `10 meses`, `renovable:
 false`, `oferentes: 6`.
 
-**Tiempo de verificación:** ~50 s.
+**Tiempo de verificación:** **3,6 s medidos** para 19 tests, bajo el presupuesto
+de 50. El circuito completo contra la fuente real: 3 requests.
+
+**Hallazgo del incremento.** El monto adjudicado **no es comparable entre
+contratos**: en un convenio de suministro es un precio unitario. Puerto Montt
+adjudica $783,19 —el litro de diésel— y su acta declara $1.500.000.000 aparte.
+Las dos fuentes coinciden en los $783, así que la regla cruzada sigue siendo
+válida; lo que no vale es sumarlos. Ver `docs/02-diseno.md`.
 
 **Fuera de alcance:** unir las fuentes. Eso es el incremento 7.
 
