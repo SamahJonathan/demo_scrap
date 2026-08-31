@@ -68,18 +68,30 @@ especificación. Al iniciar cada sesión, relee /docs antes de proponer nada.
 
 ## Estado actual
 
-**Fase en curso:** Fase 0 — Repositorio y contexto (cerrada).
-**Siguiente:** Spike 0 — Validar el supuesto más riesgoso (extracción con modelo
-de lenguaje local sobre bases de licitación reales). Timebox: 1 hora.
+**Fase en curso:** Fase 1 — Análisis. `docs/01-analisis.md` escrito con las seis
+secciones; falta responder las preguntas abiertas para cerrar el gate.
+**Siguiente:** Fase 2 — Diseño.
 
-| Fase | Estado |
-|---|---|
-| Fase 0 — Repositorio y contexto | ✅ Cerrada |
-| Spike 0 — Validación de supuesto | ⏳ Pendiente |
-| Fase 1 — Análisis | ⏳ Pendiente |
-| Fase 2 — Diseño | ⏳ Pendiente |
-| Fase 3 — Codificación | ⏳ Pendiente |
-| Fase 4 — Cierre y presentación | ⏳ Pendiente |
+| Fase | Estado | Entregable |
+|---|---|---|
+| Fase 0 — Repositorio y contexto | ✅ Cerrada | `CLAUDE.md`, `.gitignore`, `.env.example`, README, LICENSE |
+| Spike 0 — Validación de supuesto | ✅ Cerrado | `docs/00-spike.md` |
+| Fase 1 — Análisis | 🟡 En curso | `docs/01-analisis.md` |
+| Fase 2 — Diseño | ⏳ Pendiente | `docs/02-diseno.md`, `docs/03-plan-codificacion.md` |
+| Fase 3 — Codificación | ⏳ Pendiente | Incrementos 0 a 9 |
+| Fase 4 — Cierre y presentación | ⏳ Pendiente | Documentación final |
+
+**Eje de la demo, decidido:** ciclo de vida contractual. Vencimientos,
+renovaciones y garantías al centro; los montos agregados son contexto.
+
+**Resultado del Spike 0:** alcance acotado. El modelo NO es fuente primaria de
+campos estructurados; se usa como extractor de prosa libre y como **verificador
+cruzado** del campo tipado. Queda dentro del alcance pero fuera de la línea de
+corte. Detalle en `docs/00-spike.md`.
+
+**Estrategia de extracción, invertida (ver `docs/01-analisis.md` § 3.5):** se
+parte de las ÓRDENES DE COMPRA tipo SE y CC, se lee su `CodigoLicitacion` y se
+piden esas licitaciones. La API no permite ir de licitación a OC.
 
 **Bloqueante resuelto (2026-08-31):** ticket de la API de Mercado Público
 obtenido y verificado contra la fuente. Vive en `.env` como `MP_API_TICKET`,

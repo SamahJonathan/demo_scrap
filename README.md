@@ -32,11 +32,27 @@ fase. El método completo está en [docs/00-metodo.md](docs/00-metodo.md).
 | Fase | Entregable | Estado |
 |---|---|---|
 | Fase 0 — Repositorio y contexto | `CLAUDE.md`, `.gitignore`, `.env.example`, README, licencia | ✅ Cerrada |
-| Spike 0 — Validación de supuesto | `docs/00-spike.md` | ⏳ Pendiente |
-| Fase 1 — Análisis | `docs/01-analisis.md` | ⏳ Pendiente |
+| Spike 0 — Validación de supuesto | [`docs/00-spike.md`](docs/00-spike.md) | ✅ Cerrado |
+| Fase 1 — Análisis | [`docs/01-analisis.md`](docs/01-analisis.md) | 🟡 En curso |
 | Fase 2 — Diseño | `docs/02-diseno.md`, `docs/03-plan-codificacion.md` | ⏳ Pendiente |
 | Fase 3 — Codificación | Incrementos 0 a 9 | ⏳ Pendiente |
 | Fase 4 — Cierre y presentación | Documentación final y demo | ⏳ Pendiente |
+
+### Lo que la investigación ya estableció
+
+Todo comprobado ejecutando requests contra la fuente, no leyendo documentación:
+
+- **La fuente no publica contratos.** Expone licitaciones, órdenes de compra,
+  compra ágil y proveedores. La entidad contrato hay que reconstruirla, y ese es
+  el núcleo del trabajo.
+- **Se usan cuatro fuentes, cada una para lo que hace mejor:** API REST para el
+  descubrimiento por fecha y el enlace con órdenes de compra, **OCDS** para el
+  monto adjudicado y los oferentes (y sin consumir cupo de requests), y la ficha
+  web para las garantías, que ninguna API expone.
+- **Los datos están bajo licencia CC0**, declarada por la Dirección de Compras y
+  Contratación Pública dentro del propio dato.
+- **Los documentos adjuntos quedan fuera de alcance:** están tras reCAPTCHA
+  Enterprise y no se evade.
 
 ## Principios que este repositorio respeta
 
