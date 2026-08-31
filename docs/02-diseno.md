@@ -106,7 +106,8 @@ Procedencias posibles: `api_oc`, `api_licitacion`, `ocds`, `ficha_web`,
 | `tipo_oc` | enum | sí | derivado | `SE` | `SE`, `CC`, `AG`, `CM`, `TD` |
 | `codigo_estado` | entero | sí | api_oc | `12` | uno de los 5 conocidos |
 | `estado` | texto | sí | api_oc | `Recepción Conforme` | — |
-| `cuenta_como_gasto` | bool | sí | derivado | `true` | `codigo_estado != 9` |
+| `es_comprometido` | bool | sí | derivado | `true` | `codigo_estado != 9` |
+| `es_ejecutado` | bool | sí | derivado | `true` | `codigo_estado in (6, 12)` |
 | `organismo` | texto | sí | api_oc | `I. MUNICIPALIDAD DE MOSTAZAL` | no vacío |
 | `organismo_rut` | texto | sí | api_oc | `69.080.500-6` | dígito verificador |
 | `proveedor` | texto | sí | api_oc | `Sociedad de Transporte Jiménez Hnos.` | no vacío |
@@ -148,13 +149,21 @@ Medidos sobre 9.206 órdenes del 15-05-2025, con su etiqueta obtenida de la API:
 | 4 | Enviada a proveedor | 1,0% | sí |
 | 5 | En proceso | 0,03% | sí |
 
-**Se ingestan todas**, y el estado se guarda. Las canceladas traen monto distinto
-de cero —se midió una de $1.346.366— así que sumarlas al gasto lo inflaría. De
-ahí sale `cuenta_como_gasto`, y **toda consulta de montos debe filtrar por ese
-campo**.
+**Se ingestan todas**, y el estado se guarda. Pero "gasto" son dos cosas
+distintas y el modelo las separa:
 
-Ingerir las canceladas no es ruido: cuántas órdenes mueren en el camino es
-información que a un CLM le importa.
+| Métrica | Estados | Cobertura | Qué significa |
+|---|---|---|---|
+| **Comprometido** | 4, 5, 6, 12 | 96,4% | La orden existe y no fue anulada |
+| **Ejecutado** | 6, 12 | **95,4%** | El proveedor aceptó o entregó |
+
+La diferencia son las órdenes en 4 (Enviada a proveedor) y 5 (En proceso): están
+comprometidas pero su destino todavía no se sabe. Un CLM distingue exactamente
+eso, y **la brecha entre ambas métricas es información**, no ruido.
+
+Las canceladas traen monto distinto de cero —se midió una de $1.346.366— así que
+entrarían en cualquier suma ingenua. Ingerirlas no es ruido: cuántas órdenes
+mueren en el camino le importa a un gestor de contratos.
 
 ### Atribución del monto adjudicado
 

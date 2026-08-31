@@ -421,7 +421,9 @@ consultas concretas, para no tener que explorar la base a mano.
   las vigentes y **destaca las incoherentes con el plazo**, contándolas **una
   vez por licitación**, no una por contrato.
 - **Dado** cualquier consulta de montos, **cuando** la ejecuto, **entonces**
-  filtra por `cuenta_como_gasto = 1`. Las canceladas traen monto y lo inflarían.
+  distingue **comprometido** (`es_comprometido = 1`) de **ejecutado**
+  (`es_ejecutado = 1`), y el dashboard muestra ambos. Sumar sin filtrar
+  incluiría las canceladas, que traen monto.
 - **Dado** la pregunta 5, **cuando** la ejecuto, **entonces** compara gasto con
   proceso contra gasto sin proceso, usando los contratos huérfanos que el
   incremento 2 incluyó a propósito.
@@ -462,7 +464,8 @@ responder las preguntas sin escribir SQL.
 - **Dado** `/contratos/{id}`, **cuando** lo abro, **entonces** muestra el detalle
   **con la procedencia de cada campo visible**.
 - **Dado** `/salud`, **cuando** lo consulto, **entonces** devuelve el conteo de
-  filas y la fecha de la última corrida.
+  filas, la fecha de la última corrida, y **al menos 400 contratos** de los 450
+  esperados.
 - **Dado** el subcomando `exportar`, **cuando** lo ejecuto, **entonces** genera
   `dist/dashboard.html` **autocontenido**, con los datos embebidos y sin
   dependencias externas. Es el **respaldo de la demo**: se abre con doble clic si
@@ -475,10 +478,14 @@ uvicorn contratos.web.app:app --port 8001 &
 curl -s localhost:8001/salud | jq
 python -m contratos.cli exportar && ls -la dist/dashboard.html
 ```
-Salida esperada: un JSON con `contratos` mayor que 0 y `ultima_corrida` con
-fecha, mas un `dashboard.html` de un solo archivo. **No se fija un numero
-exacto**: la cuarentena puede descartar registros legitimamente y el criterio
-no debe fallar por eso.
+Salida esperada: un JSON con `contratos` **de al menos 400** de los 450
+esperados, y `ultima_corrida` con fecha, más un `dashboard.html` de un solo
+archivo.
+
+**Umbral, no número exacto.** La cuarentena puede descartar algunos registros
+legítimamente, así que exigir 450 fallaría sin que nada esté roto. Pero "mayor
+que 0" dejaría pasar una corrida que trajo 12 contratos. El umbral se actualiza
+si cambia el tamaño de la muestra.
 
 **Tiempo de verificación:** ~30 s.
 
