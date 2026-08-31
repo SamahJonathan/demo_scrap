@@ -28,8 +28,9 @@ jobs:
       - name: Tipos
         run: mypy src/
 
-      # Ningun test toca la red: usan respx y fixtures guardadas.
+      # Ningun test toca la red ni depende del entorno: usan respx, fixtures
+      # guardadas y un conftest que aisla las variables. Por eso aca NO se
+      # inyecta MP_API_TICKET: si algun test lo necesitara, es que dejo de ser
+      # hermetico y hay que arreglarlo, no taparlo con una variable.
       - name: Tests
         run: pytest -q
-        env:
-          MP_API_TICKET: ticket-de-prueba-en-ci

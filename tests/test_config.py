@@ -23,7 +23,11 @@ def _config(**extra: object) -> Config:
 
 
 def test_falta_el_ticket_y_el_error_nombra_la_variable() -> None:
-    """Dado un entorno sin MP_API_TICKET, importar la config falla nombrándola."""
+    """Dado un entorno sin MP_API_TICKET, construir la config falla nombrándola.
+
+    El entorno lo limpia el conftest. Sin eso, este test pasaba en local y
+    fallaba en CI, donde el workflow exportaba la variable.
+    """
     with pytest.raises(ValidationError) as e:
         Config(_env_file=None)  # type: ignore[call-arg]
     assert "mp_api_ticket" in str(e.value).lower()
