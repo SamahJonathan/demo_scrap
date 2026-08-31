@@ -239,6 +239,9 @@ descarga en `fuentes/ficha_web.py`, `tests/` de los tres.
 **Criterios de aceptación:**
 - **Dado** un código de licitación, **cuando** pido el detalle, **entonces**
   obtengo los 54 campos, incluidos `TiempoDuracionContrato` y `EsRenovable`.
+- **Dado** el bloque `Fechas`, **cuando** lo leo, **entonces** capturo
+  `FechaPublicacion` y `FechaAdjudicacion`. **Ambas son necesarias para la
+  pregunta de negocio 3** y sin ellas esa pregunta queda sin respuesta.
 - **Dado** `UnidadTiempoDuracionContrato`, **cuando** lo decodifico, **entonces**
   `1` es horas y `4` es meses; **cualquier otro valor produce `desconocido`, no
   una suposición**.
@@ -384,7 +387,12 @@ consultas concretas, para no tener que explorar la base a mano.
 - **Dado** la pregunta de garantías, **cuando** la ejecuto, **entonces** lista
   las vigentes y **destaca las incoherentes con el plazo**.
 - **Dado** la pregunta de plazos por organismo, **cuando** la ejecuto,
-  **entonces** devuelve **p25, mediana y p75** por organismo, no solo el promedio.
+  **entonces** devuelve **p25, mediana y p75** de los días entre
+  `fecha_publicacion` y `fecha_adjudicacion`, por organismo, y **filtra por
+  `tiene_proceso = 1`** porque una OC huérfana no tiene proceso que medir.
+- **Dado** los tres casos verificados en la Fase 1, **cuando** ejecuto esa
+  consulta sobre ellos, **entonces** Mostazal da 45 días, Puerto Montt 115 y
+  SENAMA 215.
 
 **Comando de verificación:**
 ```bash

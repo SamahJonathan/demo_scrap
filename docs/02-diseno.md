@@ -103,6 +103,7 @@ Procedencias posibles: `api_oc`, `api_licitacion`, `ocds`, `ficha_web`,
 | `monto_ejecutado` | decimal | sí | api_oc | `975800` | > 0 |
 | `monto_estimado` | decimal | no | api_licitacion | `522500000` | > 0 si existe |
 | `monto_adjudicado` | decimal | no | **ocds** | `441600000` | > 0 si existe |
+| `fecha_publicacion` | fecha | no | api_licitacion | `2025-01-24` | ≤ `fecha_adjudicacion` |
 | `fecha_adjudicacion` | fecha | no | api_licitacion | `2025-03-10` | ≤ hoy |
 | `duracion_valor` | entero | no | api_licitacion | `10` | > 0 |
 | `duracion_unidad` | enum | no | api_licitacion | `meses` | `1`=horas, `4`=meses; **otros = desconocido** |
@@ -111,6 +112,16 @@ Procedencias posibles: `api_oc`, `api_licitacion`, `ocds`, `ficha_web`,
 | `permite_subcontratacion` | bool | no | api_licitacion | `true` | — |
 | `n_oferentes` | entero | no | ocds | `6` | ≥ 1 |
 | `estado_ejecucion` | texto | sí | api_oc | `Recepción Conforme` | — |
+
+**Nota sobre las dos fechas del proceso:** `fecha_publicacion` y
+`fecha_adjudicacion` existen para responder la pregunta de negocio 3 —cuánto
+tarda cada organismo entre publicar y adjudicar—. La diferencia **no se
+almacena**: se calcula en la consulta, porque un campo derivado que se puede
+recomputar solo agrega una forma de quedar desincronizado.
+
+Ambas son nulas en las OC huérfanas: sin licitación no hay proceso que medir. La
+pregunta 3 aplica al **44% con proceso**, y la consulta debe filtrar por
+`tiene_proceso = 1`.
 
 **Nota sobre montos:** son tres cosas distintas y el modelo las separa a
 propósito. El estimado es el presupuesto publicado, el adjudicado es por lo que
