@@ -204,3 +204,106 @@ def test_el_export_trae_las_cinco_preguntas_y_los_datos(
     for numero in range(1, 6):
         assert f"P{numero}." in cuerpo
     assert "1300-43-LP24" in cuerpo, "los datos van embebidos, no se consultan"
+
+
+# --------------------------------------------------------------------------
+# /estado: la version para personas de /salud
+# --------------------------------------------------------------------------
+
+
+def test_estado_muestra_los_mismos_datos_pero_legibles(cliente: TestClient) -> None:
+    """El menu enlaza aca: un visitante no deberia encontrarse JSON crudo."""
+    r = cliente.get("/estado")
+    assert r.status_code == 200
+
+    cuerpo = r.text
+    assert "Estado de la corrida" in cuerpo
+    assert "contratos" in cuerpo and "garantías" in cuerpo
+    # Y ofrece el JSON a quien lo necesite.
+    assert 'href="/salud"' in cuerpo
+
+
+def test_estado_explica_una_corrida_parcial_en_vez_de_solo_marcarla(
+    cliente: TestClient,
+) -> None:
+    """Cuatro contratos no son un error del servidor: la base es parcial."""
+    cuerpo = cliente.get("/estado").text
+
+    assert "Corrida parcial" in cuerpo
+    assert "no es un error del servidor" in cuerpo.lower()
+
+
+def test_salud_sigue_siendo_json_para_la_monitorizacion(cliente: TestClient) -> None:
+    """El script de despliegue y cualquier monitor lo consumen asi."""
+    r = cliente.get("/salud")
+    assert r.headers["content-type"].startswith("application/json")
+    assert r.json()["contrato"] == 4
+
+
+# --------------------------------------------------------------------------
+# Congruencia con el objetivo
+# --------------------------------------------------------------------------
+
+# El objetivo nombra tres cosas: que relicitar, que renovar y que cauciones
+# siguen vivas. El menu debe ofrecerlas; lo operativo va al pie.
+
+
+def test_el_menu_ofrece_lo_que_el_objetivo_nombra(cliente: TestClient) -> None:
+    encabezado = cliente.get("/").text.split("</header>")[0]
+
+    assert 'href="/vencimientos"' in encabezado, "que relicitar y que renovar"
+    assert 'href="/garantias"' in encabezado, "que cauciones siguen vivas"
+    assert 'href="/contratos"' in encabezado
+
+
+def test_lo_operativo_no_ocupa_el_menu(cliente: TestClient) -> None:
+    """/estado le sirve a quien mantiene el pipeline, no al gestor."""
+    cuerpo = cliente.get("/").text
+    encabezado, pie = cuerpo.split("</header>")[0], cuerpo.split("<footer>")[-1]
+
+    assert 'href="/estado"' not in encabezado
+    assert 'href="/estado"' in pie
+
+
+def test_vencimientos_dice_lo_accionable(cliente: TestClient) -> None:
+    cuerpo = cliente.get("/vencimientos", params={"meses": 36}).text
+
+    assert "relicitar" in cuerpo or "renovar" in cuerpo
+    # Y explica por que faltan las compras puntuales, en vez de omitirlas.
+    assert "no tiene vencimiento que vigilar" in cuerpo
+
+
+def test_garantias_destaca_las_incoherentes_y_explica_el_criterio(
+    cliente: TestClient,
+) -> None:
+    cuerpo = cliente.get("/garantias").text
+
+    assert "1300-43-LP24" in cuerpo, "SENAMA, 36 horas contra 2027"
+    assert "incoherente" in cuerpo
+    # El matiz que evita que la alerta sea ruido.
+    assert "mil veces más larga" in cuerpo
+
+
+def test_garantias_dice_por_que_hubo_que_scrapear(cliente: TestClient) -> None:
+    """Es el caso que justifica la capa de scraping."""
+    cuerpo = cliente.get("/garantias").text
+    assert "54 campos" in cuerpo and "OCDS" in cuerpo
+
+
+def test_plazos_esta_en_el_menu_y_muestra_percentiles(cliente: TestClient) -> None:
+    """Convierte el vencimiento en un plazo para actuar."""
+    encabezado = cliente.get("/").text.split("</header>")[0]
+    assert 'href="/plazos"' in encabezado
+
+    cuerpo = cliente.get("/plazos").text
+    assert "Mediana" in cuerpo and "p75" in cuerpo
+    assert "el promedio no describe a nadie" in cuerpo
+
+
+def test_la_portada_dice_sobre_que_universo_habla(cliente: TestClient) -> None:
+    """Un panel de vencimientos que omite lo que deja fuera miente."""
+    cuerpo = cliente.get("/").text
+
+    assert "Sobre qué parte de la cartera" in cuerpo
+    assert "no_declarado" in cuerpo
+    assert "compra puntual" in cuerpo

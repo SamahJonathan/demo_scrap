@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block cuerpo %}
+<h1>Estado de la corrida</h1>
+<p class="sub">Qué hay en la base y si el resultado es confiable.
+Para monitorización automática, el mismo dato en JSON: <a href="/salud">/salud</a>.</p>
+
+<div class="tarjetas">
+  <div class="tarjeta"><b>{{ d.contrato }}</b><span>contratos</span></div>
+  <div class="tarjeta"><b>{{ d.licitacion }}</b><span>licitaciones</span></div>
+  <div class="tarjeta"><b>{{ d.garantia }}</b><span>garantías</span></div>
+  <div class="tarjeta"><b>{{ d.discrepancia }}</b><span>discrepancias</span></div>
+</div>
+
+<div class="caja {% if not d.suficiente %}aviso{% endif %}">
+  {% if d.suficiente %}
+    <b class="ok">Corrida completa</b>
+    <p class="sub" style="margin:6px 0 0">{{ d.contrato }} contratos, sobre el
+    mínimo de {{ d.minimo }}.</p>
+  {% else %}
+    <b class="alerta">Corrida parcial</b>
+    <p class="sub" style="margin:6px 0 0">
+      {{ d.contrato }} contratos de los {{ d.esperados }} que deja una corrida
+      completa, bajo el mínimo de {{ d.minimo }}. No es un error del servidor:
+      la base publicada no cubre toda la muestra.
+    </p>
+  {% endif %}
+</div>
+
+<div class="caja">
+  <b>Detalle</b>
+  <table>
+    <tr><td>última corrida</td><td>{{ d.ultima_corrida }}</td></tr>
+    <tr><td>contratos esperados</td><td>{{ d.esperados }}
+        <span class="proc">150 órdenes × 3 fechas</span></td></tr>
+    <tr><td>mínimo aceptable</td><td>{{ d.minimo }}
+        <span class="proc">la cuarentena puede descartar algunos legítimamente</span></td></tr>
+    <tr><td>cláusulas extraídas</td><td>{{ d.clausula_extraida }}
+        <span class="proc">capa de inferencia, fuera de la línea de corte</span></td></tr>
+  </table>
+</div>
+
+<div class="caja">
+  <b>Qué NO hace este servidor</b>
+  <p class="sub" style="margin:6px 0 0">
+    No consulta a Mercado Público: sirve una base ya construida y no tiene
+    ticket. Y nunca ejecuta inferencia — el modelo pide 7,34&nbsp;GB y minutos por
+    documento, mientras esta instancia tiene 911&nbsp;MB compartidos con otros tres
+    sitios. Ambas cosas corren en la máquina de desarrollo, en lote.
+  </p>
+</div>
+{% endblock %}

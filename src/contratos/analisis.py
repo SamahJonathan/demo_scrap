@@ -38,6 +38,10 @@ PREGUNTAS = (
     Pregunta(3, "Días entre publicar y adjudicar, por organismo", "p3_plazos.sql"),
     Pregunta(4, "Monto por organismo y proveedores", "p4_montos.sql"),
     Pregunta(5, "Gasto con proceso frente a gasto sin proceso", "p5_sin_proceso.sql"),
+    # Las dos ultimas no responden una necesidad del gestor: responden si se
+    # puede CONFIAR en lo que las otras muestran.
+    Pregunta(6, "Sobre qué parte de la cartera se puede hablar", "p6_cobertura.sql"),
+    Pregunta(7, "Contratos con datos que se contradicen", "p7_discrepancias.sql"),
 )
 
 

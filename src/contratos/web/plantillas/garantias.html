@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block cuerpo %}
+<h1>Cauciones vivas</h1>
+<p class="sub">La tercera pregunta del objetivo. <b>Solo la ficha web publica
+las garantías</b>: ninguno de los 54 campos de la API las expone, y OCDS
+tampoco. Es el caso que justifica el scraping.</p>
+
+{% if implausibles %}
+<div class="caja aviso">
+  <b class="alerta">{{ implausibles|length }} incoherente(s) con el plazo del contrato</b>
+  <p class="sub" style="margin:6px 0 0">
+    La fuente se contradice: uno de los dos datos está mal cargado. No se
+    corrige, se marca — y el hallazgo dice cuántas veces excede el plazo, porque
+    una caución un poco más larga puede ser legítima y una mil veces más larga no.
+  </p>
+</div>
+{% endif %}
+
+<table>
+  <tr><th>Licitación</th><th>Tipo</th><th>Monto</th><th>Vence</th>
+      <th>Duración del contrato</th><th></th></tr>
+  {% for g in filas %}
+  <tr{% if g.implausible %} class="alerta"{% endif %}>
+    <td class="codigo">{{ g.licitacion_codigo }}</td>
+    <td>{{ g.tipo }}</td>
+    <td>{% if g.monto_es_porcentaje %}{{ g.monto_valor }} %
+        {% else %}${{ "{:,.0f}".format(g.monto_valor|float) }}{% endif %}</td>
+    <td>{{ g.fecha_vencimiento or "—" }}</td>
+    <td>{{ g.duracion_valor }} {{ g.duracion_unidad }}</td>
+    <td>{% if g.implausible %}incoherente
+        {% elif g.vigente %}<span class="ok">vigente</span>
+        {% else %}vencida{% endif %}</td>
+  </tr>
+  {% endfor %}
+</table>
+<p class="sub" style="margin-top:12px">
+  Se cuentan <b>una vez por licitación</b>, no una por contrato: varias órdenes
+  del mismo proceso comparten las mismas cauciones.
+</p>
+{% endblock %}

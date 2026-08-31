@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block cuerpo %}
+<h1>Cuánto tarda cada organismo en adjudicar</h1>
+<p class="sub">Saber que un contrato vence en 90 días no sirve si tu organismo
+tarda 215 en adjudicar. Esta página convierte el vencimiento en un plazo para
+actuar.</p>
+
+<div class="caja">
+  <b>Por qué percentiles y no promedio</b>
+  <p class="sub" style="margin:6px 0 0">
+    Se midieron 45, 115 y 215 días en tres organismos distintos. Con esa
+    dispersión el promedio no describe a nadie: la mediana dice qué esperar y el
+    p75 dice cuánto margen dejar.
+  </p>
+</div>
+
+{% if filas %}
+<table>
+  <tr><th>Organismo</th><th>Procesos</th><th>p25</th><th>Mediana</th>
+      <th>p75</th><th>Máximo</th><th>Empezar con</th></tr>
+  {% for f in filas %}
+  <tr>
+    <td>{{ f.organismo }}</td>
+    <td>{{ f.procesos }}</td>
+    <td>{{ f.p25 }}</td>
+    <td><b>{{ f.mediana }}</b></td>
+    <td>{{ f.p75 }}</td>
+    <td>{{ f.maximo }}</td>
+    <td class="{{ 'alerta' if f.p75 > 180 else '' }}">{{ f.p75 }} días de margen</td>
+  </tr>
+  {% endfor %}
+</table>
+<p class="sub" style="margin-top:12px">
+  Días entre publicación y adjudicación. Cada licitación cuenta <b>una vez</b>,
+  aunque haya originado varias órdenes de compra.
+</p>
+{% else %}
+<div class="caja"><p class="sub" style="margin:0">Sin procesos con ambas fechas.</p></div>
+{% endif %}
+{% endblock %}
