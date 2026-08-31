@@ -261,66 +261,74 @@ demo más cercana a producción.
 
 ## Presentación y despliegue (decidido el 2026-08-31)
 
-**Dashboard: FastAPI servido contra PostgreSQL.** No HTML estático.
+**Dashboard: FastAPI.** No HTML estático como plan principal, aunque sí se
+exporta uno como respaldo.
 
-**Despliegue: instancia Lightsail existente en `sa-east-1` (São Paulo)**, aún
-dentro de su periodo gratuito. São Paulo da mejor latencia a Chile que las
-regiones de Cloud Run, y al ser una VM real PostgreSQL corre de verdad, sin
-degradarlo a un snapshot de solo lectura.
+**Servidor: instancia Lightsail `serena-demo`**, São Paulo zona A, IP
+54.207.164.201. Ubuntu 24.04. 1 GB RAM / 2 vCPU / 40 GB SSD, aún gratuita.
 
-**SSL con Caddy como reverse proxy**, no con el load balancer de Lightsail, que
-cuesta más que la propia instancia. Caddy obtiene y renueva el certificado de
-Let's Encrypt solo:
+### Estado real del servidor, verificado por SSH el 2026-08-31
 
-```
-tu-dominio.com {
-    reverse_proxy localhost:8000
-}
-```
+| | |
+|---|---|
+| Memoria | 911 MB totales, **364 MB disponibles** |
+| Swap | 2 GB ya configurados, 211 MB en uso |
+| Disco | 32 GB libres de 38 |
+| nginx | **activo** en 80, 443 y 8080, con 5 sitios (acp, repuestos, serena) |
+| Let's Encrypt | certificados ya emitidos y funcionando |
+| MariaDB, Redis | activos · node en el puerto 4000 |
+| PostgreSQL, Docker, Caddy | no instalados |
+| Python | 3.12.3 |
+
+Las tres aplicaciones que corren son maquetas, no producción.
+
+### Decisiones que se corrigieron con esa evidencia
+
+**1. nginx, NO Caddy.** nginx ya es dueño de 80/443 con certificados
+funcionando. Se agrega un *server block* con `proxy_pass` a uvicorn en un puerto
+local y se pide el certificado con certbot, como los sitios existentes. Meter
+Caddy sería un conflicto de puertos y un segundo servidor web consumiendo RAM
+sin beneficio.
+
+**2. Dominio vía sslip.io, sin comprar nada.** El servidor ya usa ese servicio
+de DNS comodín, que resuelve hostnames con la IP embebida. `contratos.54-207-164-201.sslip.io`
+apunta solo a la instancia.
+
+**3. SQLite de solo lectura en el servidor, PostgreSQL solo en local.** Con 364
+MB disponibles PostgreSQL cabría afinado, pero **no compra nada ahí**: el
+pipeline corre en la máquina local y el servidor solo lee 450 contratos que no
+cambian entre despliegues. Instalar un segundo motor junto a MariaDB son ~100 MB
+y una pieza más que administrar a cambio de cero beneficio.
+
+PostgreSQL se mantiene en desarrollo, donde sus funciones de ventana y `JSONB`
+sí valen para el análisis. **Aquí paga la abstracción por `DATABASE_URL` que se
+exigió al decidir la persistencia:** no era teoría, era exactamente este caso.
+
+Consumo previsto en el servidor: uvicorn ~100 MB, sin motor de base de datos.
 
 ### Regla no negociable: la inferencia NUNCA va en la ruta del request
 
-Medido en el Spike 0: el modelo consume **7,34 GB de RAM** y tarda entre 8 y 65
-minutos por documento en CPU. Un endpoint HTTP que lo invoque no es un riesgo de
-memoria, es un diseño roto.
+Medido en el Spike 0: **7,34 GB de RAM** y entre 8 y 65 minutos por documento en
+CPU. Un endpoint HTTP que lo invoque no es un riesgo de memoria, es un diseño
+roto.
 
-La inferencia se ejecuta como **paso de lote, offline**, y persiste sus
-resultados con el fragmento de origen. El dashboard lee filas, nunca infiere.
+La inferencia corre como **paso de lote, offline, en la máquina local**, y
+persiste sus resultados con el fragmento de origen. El dashboard lee filas.
 
-**Consecuencia para el día de la demo:** con videollamada, cámara y pantalla
-compartida ocupando entre 0,8 y 1,5 GB, más el navegador, no queda espacio para
-7,34 GB de modelo. Y el problema mayor no es la RAM sino la CPU: `llama-server`
-satura todos los núcleos, y competiría con la codificación de video. El síntoma
-no sería un dashboard lento, sería el video congelándose.
+**No hay opción gratuita para correr el modelo en la nube.** Verificado:
+Bedrock cobra por token sin franquicia; el free tier de SageMaker son horas de
+notebook en CPU que expiran; EC2 t3.micro tiene 1 GB y no caben 4,9 GB de pesos.
+Esto no afecta al plan: la capa de inferencia ya era offline y está fuera de la
+línea de corte.
 
-Al desplegar en Lightsail, el día de la demo la máquina local solo corre un
-navegador. Se manda un link, y el entrevistador puede explorarlo después de la
-reunión — lo que además responde la objeción de que el repositorio no se puede
-ejecutar sin instalar PostgreSQL.
+**Día de la demo:** la máquina local solo corre un navegador. Con videollamada,
+cámara y pantalla compartida ocupando entre 0,8 y 1,5 GB, no habría espacio para
+el modelo — y el problema mayor sería la CPU saturada compitiendo con la
+codificación de video. Se manda un link, y el entrevistador puede explorarlo
+después.
 
-**Respaldo:** se exporta igual un HTML autocontenido con los datos embebidos. Si
-algo falla en vivo, se abre con doble clic.
-
-**El modelo NO se despliega en la nube.** Sería contradecir el argumento que
-sostiene la arquitectura: el adaptador local existe porque un cliente enterprise
-pregunta a dónde van sus contratos. Subirlo a la nube ya es el adaptador hosted,
-que es más barato y rápido.
-
-**Instancia confirmada:** `serena-demo` — 1 GB RAM, 2 vCPU, 40 GB SSD, São Paulo
-zona A. Alcanza para PostgreSQL + FastAPI + Caddy con 450 contratos, pero exige
-tres ajustes:
-
-1. **Swap de 2 GB.** Las instancias de 1 GB suelen venir sin swap. Aquí SÍ
-   corresponde, a diferencia del modelo de lenguaje: PostgreSQL y FastAPI tienen
-   páginas frías que pueden irse a disco sin costo. El modelo no las tiene —
-   recorre todos sus pesos por cada token— y por eso ahí el swap era inviable.
-   La distinción es la naturaleza del acceso a memoria, no una regla general.
-2. **PostgreSQL afinado para máquina chica:** `shared_buffers=64MB`,
-   `max_connections=20`, `work_mem=4MB`, `effective_cache_size=256MB`. Los
-   valores por defecto asumen un servidor grande.
-3. **Verificar qué corre ya en la instancia.** El nombre sugiere otro proyecto
-   desplegado; si lo hay, el presupuesto de memoria cambia y hay que medirlo
-   antes de desplegar.
+**Respaldo:** HTML autocontenido con los datos embebidos, por si algo falla en
+vivo.
 
 ## Consultas en lenguaje natural: EVALUADO Y DESCARTADO
 

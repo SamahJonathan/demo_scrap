@@ -402,9 +402,11 @@ Observables, verificables ejecutando algo.
 1. **Tamaño y forma de la muestra.** → 150 órdenes de compra por día, en 3 días
    distintos. Se parte de OC tipo SE y CC, no de licitaciones. ~900 requests
    contra un cupo de 10.000.
-2. **Presentación.** → FastAPI servido contra PostgreSQL, desplegado en una
-   instancia Lightsail en `sa-east-1`, con SSL vía Caddy. Export de HTML
-   autocontenido como respaldo.
+2. **Presentación.** → FastAPI desplegado en la instancia Lightsail de São
+   Paulo, detrás del nginx que ya corre ahí, con certificado certbot y dominio
+   sslip.io. Sirve un snapshot SQLite de solo lectura; PostgreSQL se queda en
+   local para el pipeline y el análisis. Export de HTML autocontenido como
+   respaldo. Verificado por SSH: 364 MB disponibles y 2 GB de swap.
 3. **~~Plan B si el enlace con OC es inviable~~.** → Pregunta muerta: el enlace
    existe (`CodigoLicitacion`) y está verificado. Ver § 3.5.
 
