@@ -75,7 +75,8 @@ incrementos 2 en adelante invocarian algo que no existe.
 pip install -e ".[dev]" && ruff check . && mypy src/ && pytest -q
 python -m contratos.cli --help
 ```
-Salida esperada: `2 passed`, sin errores de ruff ni mypy, y la ayuda del CLI.
+Salida esperada: **`5 passed`**, sin errores de ruff ni mypy, y la ayuda del
+CLI. **Medido: 16 s**, bajo el presupuesto de 30.
 
 **Tiempo de verificación:** ~30 s.
 
@@ -106,18 +107,34 @@ prueba consume cupo del ticket y espera a la red.
   reintentar y registra el error. Nada de `except` silencioso.
 - **Dado** `MAX_REQUESTS_PER_RUN` alcanzado, **cuando** se pide uno más,
   **entonces** aborta con un mensaje explícito.
+- **Dado** un cuerpo con sobre de error (`Codigo` y `Mensaje` sin `Listado`),
+  **cuando** llega con un código 2xx, **entonces** falla y **no se cachea**.
+  Mercado Público responde **HTTP 203** con "Ticket no válido" cuando el ticket
+  vence, y 203 es un código de éxito: un cliente que solo mire `status >= 400`
+  cachearía el error como dato y la corrida daría cero registros sin avisar.
+  El ticket se renueva a diario, así que esto pasa seguido.
 
 **Comando de verificación:**
 ```bash
 pytest tests/test_cliente.py -v
 ```
-Salida esperada: los 5 tests pasan. Ninguno toca la red — usan `respx` para
+Salida esperada: **6 tests pasan**. Ninguno toca la red — usan `respx` para
 simular respuestas.
 
-**Tiempo de verificación:** ~20 s.
+**Tiempo de verificación:** **10 s medidos**, bajo el presupuesto de 20.
+
+**Comprobación adicional contra la fuente real**, hecha una vez: 9.206 órdenes
+en 0,34 s la primera llamada y 0,02 s la segunda desde caché. **16× más rápida
+y un request menos.**
 
 **Fuera de alcance:** conocimiento de qué endpoint es cuál. El cliente es
 genérico.
+
+**Lección de método.** El criterio "pre-commit configurado" del Incremento 0 se
+dio por cumplido con el archivo presente, pero **nadie había ejecutado
+`pre-commit install`**: los tres primeros commits pasaron sin hooks. Un criterio
+que comprueba que un archivo existe no comprueba que haga algo. Los criterios de
+los incrementos siguientes verifican comportamiento, no presencia.
 
 ---
 
@@ -137,6 +154,8 @@ quedarme solo con las que pueden tener licitación, para acotar el trabajo.
   (`AG`, `CM`, `TD`), **sin emitir ningún request adicional**.
 - **Dado** el listado de muestra guardado, **cuando** clasifico, **entonces** de
   9.206 registros 4.047 son enlazables y 5.159 huérfanos.
+- **Dado** un tipo de orden que no está en ninguna lista, **cuando** clasifico,
+  **entonces** se aparta y se cuenta. **No se asume a qué grupo pertenece.**
 - **Dado** los límites configurados, **cuando** los aplico, **entonces** devuelve
   100 con proceso y 50 sin proceso. **Ambos grupos entran a la muestra**: sin los
   huérfanos, la pregunta de negocio 5 no tiene respuesta y el caso 'OC sin
@@ -147,11 +166,21 @@ quedarme solo con las que pueden tener licitación, para acotar el trabajo.
 pytest tests/test_api_oc.py -v
 python -m contratos.cli descubrir --fecha 2025-05-15 --limite 5
 ```
-Salida esperada: 5 códigos, todos terminados en `SE##` o `CC##`, y una línea que
-diga `requests emitidos: 1`.
+Salida esperada: los dos grupos con sus conteos —4.047 con proceso y 5.159 sin
+proceso— y `requests emitidos: 1` en la primera corrida, **0 en las siguientes**
+porque salen de caché.
 
-**Tiempo de verificación:** ~40 s (incluye 1 request real la primera vez; luego
-sale de caché).
+**Tiempo de verificación:** **3 s medidos** con un request real, bajo el
+presupuesto de 40. La suite: 25 tests en ~3 s.
+
+**Hallazgo del incremento.** Apareció un sexto tipo de orden, `CT`, que no
+estaba en ninguna de las dos listas. Se verificó pidiendo su detalle antes de
+clasificarlo: `CodigoLicitacion` vacío, o sea huérfana. Se agregó a la lista con
+evidencia, no por descarte.
+
+**Fallo corregido.** El logger de `httpx` imprimía la URL completa en INFO, y el
+ticket viaja como parámetro: quedaba a la vista en cualquier consola o captura
+de pantalla. Se subió su umbral a WARNING y hay un test de regresión.
 
 **Fuera de alcance:** el detalle de cada orden.
 
@@ -180,17 +209,22 @@ licitación, para poder reconstruir el proceso que la originó.
   4 Enviada a proveedor, 5 En proceso. **Un valor desconocido no se adivina**:
   el registro va a cuarentena.
 - **Dado** una orden en estado 9 (Cancelada), **cuando** la proceso, **entonces**
-  se ingesta igual pero con `cuenta_como_gasto = false`. Se midió una cancelada
-  con monto $1.346.366: sumarla al gasto lo inflaría.
+  se ingesta igual pero con `es_comprometido = false` y `es_ejecutado = false`.
+  Se midió una cancelada con monto $1.346.366: sumarla al gasto lo inflaría.
+- **Dado** un lote con un registro que no valida, **cuando** lo proceso,
+  **entonces** ese va a cuarentena con su motivo y **los demás continúan**. Un
+  registro malo no aborta la corrida.
 
 **Comando de verificación:**
 ```bash
 pytest tests/test_detalle_oc.py -v
 python -m contratos.cli detalle-oc --codigo 1002772-10006-SE25
 ```
-Salida esperada: JSON con `codigo_licitacion: "1002772-78-LR24"`.
+Salida esperada: JSON con `codigo_licitacion: "1002772-78-LR24"`, más las tres
+derivadas `tiene_proceso`, `es_comprometido` y `es_ejecutado`.
 
-**Tiempo de verificación:** ~45 s.
+**Tiempo de verificación:** **3 s medidos** para 13 tests, bajo el presupuesto
+de 45.
 
 **Fuera de alcance:** pedir la licitación.
 
@@ -229,7 +263,14 @@ conecta en el incremento 5.
 ```bash
 pytest tests/test_ficha_web.py -v
 ```
-Salida esperada: 5 tests pasan, todos contra HTML guardado, **sin tocar la red**.
+Salida esperada: **9 tests pasan** en 0,23 s, todos contra HTML guardado, **sin
+tocar la red**.
+
+**El parseo NO usa regex sobre el texto.** La ficha es ASP.NET WebForms y su
+GridView deja ids estables —`grvGarantias_ctl02_lblFicha8Monto`,
+`..._lblFicha8FechaVencimiento`— así que se usan selectores CSS sobre esos ids.
+Si el sitio cambia el maquetado pero mantiene el GridView, el parser sigue
+funcionando. El regex del spike se rompía con cualquier cambio de espaciado.
 
 **Tiempo de verificación:** ~30 s, con **cero requests**.
 
@@ -279,7 +320,14 @@ python -m contratos.cli licitacion --codigo 2678-1-LR25
 Salida esperada: tabla con estimado, adjudicado, duración `10 meses`, `renovable:
 false`, `oferentes: 6`.
 
-**Tiempo de verificación:** ~50 s.
+**Tiempo de verificación:** **3,6 s medidos** para 19 tests, bajo el presupuesto
+de 50. El circuito completo contra la fuente real: 3 requests.
+
+**Hallazgo del incremento.** El monto adjudicado **no es comparable entre
+contratos**: en un convenio de suministro es un precio unitario. Puerto Montt
+adjudica $783,19 —el litro de diésel— y su acta declara $1.500.000.000 aparte.
+Las dos fuentes coinciden en los $783, así que la regla cruzada sigue siendo
+válida; lo que no vale es sumarlos. Ver `docs/02-diseno.md`.
 
 **Fuera de alcance:** unir las fuentes. Eso es el incremento 7.
 
@@ -315,6 +363,11 @@ completa.
 pytest tests/test_validacion.py -v
 ```
 Salida esperada: incluye `test_senama_36_horas_es_implausible PASSED`.
+**12 tests en 0,24 s**, bajo el presupuesto de 15.
+
+**Las reglas se prueban contra los casos reales que las originaron**, no contra
+ejemplos inventados: SENAMA para la garantia implausible, Puerto Montt para el
+precio unitario, y las tres licitaciones para el cruce con OCDS.
 
 **Tiempo de verificación:** ~15 s.
 
@@ -362,7 +415,13 @@ y declare de dónde vino cada campo, para poder defender cada dato.
 ```bash
 pytest tests/test_reconstruccion.py -v
 ```
-Salida esperada: los 4 tests pasan, incluido `test_oc_huerfana_es_contrato_valido`.
+Salida esperada: **14 tests pasan** en 1,6 s, bajo el presupuesto de 20,
+incluido `test_una_oc_huerfana_es_un_contrato_valido`.
+
+**Fidelidad sobre correccion.** SENAMA declara 36 horas y el modelo calcula el
+vencimiento al dia siguiente de adjudicar. Es absurdo y se reproduce tal cual:
+marcarlo es trabajo de `validacion.py`, no de la reconstruccion. Un modulo que
+corrige mientras reconstruye esconde el problema que la validacion busca.
 
 **Tiempo de verificación:** ~20 s.
 
@@ -402,6 +461,13 @@ python -m contratos.cli correr --fecha 2025-05-15 --limite 20
 python -m contratos.cli correr --fecha 2025-05-15 --limite 20
 sqlite3 data/contratos.db "SELECT COUNT(*) FROM contrato;"
 ```
+**Medido: 10 tests en 2,4 s**, bajo el presupuesto de 25. La doble corrida sobre
+150 contratos deja 150 filas, no 300.
+
+**Los montos van como TEXT.** SQLite no tiene DECIMAL y REAL introduce error de
+coma flotante en pesos. Un test guarda 783,193 —el litro de diesel de Puerto
+Montt— y exige recuperarlo exacto.
+
 Salida esperada: `20` después de la segunda corrida, no `40`. La segunda corrida
 además reporta `requests emitidos: 0` porque todo sale de caché.
 
@@ -448,7 +514,17 @@ consultas concretas, para no tener que explorar la base a mano.
 pytest tests/test_analisis.py -v
 python -m contratos.cli analizar
 ```
-Salida esperada: cuatro tablas en consola, una por pregunta.
+Salida esperada: **cinco tablas en consola**, una por pregunta.
+**Medido: 11 tests en 2,6 s**, bajo el presupuesto de 15.
+
+**Las consultas viven en `consultas/*.sql`, no incrustadas en Python.** Se
+abren con cualquier cliente de SQLite, se leen sin ejecutar el proyecto, y cada
+archivo empieza explicando que pregunta responde y por que filtra como filtra.
+Un test exige que sea asi.
+
+**Verificado con datos reales:** la P2 pone a SENAMA primera y marcada como
+implausible —36 horas de contrato con garantia hasta 2027—, y la P3 devuelve las
+medianas de 45, 115 y 215 dias medidas en la Fase 1.
 
 **Tiempo de verificación:** ~15 s.
 
@@ -486,6 +562,13 @@ uvicorn contratos.web.app:app --port 8001 &
 curl -s localhost:8001/salud | jq
 python -m contratos.cli exportar && ls -la dist/dashboard.html
 ```
+**Medido: 15 tests en 3,2 s**, bajo el presupuesto de 30.
+
+**El export se verifica por lo que NO tiene.** Un test recorre el HTML buscando
+`<script`, `src=`, `rel="stylesheet"`, `http://` y `https://`, y falla si
+encuentra cualquiera. Autocontenido no es una intencion: es una propiedad que se
+comprueba.
+
 Salida esperada: un JSON con `contratos` **de al menos 400** de los 450
 esperados, y `ultima_corrida` con fecha, más un `dashboard.html` de un solo
 archivo.
@@ -525,8 +608,20 @@ bash despliegue/desplegar.sh
 curl -sI https://contratos.54-207-164-201.sslip.io/salud | head -1
 curl -sI https://serena.54-207-164-201.sslip.io | head -1
 ```
-Salida esperada: `HTTP/2 200` en **ambas** — la segunda confirma que no se rompió
-lo que ya estaba.
+Salida esperada: **HTTP 200 en las tres** — la del dashboard y las dos de los
+sitios que ya estaban. La verificacion usa GET y no HEAD: las rutas son GET-only
+y un HEAD devuelve 405, que parece un fallo sin serlo.
+
+**Desplegado y verificado en vivo:** https://contratos.54-207-164-201.sslip.io
+responde 200 en 0,2 s con certificado valido, HTTP redirige a HTTPS con 301, y
+serena y acp siguen en 200.
+
+**Dos cosas que el despliegue encontro:**
+- Ubuntu no trae `ensurepip`: sin `python3-venv`, `python3 -m venv` crea un
+  directorio inservible y el error recien aparece al invocar pip. El script
+  ahora lo comprueba e instala.
+- `nginx -t` ANTES de recargar es lo que protege los tres sitios en produccion:
+  una config rota los tumbaria a todos.
 
 **Tiempo de verificación:** ~60 s. No se puede acelerar: incluye copia por red y
 reinicio de servicio.
@@ -558,7 +653,23 @@ python -m contratos.cli correr --fecha 2025-05-15 --limite 20 --reporte
 echo "código de salida: $?"
 ```
 
-**Tiempo de verificación:** ~40 s.
+**Tiempo de verificación:** 12 tests en 1,7 s. La corrida real, 87 s la primera
+vez y **instantánea la segunda**: 42 aciertos de caché, cero requests.
+
+**Este incremento también entrega `pipeline.py`,** el orquestador que el
+backlog daba por supuesto: su propio comando de verificación invoca
+`contratos correr`, que no existía en ningún incremento anterior.
+
+**Dos correcciones que salieron de correr contra la fuente real:**
+
+- **Una fuente caída se reporta pero NO invalida la corrida.** La primera
+  versión marcaba toda la corrida como no confiable porque UNA ficha no tenía
+  tabla de garantías. Eso es normal. Lo que sí invalida es una cobertura baja,
+  y para eso está el umbral.
+- **La regla de garantías reporta la magnitud.** Apareció un segundo caso real,
+  `1004-56-LP24`: contrato de 24 meses con garantía 451 días después. Es 1,6x
+  el plazo, contra las ~1000x de SENAMA. Tratarlos igual sería ruido; ahora el
+  hallazgo dice cuántas veces excede y quien mira decide.
 
 ---
 
@@ -606,3 +717,14 @@ sobre aquellos donde una regla determinista ya sospecha algo. Por eso los tests 
 corrida real se ejecuta aparte, nunca en el bucle de desarrollo.
 
 **Fuera de alcance:** cualquier inferencia en la ruta de un request.
+
+**Medido: 16 tests en 1,6 s**, sin modelo real. Un doble devuelve respuestas
+fijas y **cuenta las llamadas**: eso es lo que permite verificar en segundos un
+comportamiento que en produccion tarda 3,4 minutos por documento. El test mas
+importante afirma `modelo.llamadas == 0`.
+
+**El rol de esta capa no es el que se habia previsto.** No extrae campos: los
+estructurados salen de la API o de un selector, mas rapido y sin razonar sobre
+lo que leen. Hace dos cosas que ninguna alternativa deterministica puede hacer:
+extraer clausulas en prosa libre, y **verificar de forma cruzada** el campo
+tipado contra el texto del documento.

@@ -103,7 +103,7 @@ Procedencias posibles: `api_oc`, `api_licitacion`, `ocds`, `ficha_web`,
 | `codigo_oc` | texto | sí | api_oc | `1002-183-SE25` | **clave primaria** |
 | `codigo_licitacion` | texto | **no** | api_oc | `1002-9-LQ25` | nulo en el 56% |
 | `tiene_proceso` | bool | sí | derivado | `true` | `codigo_licitacion is not null` |
-| `tipo_oc` | enum | sí | derivado | `SE` | `SE`, `CC`, `AG`, `CM`, `TD` |
+| `tipo_oc` | enum | sí | derivado | `SE` | `SE`, `CC`, `AG`, `CM`, `TD`, `CT`; uno nuevo va a cuarentena |
 | `codigo_estado` | entero | sí | api_oc | `12` | uno de los 5 conocidos |
 | `estado` | texto | sí | api_oc | `Recepción Conforme` | — |
 | `es_comprometido` | bool | sí | derivado | `true` | `codigo_estado != 9` |
@@ -227,6 +227,32 @@ validación cruzada entre dos fuentes independientes: si no coincide, cuarentena
 
 **Prorratear está prohibido.** El reparto real va de $19M a $167M; por partes
 iguales daría $88,3M a cada uno, un número que no existe en ninguna parte.
+
+### El monto adjudicado NO es comparable entre contratos
+
+Descubierto al implementar el incremento 5, y afecta la pregunta de negocio 4.
+
+| Licitación | Adjudicado (ítems y OCDS coinciden) | Qué es en realidad |
+|---|---|---|
+| 2678-1-LR25 Mostazal | $441.600.000 | Valor del contrato |
+| 1300-43-LP24 SENAMA | $1.900.000 | Valor del contrato |
+| 2328-443-LR24 Puerto Montt | **$783,19** | **Precio por litro de diésel** |
+
+Puerto Montt es un *convenio de suministro*: se adjudica un **precio unitario**
+con cantidad abierta, y su acta declara aparte un monto estimado de
+$1.500.000.000. Los $783 son reales y las dos fuentes coinciden en ellos, pero
+**no son el valor del contrato**.
+
+**Consecuencia:** sumar `monto_adjudicado` entre organismos mezcla totales con
+precios unitarios. Puerto Montt aparecería con $783 en vez de $1.500 millones.
+
+Por eso la pregunta 4 se responde con **`monto_ejecutado`**, que viene de las
+órdenes de compra y es dinero que efectivamente se movió. El monto adjudicado
+queda para la reconciliación entre fuentes, no para agregados.
+
+**Regla de plausibilidad que se deriva** (incremento 6): si el monto ejecutado
+de las órdenes de una licitación supera con holgura su monto adjudicado, es un
+convenio de precio unitario y hay que marcarlo, no sumarlo.
 
 ### Garantia — pertenece a la licitación
 

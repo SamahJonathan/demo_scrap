@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block cuerpo %}
+<h1>Ciclo de vida contractual</h1>
+<p class="sub">Contratos reconstruidos desde Mercado Público. La fuente no los
+publica como tales: se arman uniendo orden de compra, licitación, OCDS y ficha web.</p>
+
+<div class="tarjetas">
+  <div class="tarjeta"><b>{{ ind.contratos }}</b><span>contratos</span></div>
+  <div class="tarjeta"><b>{{ ind.sin_proceso }}</b><span>sin licitación previa</span></div>
+  <div class="tarjeta"><b>${{ "{:,.0f}".format(ind.ejecutado or 0) }}</b><span>ejecutado</span></div>
+  <div class="tarjeta"><b>${{ "{:,.0f}".format(ind.comprometido or 0) }}</b><span>comprometido</span></div>
+  <div class="tarjeta"><b>{{ por_vencer }}</b><span>garantías vencen en 6 meses</span></div>
+</div>
+
+{% if implausibles %}
+<div class="caja aviso">
+  <b class="alerta">{{ implausibles|length }} garantía(s) incoherente(s) con el plazo del contrato</b>
+  <p class="sub" style="margin:6px 0 10px">La fuente se contradice: uno de los dos
+  datos está mal cargado. No se corrige, se marca.</p>
+  <table>
+    <tr><th>Licitación</th><th>Garantía vence</th><th>Duración declarada</th></tr>
+    {% for g in implausibles %}
+    <tr>
+      <td class="codigo">{{ g.licitacion_codigo }}</td>
+      <td>{{ g.fecha_vencimiento }}</td>
+      <td class="alerta">{{ g.duracion_valor }} {{ g.duracion_unidad }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endif %}
+
+<div class="caja">
+  <b>Próximos vencimientos</b>
+  <p class="sub" style="margin:6px 0 10px">Renovar o relicitar es la decisión.</p>
+  {% if vencimientos %}
+  <table>
+    <tr><th>Contrato</th><th>Organismo</th><th>Vence</th><th>Días</th><th>Acción</th></tr>
+    {% for v in vencimientos %}
+    <tr>
+      <td><a class="codigo" href="/contratos/{{ v.codigo_oc }}">{{ v.codigo_oc }}</a></td>
+      <td>{{ v.organismo }}</td>
+      <td>{{ v.fecha_termino_estimada }}</td>
+      <td>{{ v.dias_restantes }}</td>
+      <td class="{{ 'ok' if v.accion == 'renovar' else '' }}">{{ v.accion }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}<p class="sub">Ninguno en el horizonte.</p>{% endif %}
+</div>
+{% endblock %}

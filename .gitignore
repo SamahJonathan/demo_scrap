@@ -86,3 +86,6 @@ reports/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Descargas manuales del desarrollador, no son del proyecto.
+Fichas/

@@ -35,8 +35,8 @@ fase. El método completo está en [docs/00-metodo.md](docs/00-metodo.md).
 | Spike 0 — Validación de supuesto | [`docs/00-spike.md`](docs/00-spike.md) | ✅ Cerrado |
 | Fase 1 — Análisis | [`docs/01-analisis.md`](docs/01-analisis.md) | ✅ Cerrada |
 | Fase 2 — Diseño | [`docs/02-diseno.md`](docs/02-diseno.md), [`docs/03-plan-codificacion.md`](docs/03-plan-codificacion.md) | ✅ Cerrada |
-| Fase 3 — Codificación | Incrementos 0 a 13 | 🟡 En curso |
-| Fase 4 — Cierre y presentación | Documentación final y demo | ⏳ Pendiente |
+| Fase 3 — Codificación | 14 incrementos, 159 tests | ✅ Cerrada |
+| Fase 4 — Cierre y presentación | Documentación final y demo | 🟡 En curso |
 
 ### Lo que la investigación ya estableció
 
@@ -53,6 +53,19 @@ Todo comprobado ejecutando requests contra la fuente, no leyendo documentación:
   Contratación Pública dentro del propio dato.
 - **Los documentos adjuntos quedan fuera de alcance:** están tras reCAPTCHA
   Enterprise y no se evade.
+
+## La demo
+
+**https://contratos.54-207-164-201.sslip.io**
+
+```bash
+python -m contratos.cli correr --reporte   # pipeline completo
+python -m contratos.cli analizar           # las cinco preguntas de negocio
+python -m contratos.cli exportar           # HTML autocontenido de respaldo
+```
+
+Operación, lectura del reporte y qué hacer cuando algo falla:
+[docs/04-operacion.md](docs/04-operacion.md).
 
 ## Principios que este repositorio respeta
 
@@ -75,15 +88,24 @@ Todo comprobado ejecutando requests contra la fuente, no leyendo documentación:
 
 ## Puesta en marcha
 
-Por ahora el repositorio contiene contexto y especificación, no código
-ejecutable. El andamiaje —dependencias, linter, tipos, tests, CI— llega en el
-Incremento 0 de la Fase 3, y esta sección crece con él.
-
 ```bash
 git clone git@github.com:SamahJonathan/demo_scrap.git
 cd demo_scrap
+python -m venv .venv && source .venv/Scripts/activate   # Windows: .venv\Scriptsctivate
+pip install -e ".[dev]"
 cp .env.example .env
 ```
+
+Verificar que quedó bien, en unos 16 segundos:
+
+```bash
+ruff check . && mypy src/ && pytest -q
+python -m contratos.cli --help
+```
+
+El CLI todavía no tiene subcomandos: **cada incremento agrega el suyo**, así que
+el comando que verifica un incremento existe desde que ese incremento se
+escribe.
 
 Luego edita `.env`. Como mínimo necesitas `MP_API_TICKET`, que se solicita con
 Clave Única en <https://www.chilecompra.cl/api/>; es personal y tiene un tope de

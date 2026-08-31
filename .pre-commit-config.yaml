@@ -1,0 +1,45 @@
+# Corre en cada commit. La idea es que ningun incremento se cierre con el
+# linter sucio o los tipos rotos, sin depender de que uno se acuerde.
+# Las versiones de los hooks se mantienen IGUALES a las del entorno local.
+# Si divergen, "pasa en local" deja de significar "pasa en el hook": el hook
+# clavado en ruff 0.5.7 exigia UP038, una regla que ruff 0.16 ya retiro.
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.5
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      # Se excluyen las fixtures y las descargas manuales: una fixture tiene que
+      # quedar byte a byte como la entrego la fuente, o deja de probar lo que
+      # la fuente realmente devuelve.
+      - id: trailing-whitespace
+        exclude: ^(data/samples/|tests/fixtures/|docs/metodo_karpathy_personal\.txt)
+      - id: end-of-file-fixer
+        exclude: ^(data/samples/|tests/fixtures/|docs/metodo_karpathy_personal\.txt)
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+      # Cortafuegos: impide commitear un archivo grande por accidente.
+      - id: check-added-large-files
+        args: [--maxkb=2048]
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v2.3.1
+    hooks:
+      - id: mypy
+        files: ^src/
+        # El hook corre aislado: si no ve las librerias, las trata como sin
+        # tipos y reporta falsos positivos que el mypy local no da.
+        additional_dependencies:
+          - pydantic
+          - pydantic-settings
+          - httpx
+          - tenacity
+          - fastapi
+          - jinja2
+          - types-requests

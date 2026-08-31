@@ -179,10 +179,14 @@ Pero solo lo traen algunas modalidades. Medido sobre las 9.206 OC del
 | **SE** | Solicitud desde licitación | ✅ poblado | 3.968 |
 | **CC** | — | ✅ poblado | 79 |
 | AG | Compra ágil | vacío | 3.473 |
+| CT | Tipo 17. Verificado contra la fuente en el Inc. 2 | vacío | 1 |
 | CM | Convenio marco | vacío | 1.021 |
 | TD | Trato directo | vacío | 664 |
 
-**El 56% de las órdenes de compra no nace de una licitación.** No es un defecto
+**El 56% de las órdenes de compra no nace de una licitación.** Son seis tipos,
+no cinco: `CT` apareció al clasificar el día completo y se verificó pidiendo su
+detalle antes de clasificarlo. Un tipo desconocido se aparta y se cuenta; no se
+asume a qué grupo pertenece. No es un defecto
 del dato: compra ágil, convenio marco y trato directo son modalidades que no
 pasan por licitación. El modelo de datos debe aceptar OC huérfanas como caso
 válido, no como error.

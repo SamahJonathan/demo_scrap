@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "fase/**", "inc/**"]
+  pull_request:
+
+jobs:
+  calidad:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar
+        run: pip install -e ".[dev]"
+
+      - name: Linter
+        run: ruff check .
+
+      - name: Formato
+        run: ruff format --check .
+
+      - name: Tipos
+        run: mypy src/
+
+      # Ningun test toca la red ni depende del entorno: usan respx, fixtures
+      # guardadas y un conftest que aisla las variables. Por eso aca NO se
+      # inyecta MP_API_TICKET: si algun test lo necesitara, es que dejo de ser
+      # hermetico y hay que arreglarlo, no taparlo con una variable.
+      - name: Tests
+        run: pytest -q
