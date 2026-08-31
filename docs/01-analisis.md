@@ -55,11 +55,15 @@ Casi 5x de diferencia. El promedio va a mentir: lo que informa es la dispersión
 por organismo.
 
 **Evidencia de la pregunta 2.** La regla nació de un dato corrupto real, no de la
-teoría. `1300-43-LP24` (SENAMA, aseo de una casa de acogida) declara plazo de
-contrato **36 horas** y una garantía de fiel cumplimiento que vence el
-**29-12-2027**. Nadie cauciona hasta 2027 un contrato de 36 horas: el plazo está
-mal cargado por el organismo. Los otros dos casos son coherentes (Mostazal 10
-meses, garantía hasta 02-03-2026; Puerto Montt 24 meses, hasta 29-04-2027).
+teoría. `1300-43-LP24` (SENAMA, aseo de una casa de acogida) declara en su campo
+estructurado un plazo de **36 horas**, mientras su propia prosa dice tres veces
+**36 meses** y la garantía de fiel cumplimiento vence el **29-12-2027**. El campo
+tipado está mal cargado y el documento se contradice a sí mismo.
+
+**VERIFICADO en el Spike 0:** la contradicción se detecta cruzando el campo
+estructurado contra la prosa. Ver `docs/00-spike.md`. Los otros dos casos son
+coherentes (Mostazal 10 meses, garantía hasta 02-03-2026; Puerto Montt 24 meses,
+hasta 29-04-2027).
 
 ### Conexión con el dominio de un CLM
 
@@ -73,15 +77,22 @@ Reconstruir contratos desde Mercado Público es una versión pública y verifica
 de ese mismo problema. Las preguntas 1 y 2 son literalmente funciones de producto
 de un CLM: alertas de vencimiento y control de garantías vivas.
 
-### Pendiente del Spike 0
+### Resultado del Spike 0 (cerrado)
 
-El método exige que, si la capa de extracción con modelo de lenguaje queda dentro
-del alcance, **al menos una pregunta de negocio la requiera**. Ninguna de las
-cinco actuales la necesita: todas se responden con campos deterministas.
+El método exige que, si la capa de inferencia queda dentro del alcance, al menos
+una pregunta de negocio la requiera. **El spike cambió el rol de esa capa:** no
+es extractora de campos, es **verificadora cruzada**. Detectó que la ficha de
+SENAMA se contradice a sí misma, algo que ningún parseo determinista podía hacer.
 
-Si el Spike 0 confirma esa tendencia, la consecuencia es explícita en el método:
-esa capa no tiene por qué existir y sale del proyecto. Se cierra al terminar la
-corrida.
+Eso habilita una sexta pregunta, que sí la requiere:
+
+| # | Pregunta | Fuente | Estado |
+|---|---|---|---|
+| 6 | ¿Qué contratos tienen su campo estructurado en contradicción con su propio texto, y cuál de los dos valores es el correcto? | Campo tipado + prosa vía inferencia | VERIFICADO en el spike |
+
+La capa queda **dentro del alcance pero fuera de la línea de corte**: es upside.
+Su costo medido —minutos por documento y 7,34 GB de RAM— no permite ponerla en la
+ruta crítica de la demo.
 
 ---
 
