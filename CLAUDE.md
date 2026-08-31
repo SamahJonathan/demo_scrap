@@ -220,6 +220,34 @@ La variabilidad NO depende del estado de la licitación, sino de la práctica de
 redacción del organismo. El modelo de datos debe tolerar que el acta no aporte
 nada.
 
+## Persistencia: PostgreSQL (decidido el 2026-08-31)
+
+**PostgreSQL 18** como motor principal, ya instalado y corriendo como servicio en
+la máquina de desarrollo.
+
+El criterio que decidió: **la demo la ejecuta el desarrollador compartiendo
+pantalla, no el entrevistador clonando el repositorio.** Esa es la razón, y si
+cambia, la decisión se revisa. SQLite ganaba solo bajo el supuesto contrario
+—cero configuración para un tercero— y ese supuesto no aplica.
+
+Lo que Postgres aporta al caso concreto:
+- Funciones de ventana para las preguntas de negocio de la Fase 1 (dispersión de
+  plazos por organismo, proveedores que repiten con un mismo comprador).
+- `JSONB` para guardar la respuesta cruda de la API junto al registro
+  normalizado, sin inventar tablas paralelas.
+- Es lo que un CLM enterprise usa en producción.
+
+**Condición que se mantiene:** la capa de acceso a datos queda detrás de
+`DATABASE_URL` y con SQL portable. No para soportar dos motores hoy, sino para
+que agregar SQLite después —si alguna vez hace falta que un tercero clone y
+ejecute— sea un adaptador y no una reescritura. Mismo patrón que la capa de
+inferencia: la dependencia externa es conmutable, no incrustada.
+
+**Riesgo asumido, explícito:** un repositorio que exige un servidor Postgres
+corriendo no se ejecuta solo. Si el entrevistador quiere probarlo por su cuenta
+después de la reunión, no va a poder sin instalar. Se acepta a cambio de una
+demo más cercana a producción.
+
 ## Decisiones tomadas (2026-08-31)
 
 - **Profundidad sobre volumen.** La demo no aspira a cobertura exhaustiva de la
