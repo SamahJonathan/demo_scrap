@@ -1,0 +1,29 @@
+# Servicio del dashboard. Un solo worker: la instancia tiene 911 MB y comparte
+# con nginx, MariaDB, Redis y tres sitios mas. uvicorn con 1 worker usa ~100 MB.
+#
+# NUNCA corre inferencia: eso vive en la maquina de desarrollo, en lote. Un
+# modelo de 7,34 GB no cabe aca ni deberia estar en la ruta de un request.
+
+[Unit]
+Description=Dashboard de contratos publicos
+After=network.target
+
+[Service]
+Type=exec
+User=ubuntu
+WorkingDirectory=/opt/contratos
+Environment="PATH=/opt/contratos/.venv/bin"
+# Solo lo que el dashboard necesita. El ticket de la API NO va aca: el
+# servidor no consulta a Mercado Publico, solo sirve el .db ya construido.
+Environment="MP_API_TICKET=no-se-usa-en-el-servidor"
+Environment="DATABASE_URL=sqlite:///data/contratos.db"
+ExecStart=/opt/contratos/.venv/bin/uvicorn contratos.web.app:app \
+    --host 127.0.0.1 --port 8001 --workers 1
+Restart=on-failure
+RestartSec=5
+
+# Contencion: si algo se desboca, que no tumbe los otros sitios.
+MemoryMax=300M
+
+[Install]
+WantedBy=multi-user.target

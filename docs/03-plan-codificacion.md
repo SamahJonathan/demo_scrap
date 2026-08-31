@@ -608,8 +608,20 @@ bash despliegue/desplegar.sh
 curl -sI https://contratos.54-207-164-201.sslip.io/salud | head -1
 curl -sI https://serena.54-207-164-201.sslip.io | head -1
 ```
-Salida esperada: `HTTP/2 200` en **ambas** — la segunda confirma que no se rompió
-lo que ya estaba.
+Salida esperada: **HTTP 200 en las tres** — la del dashboard y las dos de los
+sitios que ya estaban. La verificacion usa GET y no HEAD: las rutas son GET-only
+y un HEAD devuelve 405, que parece un fallo sin serlo.
+
+**Desplegado y verificado en vivo:** https://contratos.54-207-164-201.sslip.io
+responde 200 en 0,2 s con certificado valido, HTTP redirige a HTTPS con 301, y
+serena y acp siguen en 200.
+
+**Dos cosas que el despliegue encontro:**
+- Ubuntu no trae `ensurepip`: sin `python3-venv`, `python3 -m venv` crea un
+  directorio inservible y el error recien aparece al invocar pip. El script
+  ahora lo comprueba e instala.
+- `nginx -t` ANTES de recargar es lo que protege los tres sitios en produccion:
+  una config rota los tumbaria a todos.
 
 **Tiempo de verificación:** ~60 s. No se puede acelerar: incluye copia por red y
 reinicio de servicio.
