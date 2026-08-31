@@ -260,6 +260,68 @@ corriendo no se ejecuta solo. Si el entrevistador quiere probarlo por su cuenta
 después de la reunión, no va a poder sin instalar. Se acepta a cambio de una
 demo más cercana a producción.
 
+## Presentación y despliegue (decidido el 2026-08-31)
+
+**Dashboard: FastAPI servido contra PostgreSQL.** No HTML estático.
+
+**Despliegue: instancia Lightsail existente en `sa-east-1` (São Paulo)**, aún
+dentro de su periodo gratuito. São Paulo da mejor latencia a Chile que las
+regiones de Cloud Run, y al ser una VM real PostgreSQL corre de verdad, sin
+degradarlo a un snapshot de solo lectura.
+
+**SSL con Caddy como reverse proxy**, no con el load balancer de Lightsail, que
+cuesta más que la propia instancia. Caddy obtiene y renueva el certificado de
+Let's Encrypt solo:
+
+```
+tu-dominio.com {
+    reverse_proxy localhost:8000
+}
+```
+
+### Regla no negociable: la inferencia NUNCA va en la ruta del request
+
+Medido en el Spike 0: el modelo consume **7,34 GB de RAM** y tarda entre 8 y 65
+minutos por documento en CPU. Un endpoint HTTP que lo invoque no es un riesgo de
+memoria, es un diseño roto.
+
+La inferencia se ejecuta como **paso de lote, offline**, y persiste sus
+resultados con el fragmento de origen. El dashboard lee filas, nunca infiere.
+
+**Consecuencia para el día de la demo:** con videollamada, cámara y pantalla
+compartida ocupando entre 0,8 y 1,5 GB, más el navegador, no queda espacio para
+7,34 GB de modelo. Y el problema mayor no es la RAM sino la CPU: `llama-server`
+satura todos los núcleos, y competiría con la codificación de video. El síntoma
+no sería un dashboard lento, sería el video congelándose.
+
+Al desplegar en Lightsail, el día de la demo la máquina local solo corre un
+navegador. Se manda un link, y el entrevistador puede explorarlo después de la
+reunión — lo que además responde la objeción de que el repositorio no se puede
+ejecutar sin instalar PostgreSQL.
+
+**Respaldo:** se exporta igual un HTML autocontenido con los datos embebidos. Si
+algo falla en vivo, se abre con doble clic.
+
+**El modelo NO se despliega en la nube.** Sería contradecir el argumento que
+sostiene la arquitectura: el adaptador local existe porque un cliente enterprise
+pregunta a dónde van sus contratos. Subirlo a la nube ya es el adaptador hosted,
+que es más barato y rápido.
+
+**Pendiente de verificar:** cuánta RAM tiene el plan de la instancia. FastAPI y
+PostgreSQL juntos necesitan 1 GB como mínimo; con 512 MB habría que volver al
+snapshot de solo lectura.
+
+## Muestra de datos (decidido el 2026-08-31)
+
+**150 órdenes de compra por día, en 3 días distintos.** Se parte de OC tipo SE y
+CC, no de licitaciones (ver `docs/01-analisis.md` § 3.5).
+
+Costo aproximado: 3 requests de listado + 450 de detalle de OC + hasta 450 de
+licitaciones ≈ **900 requests**, contra un cupo de 10.000 diarios.
+
+Tres fechas separadas en vez de una: permite ver variación temporal y evita que
+un día atípico distorsione los agregados.
+
 ## Decisiones tomadas (2026-08-31)
 
 - **Profundidad sobre volumen.** La demo no aspira a cobertura exhaustiva de la

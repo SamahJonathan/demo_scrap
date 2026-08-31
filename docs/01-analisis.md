@@ -397,11 +397,22 @@ Observables, verificables ejecutando algo.
 
 ---
 
-## Preguntas abiertas para el desarrollador
+## Preguntas abiertas — RESUELTAS
 
-1. ¿La ventana de 5 días hábiles se mantiene, o conviene elegir días con más
-   licitaciones adjudicadas?
-2. ¿El dashboard es estático generado, o una aplicación servida contra
-   PostgreSQL?
-3. Si el enlace con órdenes de compra resulta inviable, ¿se acepta el plan B de
-   contrato sin ejecución registrada?
+1. **Tamaño y forma de la muestra.** → 150 órdenes de compra por día, en 3 días
+   distintos. Se parte de OC tipo SE y CC, no de licitaciones. ~900 requests
+   contra un cupo de 10.000.
+2. **Presentación.** → FastAPI servido contra PostgreSQL, desplegado en una
+   instancia Lightsail en `sa-east-1`, con SSL vía Caddy. Export de HTML
+   autocontenido como respaldo.
+3. **~~Plan B si el enlace con OC es inviable~~.** → Pregunta muerta: el enlace
+   existe (`CodigoLicitacion`) y está verificado. Ver § 3.5.
+
+**Regla que salió de estas decisiones:** la inferencia nunca va en la ruta de un
+request. Corre en lote, offline, y persiste sus resultados. Medido: 7,34 GB de
+RAM y entre 8 y 65 minutos por documento.
+
+## Pendiente para cerrar el gate
+
+- Verificar cuánta RAM tiene el plan de la instancia Lightsail. Con menos de
+  1 GB, PostgreSQL no cabe junto a FastAPI y habría que servir un snapshot.
