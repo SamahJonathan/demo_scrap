@@ -103,7 +103,7 @@ Procedencias posibles: `api_oc`, `api_licitacion`, `ocds`, `ficha_web`,
 | `codigo_oc` | texto | sí | api_oc | `1002-183-SE25` | **clave primaria** |
 | `codigo_licitacion` | texto | **no** | api_oc | `1002-9-LQ25` | nulo en el 56% |
 | `tiene_proceso` | bool | sí | derivado | `true` | `codigo_licitacion is not null` |
-| `tipo_oc` | enum | sí | derivado | `SE` | `SE`, `CC`, `AG`, `CM`, `TD` |
+| `tipo_oc` | enum | sí | derivado | `SE` | `SE`, `CC`, `AG`, `CM`, `TD`, `CT`; uno nuevo va a cuarentena |
 | `codigo_estado` | entero | sí | api_oc | `12` | uno de los 5 conocidos |
 | `estado` | texto | sí | api_oc | `Recepción Conforme` | — |
 | `es_comprometido` | bool | sí | derivado | `true` | `codigo_estado != 9` |

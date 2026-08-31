@@ -107,6 +107,12 @@ prueba consume cupo del ticket y espera a la red.
   reintentar y registra el error. Nada de `except` silencioso.
 - **Dado** `MAX_REQUESTS_PER_RUN` alcanzado, **cuando** se pide uno más,
   **entonces** aborta con un mensaje explícito.
+- **Dado** un cuerpo con sobre de error (`Codigo` y `Mensaje` sin `Listado`),
+  **cuando** llega con un código 2xx, **entonces** falla y **no se cachea**.
+  Mercado Público responde **HTTP 203** con "Ticket no válido" cuando el ticket
+  vence, y 203 es un código de éxito: un cliente que solo mire `status >= 400`
+  cachearía el error como dato y la corrida daría cero registros sin avisar.
+  El ticket se renueva a diario, así que esto pasa seguido.
 
 **Comando de verificación:**
 ```bash
@@ -123,6 +129,12 @@ y un request menos.**
 
 **Fuera de alcance:** conocimiento de qué endpoint es cuál. El cliente es
 genérico.
+
+**Lección de método.** El criterio "pre-commit configurado" del Incremento 0 se
+dio por cumplido con el archivo presente, pero **nadie había ejecutado
+`pre-commit install`**: los tres primeros commits pasaron sin hooks. Un criterio
+que comprueba que un archivo existe no comprueba que haga algo. Los criterios de
+los incrementos siguientes verifican comportamiento, no presencia.
 
 ---
 

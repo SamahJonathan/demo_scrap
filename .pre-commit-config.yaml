@@ -11,8 +11,13 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
+      # Se excluyen las fixtures y las descargas manuales: una fixture tiene que
+      # quedar byte a byte como la entrego la fuente, o deja de probar lo que
+      # la fuente realmente devuelve.
       - id: trailing-whitespace
+        exclude: ^(data/samples/|Fichas/|docs/metodo_karpathy_personal\.txt)
       - id: end-of-file-fixer
+        exclude: ^(data/samples/|Fichas/|docs/metodo_karpathy_personal\.txt)
       - id: check-yaml
       - id: check-toml
       - id: check-merge-conflict
@@ -25,4 +30,11 @@ repos:
     hooks:
       - id: mypy
         files: ^src/
-        additional_dependencies: [pydantic, pydantic-settings]
+        # El hook corre aislado: si no ve las librerias, las trata como sin
+        # tipos y reporta falsos positivos que el mypy local no da.
+        additional_dependencies:
+          - pydantic
+          - pydantic-settings
+          - httpx
+          - tenacity
+          - types-requests

@@ -14,6 +14,7 @@ import respx
 
 from contratos.cliente import (
     Cliente,
+    ErrorDeLaFuente,
     LimiteDeRequests,
     RespuestaDefinitiva,
     RespuestaTransitoria,
@@ -143,3 +144,48 @@ def test_el_ticket_no_aparece_en_los_logs(
 
     for r in caplog.records:
         assert secreto not in r.getMessage()
+
+
+@respx.mock
+def test_un_203_con_ticket_invalido_no_se_toma_como_exito(config: Config) -> None:
+    """Mercado Publico responde HTTP 203 cuando el ticket vencio.
+
+    203 es un codigo 2xx. Un cliente que solo mire status >= 400 lo tomaria por
+    bueno, cachearia el mensaje de error como dato, y la corrida terminaria con
+    cero registros sin avisar. El ticket se renueva a diario: esto pasa seguido.
+    """
+    respx.get(URL).mock(
+        return_value=httpx.Response(
+            203, json={"Codigo": 203, "Mensaje": "Ticket no válido."}
+        )
+    )
+
+    with Cliente(config) as c, pytest.raises(ErrorDeLaFuente) as e:
+        c.obtener(URL, {"ticket": "vencido"})
+
+    assert "Ticket no" in str(e.value)
+    assert "MP_API_TICKET" in str(e.value), "el error debe decir como arreglarlo"
+
+
+@respx.mock
+def test_un_error_en_el_cuerpo_no_envenena_la_cache(config: Config) -> None:
+    """Lo importante: que el proximo intento vuelva a preguntar, no lea basura."""
+    respx.get(URL).mock(
+        return_value=httpx.Response(
+            203, json={"Codigo": 203, "Mensaje": "Ticket no válido."}
+        )
+    )
+
+    with Cliente(config) as c, pytest.raises(ErrorDeLaFuente):
+        c.obtener(URL, {"ticket": "vencido"})
+
+    assert list(config.http_cache_dir.glob("*.json")) == []
+
+
+@respx.mock
+def test_un_cuerpo_que_no_es_json_no_se_confunde_con_un_error(config: Config) -> None:
+    """La ficha web devuelve HTML: no tiene sobre de error y debe pasar."""
+    respx.get(URL).mock(return_value=httpx.Response(200, text="<html>ficha</html>"))
+
+    with Cliente(config) as c:
+        assert c.obtener(URL, sufijo=".html") == "<html>ficha</html>"

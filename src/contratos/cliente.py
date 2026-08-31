@@ -56,6 +56,34 @@ class RespuestaDefinitiva(RuntimeError):
     """
 
 
+class ErrorDeLaFuente(RuntimeError):
+    """La API respondio 2xx pero el cuerpo trae un error.
+
+    Mercado Publico devuelve **HTTP 203** con {"Codigo":203,"Mensaje":"Ticket no
+    valido."} cuando el ticket vencio. 203 es un codigo de exito, asi que un
+    cliente ingenuo lo cachearia como dato bueno y la corrida terminaria con
+    cero registros sin avisar de nada.
+
+    El ticket se renueva a diario, o sea que esto pasa todos los dias.
+    """
+
+
+def _error_en_el_cuerpo(texto: str) -> str | None:
+    """Devuelve el mensaje de error si el cuerpo es un sobre de error.
+
+    Una respuesta buena trae Cantidad, FechaCreacion, Version y Listado. Una
+    mala trae Codigo y Mensaje. No se adivina por el codigo HTTP: se mira el
+    cuerpo.
+    """
+    try:
+        datos = json.loads(texto)
+    except (json.JSONDecodeError, ValueError):
+        return None  # HTML, por ejemplo la ficha web: no aplica
+    if isinstance(datos, dict) and "Mensaje" in datos and "Listado" not in datos:
+        return f"{datos.get('Codigo')}: {datos['Mensaje']}"
+    return None
+
+
 def _clave(url: str, params: dict[str, Any] | None) -> str:
     """Hash estable de la petición, para nombrar su archivo de caché.
 
@@ -172,5 +200,19 @@ class Cliente:
             # Nada de except silencioso: se registra y se levanta.
             log.error("HTTP %d en %s — no se reintenta", respuesta.status_code, url)
             raise RespuestaDefinitiva(f"HTTP {respuesta.status_code} en {url}")
+
+        # Un 2xx no garantiza un cuerpo util. Se revisa ANTES de cachear, para
+        # no envenenar la cache con un mensaje de error.
+        problema = _error_en_el_cuerpo(respuesta.text)
+        if problema is not None:
+            log.error(
+                "la fuente respondio HTTP %d con un error en el cuerpo: %s",
+                respuesta.status_code,
+                problema,
+            )
+            raise ErrorDeLaFuente(
+                f"{problema} (HTTP {respuesta.status_code}). "
+                "Si dice 'Ticket no valido', renueva MP_API_TICKET en el .env."
+            )
 
         return respuesta.text
