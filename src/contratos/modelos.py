@@ -299,3 +299,38 @@ class EstadoVencimiento(StrEnum):
     CALCULADO = "calculado"
     NO_DECLARADO = "no_declarado"
     UNIDAD_DESCONOCIDA = "unidad_desconocida"
+
+
+class ClausulaExtraida(BaseModel):
+    """Clausula en prosa libre, extraida por el modelo.
+
+    fragmento_origen y posicion_inicio son OBLIGATORIOS. Un dato inferido sin
+    poder mostrar de donde salio no entra: durante el Spike 0, esa trazabilidad
+    fue lo que permitio auditar un resultado mal interpretado.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    licitacion_codigo: str = Field(min_length=1)
+    tipo: str = Field(min_length=1)
+    texto: str = Field(min_length=1)
+    fragmento_origen: str = Field(min_length=1)
+    posicion_inicio: int = Field(ge=0)
+    modelo: str = Field(min_length=1)
+
+
+class Discrepancia(BaseModel):
+    """El campo estructurado y la prosa del documento se contradicen.
+
+    Se guardan AMBOS valores. Ni el parseo ni el modelo ganan por defecto:
+    detectar que la fuente se contradice es el resultado, no un problema a
+    ocultar.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    licitacion_codigo: str = Field(min_length=1)
+    campo: str = Field(min_length=1)
+    valor_estructurado: str | None = None
+    valor_prosa: str | None = None
+    regla: str = Field(min_length=1)
