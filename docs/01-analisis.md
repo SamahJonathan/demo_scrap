@@ -376,7 +376,12 @@ CC0 del OCDS es la declaración más específica encontrada.
 **Demo mínima defendible**, decidida en frío y no la noche anterior:
 
 > Extracción por API y ficha, validación con cuarentena, reconstrucción del
-> contrato, persistencia y dashboard de vencimientos y garantías.
+> contrato, persistencia, dashboard de vencimientos y garantías, **y su
+> despliegue accesible por HTTPS**.
+
+Corresponde a los incrementos 0 a 11 de `docs/03-plan-codificacion.md`. El
+despliegue entra en la línea de corte porque la demo se presenta desde un link,
+no desde la máquina local: sin él no hay demo.
 
 Todo lo demás es upside: enlace con órdenes de compra, extracción con modelo de
 lenguaje, observabilidad avanzada.

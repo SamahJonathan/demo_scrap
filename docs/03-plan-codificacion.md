@@ -242,6 +242,12 @@ descarga en `fuentes/ficha_web.py`, `tests/` de los tres.
 - **Dado** el bloque `Fechas`, **cuando** lo leo, **entonces** capturo
   `FechaPublicacion` y `FechaAdjudicacion`. **Ambas son necesarias para la
   pregunta de negocio 3** y sin ellas esa pregunta queda sin respuesta.
+- **Dado** `Items[].Adjudicacion`, **cuando** lo leo, **entonces** capturo
+  `RutProveedor`, `Cantidad` y `MontoUnitario` de cada ítem, que es lo que
+  permite atribuir el monto adjudicado a un proveedor concreto.
+- **Dado** `2678-1-LR25`, **cuando** sumo los ítems por RUT, **entonces** obtengo
+  cinco proveedores, el mayor con $167.000.000, y el total da $441.600.000,
+  **idéntico al `award.value` de OCDS**.
 - **Dado** `UnidadTiempoDuracionContrato`, **cuando** lo decodifico, **entonces**
   `1` es horas y `4` es meses; **cualquier otro valor produce `desconocido`, no
   una suposición**.
@@ -287,6 +293,10 @@ completa.
   **entonces** se marca como implausible.
 - **Dado** el caso real de SENAMA (`36 horas` de contrato, garantía hasta
   `2027-12-29`), **cuando** valido, **entonces** la regla lo detecta.
+- **Dado** los ítems adjudicados de una licitación, **cuando** sumo los montos
+  de todos sus proveedores, **entonces** el total debe coincidir con el
+  `award.value` de OCDS. Si no coincide, el registro va a cuarentena: son dos
+  fuentes independientes y su desacuerdo significa que algo cambió.
 - **Dado** una tasa de cuarentena sobre `MAX_QUARANTINE_RATE`, **cuando**
   termina la corrida, **entonces** falla: no es un dato malo, es un parser roto.
 
@@ -317,6 +327,10 @@ y declare de dónde vino cada campo, para poder defender cada dato.
   obtengo un `Contrato` válido con `tiene_proceso=false`. **No es un error.**
 - **Dado** dos OC que comparten licitación, **cuando** reconstruyo, **entonces**
   obtengo **dos** contratos distintos con el mismo `codigo_licitacion`.
+- **Dado** una OC cuyo proveedor tiene RUT `X`, **cuando** calculo
+  `monto_adjudicado`, **entonces** sumo solo los ítems adjudicados a `X`, **no**
+  el total de la licitación. Prorratear está prohibido: la fuente da el dato
+  exacto.
 - **Dado** adjudicación y duración, **cuando** derivo `fecha_termino_estimada`,
   **entonces** el cálculo respeta la unidad decodificada, y es `None` si la
   unidad es `desconocido`.
@@ -436,7 +450,10 @@ uvicorn contratos.web.app:app --port 8001 &
 curl -s localhost:8001/salud | jq
 python -m contratos.cli exportar && ls -la dist/dashboard.html
 ```
-Salida esperada: `{"contratos": 450, "ultima_corrida": "..."}`.
+Salida esperada: un JSON con `contratos` mayor que 0 y `ultima_corrida` con
+fecha, mas un `dashboard.html` de un solo archivo. **No se fija un numero
+exacto**: la cuarentena puede descartar registros legitimamente y el criterio
+no debe fallar por eso.
 
 **Tiempo de verificación:** ~30 s.
 
@@ -538,9 +555,11 @@ pytest tests/test_inferencia.py -v            # ~20 s, sin modelo, todo simulado
 python -m contratos.cli inferir --limite 1    # ~8 min, con modelo real
 ```
 
-**Tiempo de verificación:** los tests, 20 s. La corrida real, **8 minutos por
-documento**, y no se puede acelerar en este hardware: medido en el Spike 0 son
-7,34 GB de RAM y CPU saturada. Por eso los tests usan respuestas simuladas y la
+**Tiempo de verificación:** los tests, 20 s. La corrida real, **entre 8 y 65
+minutos por documento** — ese es el rango medido en el Spike 0 sobre documentos
+completos, con 7,34 GB de RAM y CPU saturada. El filtro de recuperacion deberia
+reducirlo al enviar entre un 43% y un 76% menos de texto, **pero eso no esta
+medido todavia** y no se promete. Por eso los tests usan respuestas simuladas y la
 corrida real se ejecuta aparte, nunca en el bucle de desarrollo.
 
 **Fuera de alcance:** cualquier inferencia en la ruta de un request.

@@ -102,7 +102,7 @@ Procedencias posibles: `api_oc`, `api_licitacion`, `ocds`, `ficha_web`,
 | `proveedor` | texto | sí | api_oc | `COMERCIALIZADORA C&J LTDA.` | no vacío |
 | `monto_ejecutado` | decimal | sí | api_oc | `975800` | > 0 |
 | `monto_estimado` | decimal | no | api_licitacion | `522500000` | > 0 si existe |
-| `monto_adjudicado` | decimal | no | **ocds** | `441600000` | > 0 si existe |
+| `monto_adjudicado` | decimal | no | api_licitacion | `167000000` | > 0 si existe |
 | `fecha_publicacion` | fecha | no | api_licitacion | `2025-01-24` | ≤ `fecha_adjudicacion` |
 | `fecha_adjudicacion` | fecha | no | api_licitacion | `2025-03-10` | ≤ hoy |
 | `duracion_valor` | entero | no | api_licitacion | `10` | > 0 |
@@ -112,6 +112,31 @@ Procedencias posibles: `api_oc`, `api_licitacion`, `ocds`, `ficha_web`,
 | `permite_subcontratacion` | bool | no | api_licitacion | `true` | — |
 | `n_oferentes` | entero | no | ocds | `6` | ≥ 1 |
 | `estado_ejecucion` | texto | sí | api_oc | `Recepción Conforme` | — |
+
+**Cómo se calcula `monto_adjudicado`, y por qué NO se prorratea.** Una
+adjudicación puede repartirse entre varios proveedores: en `2678-1-LR25` son
+**cinco**, sobre un total de $441.600.000. Como cada `Contrato` es una orden de
+compra con **un** proveedor, asignarle el total a cada uno quintuplicaría la suma.
+
+La fuente permite atribuir exacto. Cada elemento de `Items[].Adjudicacion` trae
+`RutProveedor`, `Cantidad` y `MontoUnitario`. El monto adjudicado de un contrato
+es la **suma de los ítems adjudicados al RUT del proveedor de su orden de
+compra**:
+
+| RUT del proveedor | Ítems | Monto adjudicado |
+|---|---|---|
+| 76.036.979-9 | 7 | $167.000.000 |
+| 11.175.478-0 | 6 | $123.100.000 |
+| 10.047.811-0 | 3 | $70.500.000 |
+| 11.756.584-K | 3 | $62.000.000 |
+| 10.200.595-3 | 1 | $19.000.000 |
+| **Total** | **20** | **$441.600.000** |
+
+Ese total **cuadra al peso con el `award.value` de OCDS**. De ahí sale una regla
+de validación cruzada entre dos fuentes independientes: si la suma de los ítems
+no coincide con lo que declara OCDS, el registro va a cuarentena. Nunca se
+reparte por partes iguales: sería un número inventado, y el rango real va de $19M
+a $167M.
 
 **Nota sobre las dos fechas del proceso:** `fecha_publicacion` y
 `fecha_adjudicacion` existen para responder la pregunta de negocio 3 —cuánto
@@ -220,6 +245,23 @@ de la API o relleno legal idéntico en toda ficha.
 
 Une las cuatro fuentes y produce `Contrato` con procedencia por campo, más las
 filas de `Garantia`, `ClausulaExtraida` y `Discrepancia`.
+
+### La muestra, elegida midiendo
+
+Tres fechas de órdenes de compra separadas en el año, con volumen comparable:
+
+| Fecha | Órdenes | Enlazables (SE + CC) |
+|---|---|---|
+| 2025-01-15 | 7.471 | 4.004 |
+| 2025-05-15 | 9.206 | 4.047 |
+| 2025-10-15 | 9.375 | 4.000 |
+
+**Descartada 2025-07-16:** trae 555 órdenes contra ~9.000 de un día hábil. Es
+feriado en Chile (Virgen del Carmen). Fijar fechas a ojo habría metido una
+muestra basura sin que nadie lo notara.
+
+Se piden 150 detalles por fecha: 450 contratos, ~900 requests contra un cupo de
+10.000.
 
 ### Idempotencia
 
