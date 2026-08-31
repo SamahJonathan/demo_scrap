@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block titulo %}Contratos públicos{% endblock %}</title>
+<style>
+  :root { --tinta:#1a1a1a; --suave:#666; --linea:#e2e2e2; --fondo:#fafafa;
+          --alerta:#b02a2a; --ok:#1d6b3a; }
+  * { box-sizing:border-box }
+  body { margin:0; font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif;
+         color:var(--tinta); background:var(--fondo) }
+  header { background:#fff; border-bottom:1px solid var(--linea); padding:14px 22px }
+  header a { color:var(--tinta); text-decoration:none; margin-right:18px }
+  header a:hover { text-decoration:underline }
+  main { max-width:1100px; margin:0 auto; padding:22px }
+  h1 { font-size:1.35rem; margin:0 0 4px }
+  .sub { color:var(--suave); margin:0 0 20px; font-size:.9rem }
+  .tarjetas { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+              gap:12px; margin-bottom:24px }
+  .tarjeta { background:#fff; border:1px solid var(--linea); border-radius:6px; padding:14px }
+  .tarjeta b { display:block; font-size:1.5rem; font-weight:600 }
+  .tarjeta span { color:var(--suave); font-size:.82rem }
+  table { width:100%; border-collapse:collapse; background:#fff; font-size:.88rem }
+  th,td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--linea) }
+  th { color:var(--suave); font-weight:600; font-size:.78rem; text-transform:uppercase }
+  tr:hover td { background:#f6f8fa }
+  .alerta { color:var(--alerta); font-weight:600 }
+  .ok { color:var(--ok) }
+  .caja { background:#fff; border:1px solid var(--linea); border-radius:6px;
+          padding:16px; margin-bottom:20px }
+  .aviso { border-left:3px solid var(--alerta); background:#fff5f5 }
+  .proc { color:var(--suave); font-size:.72rem; font-family:ui-monospace,monospace }
+  form { margin-bottom:16px }
+  input,button { font:inherit; padding:6px 10px; border:1px solid var(--linea); border-radius:4px }
+  a.codigo { font-family:ui-monospace,monospace; color:#0645ad }
+</style>
+</head>
+<body>
+<header>
+  <a href="/"><b>Contratos públicos</b></a>
+  <a href="/contratos">Contratos</a>
+  <a href="/salud">Salud</a>
+</header>
+<main>{% block cuerpo %}{% endblock %}</main>
+</body>
+</html>

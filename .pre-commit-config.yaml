@@ -40,4 +40,6 @@ repos:
           - pydantic-settings
           - httpx
           - tenacity
+          - fastapi
+          - jinja2
           - types-requests

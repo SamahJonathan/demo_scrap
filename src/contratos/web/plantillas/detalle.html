@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block cuerpo %}
+<h1 class="codigo">{{ c.codigo_oc }}</h1>
+<p class="sub">
+  {% if c.codigo_licitacion %}
+    Nace de la licitación <b>{{ c.codigo_licitacion }}</b>
+  {% else %}
+    <b>Sin licitación previa.</b> Compra ágil, convenio marco o trato directo:
+    es un contrato válido, no un error. Son el 56% de las órdenes.
+  {% endif %}
+</p>
+
+<div class="caja">
+  <b>Contrato</b>
+  <p class="sub" style="margin:6px 0 10px">Cada campo declara de dónde vino.
+  Sin procedencia el dato no es defendible.</p>
+  <table>
+    <tr><th>Campo</th><th>Valor</th><th>Procedencia</th></tr>
+    {% for campo in ["organismo","organismo_rut","proveedor","proveedor_rut",
+                     "monto_ejecutado","monto_adjudicado","estado",
+                     "fecha_aceptacion","fecha_termino_estimada",
+                     "estado_vencimiento"] %}
+    <tr>
+      <td>{{ campo }}</td>
+      <td>{{ c[campo] if c[campo] is not none else "—" }}</td>
+      <td class="proc">{{ procedencias.get(campo, "—") }}</td>
+    </tr>
+    {% endfor %}
+    <tr>
+      <td>gasto</td>
+      <td>
+        {% if c.es_ejecutado %}<span class="ok">ejecutado</span>
+        {% elif c.es_comprometido %}comprometido, aún no ejecutado
+        {% else %}<span class="alerta">no cuenta como gasto</span>{% endif %}
+      </td>
+      <td class="proc">derivado</td>
+    </tr>
+  </table>
+</div>
+
+{% if licitacion %}
+<div class="caja">
+  <b>Proceso</b>
+  <table>
+    <tr><td>nombre</td><td colspan="2">{{ licitacion.nombre }}</td></tr>
+    <tr><td>publicación → adjudicación</td>
+        <td colspan="2">{{ licitacion.fecha_publicacion }} → {{ licitacion.fecha_adjudicacion }}</td></tr>
+    <tr><td>duración</td>
+        <td colspan="2" class="{{ 'alerta' if licitacion.duracion_unidad == 'horas' else '' }}">
+          {{ licitacion.duracion_valor }} {{ licitacion.duracion_unidad }}</td></tr>
+    <tr><td>renovable</td><td colspan="2">{{ "sí" if licitacion.es_renovable else "no" }}</td></tr>
+  </table>
+</div>
+{% endif %}
+
+{% if garantias %}
+<div class="caja">
+  <b>Garantías</b>
+  <p class="sub" style="margin:6px 0 10px">Pertenecen a la licitación, no al
+  contrato: varias órdenes del mismo proceso comparten estas mismas cauciones.
+  Solo la ficha web las publica.</p>
+  <table>
+    <tr><th>Tipo</th><th>Monto</th><th>Vence</th><th>Beneficiario</th><th>Origen</th></tr>
+    {% for g in garantias %}
+    <tr>
+      <td>{{ g.tipo }}</td>
+      <td>{% if g.monto_es_porcentaje %}{{ g.monto_valor }} %
+          {% else %}${{ "{:,.0f}".format(g.monto_valor|float) }}{% endif %}</td>
+      <td>{{ g.fecha_vencimiento or "—" }}</td>
+      <td>{{ (g.beneficiario or "—")[:40] }}</td>
+      <td class="proc">{{ g.fragmento_origen }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endif %}
+{% endblock %}

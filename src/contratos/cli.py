@@ -71,7 +71,30 @@ def construir_parser() -> argparse.ArgumentParser:
     a.add_argument("--meses", type=int, default=12, help="horizonte para P1")
     a.set_defaults(func=_cmd_analizar)
 
+    # --- exportar (incremento 10) ------------------------------------------
+    e = subs.add_parser(
+        "exportar",
+        help="genera dist/dashboard.html autocontenido (respaldo de la demo)",
+    )
+    e.add_argument("--base", type=Path, default=Path("data/contratos.db"))
+    e.add_argument("--destino", type=Path, default=Path("dist/dashboard.html"))
+    e.set_defaults(func=_cmd_exportar)
+
     return parser
+
+
+def _cmd_exportar(args: argparse.Namespace) -> int:
+    from contratos.web.exportar import generar
+
+    if not args.base.exists():
+        print(f"no existe {args.base}. Corre primero el pipeline.")
+        return 1
+
+    destino = generar(args.base, args.destino)
+    kb = destino.stat().st_size / 1024
+    print(f"{destino}  ({kb:.0f} KB)")
+    print("Autocontenido: se abre con doble clic, sin servidor ni red.")
+    return 0
 
 
 def _cmd_analizar(args: argparse.Namespace) -> int:

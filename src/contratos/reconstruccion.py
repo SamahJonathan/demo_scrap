@@ -96,9 +96,9 @@ class Cartera:
         return sum(len(g) for g in self.garantias.values())
 
 
-# Procedencia de cada campo. Es una tabla, no comentarios sueltos: así el
-# dashboard puede mostrarla y un test puede exigir que esté completa.
-_PROCEDENCIAS: dict[str, Procedencia] = {
+# Procedencia de cada campo. Es parte del contrato publico del modulo: el
+# dashboard la muestra y un test exige que ningun campo quede sin ella.
+PROCEDENCIAS: dict[str, Procedencia] = {
     "codigo_oc": Procedencia.API_OC,
     "codigo_licitacion": Procedencia.API_OC,
     "organismo": Procedencia.API_OC,
@@ -179,7 +179,7 @@ def reconstruir(orden: OrdenCompra, licitacion: Licitacion | None) -> Contrato:
         fecha_aceptacion=orden.fecha_aceptacion,
         fecha_termino_estimada=fin,
         estado_vencimiento=estado_venc,
-        procedencias=dict(_PROCEDENCIAS),
+        procedencias=dict(PROCEDENCIAS),
     )
 
 
