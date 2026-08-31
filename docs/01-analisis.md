@@ -282,7 +282,49 @@ y el estándar internacional respalda que ahí debería haber algo.
 La respuesta a "¿por qué no usaste el bulk?" no es que lo descartamos: **lo
 usamos donde es superior, y documentamos dónde no alcanza.**
 
-### 3.7 Pendiente de investigar
+### 3.7 Licencia y condiciones de uso
+
+**VERIFICADO, y es el dato más contundente:** el propio *record* OCDS declara su
+licencia de forma legible por máquina.
+
+```json
+"publisher": {"name": "Dirección de Compras y Contratación Pública"},
+"license":   "https://creativecommons.org/publicdomain/zero/1.0/"
+```
+
+**CC0 1.0 Universal**: dedicación al dominio público. El organismo que publica
+renuncia a sus derechos sobre estos datos. No es una interpretación nuestra sobre
+un texto legal ambiguo: es una declaración explícita del publicador, dentro del
+dato mismo.
+
+Eso respalda directamente la restricción "solo datos públicos" del proyecto.
+
+Otros hechos comprobados:
+
+| Señal | Estado |
+|---|---|
+| `robots.txt` de `mercadopublico.cl` | **404** — no declara reglas de exclusión |
+| Ticket de la API | Personal, vía Clave Única, tope 10.000 requests/día |
+| Horario sugerido por el proveedor | 22:00 a 07:00, por baja carga |
+| Adjuntos | Control de acceso técnico activo (reCAPTCHA Enterprise) |
+| `publicationPolicy` declarada en el OCDS | **404** — el enlace está roto |
+
+**Cómo se traduce en conducta, y es más estricto que lo exigido:**
+
+- Ausencia de `robots.txt` no es permiso amplio. Se mantiene el throttling
+  conservador y el User-Agent con contacto real.
+- El reCAPTCHA de los adjuntos **sí** es una restricción declarada por el
+  operador, aunque sea técnica y no textual. Se respeta: esos documentos quedan
+  fuera de alcance.
+- El tope de 10.000 diarios se respeta con `MAX_REQUESTS_PER_RUN` y caché de
+  respuestas en desarrollo.
+
+**SUPUESTO POR VERIFICAR:** no se localizó un documento de términos de uso
+específico para la API. La página de términos de `chilecompra.cl` que sí
+responde trata del Registro de Proveedores, no del consumo de datos. La licencia
+CC0 del OCDS es la declaración más específica encontrada.
+
+### 3.8 Pendiente de investigar
 - Términos de uso de la plataforma.
 - Diccionario de datos completo de cada endpoint y significado de cada estado.
 
