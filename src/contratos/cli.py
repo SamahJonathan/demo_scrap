@@ -80,7 +80,47 @@ def construir_parser() -> argparse.ArgumentParser:
     e.add_argument("--destino", type=Path, default=Path("dist/dashboard.html"))
     e.set_defaults(func=_cmd_exportar)
 
+    # --- correr (incremento 12) --------------------------------------------
+    r = subs.add_parser(
+        "correr", help="ejecuta el pipeline completo y reporta que paso"
+    )
+    r.add_argument(
+        "--fecha",
+        type=date.fromisoformat,
+        action="append",
+        metavar="AAAA-MM-DD",
+        help="repetible; por defecto usa FECHAS_OC del .env",
+    )
+    r.add_argument("--limite", type=int, default=None, help="tope por grupo")
+    r.add_argument("--base", type=Path, default=Path("data/contratos.db"))
+    r.add_argument(
+        "--reporte", action="store_true", help="imprime el detalle de la corrida"
+    )
+    r.set_defaults(func=_cmd_correr)
+
     return parser
+
+
+def _cmd_correr(args: argparse.Namespace) -> int:
+    from contratos.config import cargar
+    from contratos.pipeline import correr
+
+    cfg = cargar()
+    fechas = args.fecha or cfg.fechas_oc
+
+    m = correr(fechas, args.base, n_con=args.limite, n_sin=args.limite)
+
+    if args.reporte:
+        print(m.reporte(cfg.max_quarantine_rate, min_registros=1))
+    else:
+        print(
+            f"{m.procesados} contratos en {m.duracion:.1f}s "
+            f"({m.requests_emitidos} requests, {m.aciertos_cache} de cache)"
+        )
+
+    # Codigo distinto de cero si un umbral se supera: asi la corrida se puede
+    # encadenar en un cron o en CI sin revisarla a ojo.
+    return m.codigo_salida(cfg.max_quarantine_rate, min_registros=1)
 
 
 def _cmd_exportar(args: argparse.Namespace) -> int:

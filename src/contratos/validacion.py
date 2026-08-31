@@ -121,23 +121,37 @@ def revisar_garantias(
     for g in garantias:
         if g.tipo is not TipoGarantia.FIEL_CUMPLIMIENTO or g.fecha_vencimiento is None:
             continue
-        if g.fecha_vencimiento > termino + MARGEN_GARANTIA:
+        exceso = (g.fecha_vencimiento - termino).days
+        if exceso > MARGEN_GARANTIA.days:
+            # La magnitud importa y la regla la reporta: SENAMA excede su plazo
+            # unas mil veces (36 horas contra tres anios) y eso es absurdo; una
+            # caucion 15 meses mas larga que un contrato de 24 puede ser
+            # legitima. La regla senala; quien mira decide.
+            dias_contrato = (
+                max((termino - licitacion.fecha_adjudicacion).days, 1)
+                if licitacion.fecha_adjudicacion
+                else 1
+            )
+            veces = (dias_contrato + exceso) / dias_contrato
             hallazgos.append(
                 Hallazgo(
                     identificador=licitacion.codigo,
                     motivo=Motivo.GARANTIA_VENCE_ANTES,
                     detalle=(
                         f"la garantía vence {g.fecha_vencimiento}, "
-                        f"pero el contrato termina {termino} "
-                        f"({licitacion.duracion_valor} "
+                        f"{exceso} días después de que el contrato termina "
+                        f"({termino}, {licitacion.duracion_valor} "
                         f"{licitacion.duracion_unidad.value}). "
-                        "Uno de los dos datos está mal cargado en la fuente."
+                        f"Cubre {veces:.1f}x la duración del contrato. "
+                        "Uno de los dos datos podría estar mal cargado."
                     ),
                     valores={
                         "vence_garantia": str(g.fecha_vencimiento),
                         "termina_contrato": str(termino),
                         "duracion": f"{licitacion.duracion_valor} "
                         f"{licitacion.duracion_unidad.value}",
+                        "dias_de_exceso": str(exceso),
+                        "veces_la_duracion": f"{veces:.1f}",
                         "origen": g.fragmento_origen,
                     },
                 )

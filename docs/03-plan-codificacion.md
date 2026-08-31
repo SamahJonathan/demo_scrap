@@ -653,7 +653,23 @@ python -m contratos.cli correr --fecha 2025-05-15 --limite 20 --reporte
 echo "código de salida: $?"
 ```
 
-**Tiempo de verificación:** ~40 s.
+**Tiempo de verificación:** 12 tests en 1,7 s. La corrida real, 87 s la primera
+vez y **instantánea la segunda**: 42 aciertos de caché, cero requests.
+
+**Este incremento también entrega `pipeline.py`,** el orquestador que el
+backlog daba por supuesto: su propio comando de verificación invoca
+`contratos correr`, que no existía en ningún incremento anterior.
+
+**Dos correcciones que salieron de correr contra la fuente real:**
+
+- **Una fuente caída se reporta pero NO invalida la corrida.** La primera
+  versión marcaba toda la corrida como no confiable porque UNA ficha no tenía
+  tabla de garantías. Eso es normal. Lo que sí invalida es una cobertura baja,
+  y para eso está el umbral.
+- **La regla de garantías reporta la magnitud.** Apareció un segundo caso real,
+  `1004-56-LP24`: contrato de 24 meses con garantía 451 días después. Es 1,6x
+  el plazo, contra las ~1000x de SENAMA. Tratarlos igual sería ruido; ahora el
+  hallazgo dice cuántas veces excede y quien mira decide.
 
 ---
 
