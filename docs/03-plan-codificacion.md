@@ -209,17 +209,22 @@ licitación, para poder reconstruir el proceso que la originó.
   4 Enviada a proveedor, 5 En proceso. **Un valor desconocido no se adivina**:
   el registro va a cuarentena.
 - **Dado** una orden en estado 9 (Cancelada), **cuando** la proceso, **entonces**
-  se ingesta igual pero con `cuenta_como_gasto = false`. Se midió una cancelada
-  con monto $1.346.366: sumarla al gasto lo inflaría.
+  se ingesta igual pero con `es_comprometido = false` y `es_ejecutado = false`.
+  Se midió una cancelada con monto $1.346.366: sumarla al gasto lo inflaría.
+- **Dado** un lote con un registro que no valida, **cuando** lo proceso,
+  **entonces** ese va a cuarentena con su motivo y **los demás continúan**. Un
+  registro malo no aborta la corrida.
 
 **Comando de verificación:**
 ```bash
 pytest tests/test_detalle_oc.py -v
 python -m contratos.cli detalle-oc --codigo 1002772-10006-SE25
 ```
-Salida esperada: JSON con `codigo_licitacion: "1002772-78-LR24"`.
+Salida esperada: JSON con `codigo_licitacion: "1002772-78-LR24"`, más las tres
+derivadas `tiene_proceso`, `es_comprometido` y `es_ejecutado`.
 
-**Tiempo de verificación:** ~45 s.
+**Tiempo de verificación:** **3 s medidos** para 13 tests, bajo el presupuesto
+de 45.
 
 **Fuera de alcance:** pedir la licitación.
 

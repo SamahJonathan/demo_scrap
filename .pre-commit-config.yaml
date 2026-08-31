@@ -15,9 +15,9 @@ repos:
       # quedar byte a byte como la entrego la fuente, o deja de probar lo que
       # la fuente realmente devuelve.
       - id: trailing-whitespace
-        exclude: ^(data/samples/|Fichas/|docs/metodo_karpathy_personal\.txt)
+        exclude: ^(data/samples/|tests/fixtures/|docs/metodo_karpathy_personal\.txt)
       - id: end-of-file-fixer
-        exclude: ^(data/samples/|Fichas/|docs/metodo_karpathy_personal\.txt)
+        exclude: ^(data/samples/|tests/fixtures/|docs/metodo_karpathy_personal\.txt)
       - id: check-yaml
       - id: check-toml
       - id: check-merge-conflict

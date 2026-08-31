@@ -46,7 +46,32 @@ def construir_parser() -> argparse.ArgumentParser:
     )
     d.set_defaults(func=_cmd_descubrir)
 
+    # --- detalle-oc (incremento 3) -----------------------------------------
+    t = subs.add_parser(
+        "detalle-oc",
+        help="detalle de una orden de compra, con su enlace a la licitación",
+    )
+    t.add_argument("--codigo", required=True, metavar="1002-183-SE25")
+    t.set_defaults(func=_cmd_detalle_oc)
+
     return parser
+
+
+def _cmd_detalle_oc(args: argparse.Namespace) -> int:
+    import json
+
+    from contratos.cliente import Cliente
+    from contratos.fuentes.api_oc import detalle
+
+    with Cliente() as c:
+        o = detalle(c, args.codigo)
+        salida = o.model_dump(mode="json")
+        # Las tres derivadas no son campos: se calculan y conviene verlas.
+        salida["tiene_proceso"] = o.tiene_proceso
+        salida["es_comprometido"] = o.es_comprometido
+        salida["es_ejecutado"] = o.es_ejecutado
+        print(json.dumps(salida, ensure_ascii=False, indent=2))
+    return 0
 
 
 def _cmd_descubrir(args: argparse.Namespace) -> int:
