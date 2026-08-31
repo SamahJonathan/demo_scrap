@@ -136,6 +136,50 @@ Dato menor pero útil: **`https://www.mercadopublico.cl/robots.txt` devuelve 404
 La fuente no declara reglas de exclusión. No habilita nada: el throttling
 conservador se mantiene igual.
 
+## Límite de responsabilidad del modelo, verificado con evidencia
+
+La sección "Etapas y plazos" de la ficha web es, campo por campo, el bloque
+`Fechas` de la API. Comprobado en 2678-1-LR25 con coincidencia 11 de 11,
+incluidos los tres "No hay información" que corresponden a `FechaSoporteFisico`,
+`FechaEstimadaFirma` y `FechaTiempoEvaluacion` en `None`.
+
+Consecuencia: **ninguna fecha del proceso se le pide a un modelo de lenguaje.**
+Son campos estructurados, tipados y exactos que la API entrega gratis. Pedirlos
+por inferencia es pagar alucinaciones por datos que ya están ciertos.
+
+Cuidado con la ambigüedad de la palabra "plazo", que designa dos cosas
+distintas:
+- **Plazos del proceso** (preguntas, apertura, adjudicación): bloque `Fechas`.
+- **Plazo del contrato**: `TiempoDuracionContrato` +
+  `UnidadTiempoDuracionContrato`.
+
+`UnidadTiempoDuracionContrato = 4` significa **MESES**. Decodificado cruzando
+fuentes: en 2328-443-LR24 la API declara `TiempoDuracionContrato='24'` con
+`Unidad=4`, y el acta de adjudicación dice en prosa "Duración contrato: 24
+MESES". El resto de los valores del enum sigue SIN decodificar: `Unidad=1`
+aparece en 1300-43-LP24 con valor 36 y no es meses. NO asumir su significado.
+
+Esa validación cruzada —enum sin documentar contra prosa de un documento
+independiente— es material de demo: es como se audita un campo cuyo significado
+el proveedor de datos no publica.
+
+## El acta de adjudicación SÍ es accesible
+
+`RFB/StepsProcessAward/PreviewAwardAct.aspx?qs=<token>` responde HTTP 200 con un
+GET limpio y **sin reCAPTCHA**, con el mismo token `qs` de la ficha. Rescata en
+parte la capa de documentos que el bloqueo de adjuntos daba por perdida.
+
+Riqueza muy desigual entre organismos, medida sobre tres actas:
+| Acta | Caracteres | Contenido contractual |
+|---|---|---|
+| 2328-443-LR24 (Puerto Montt) | 7.374 | Duración, monto y garantía de fiel cumplimiento en prosa |
+| 1300-43-LP24 (SENAMA) | 14.207 | Menciona garantía al pasar |
+| 2678-1-LR25 (Mostazal) | 29.533 | Ninguno: se remite a las bases |
+
+La variabilidad NO depende del estado de la licitación, sino de la práctica de
+redacción del organismo. El modelo de datos debe tolerar que el acta no aporte
+nada.
+
 ## Decisiones tomadas (2026-08-31)
 
 - **Profundidad sobre volumen.** La demo no aspira a cobertura exhaustiva de la
