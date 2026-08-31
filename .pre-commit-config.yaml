@@ -1,0 +1,28 @@
+# Corre en cada commit. La idea es que ningun incremento se cierre con el
+# linter sucio o los tipos rotos, sin depender de que uno se acuerde.
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.5.7
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+      # Cortafuegos: impide commitear un archivo grande por accidente.
+      - id: check-added-large-files
+        args: [--maxkb=2048]
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.11.1
+    hooks:
+      - id: mypy
+        files: ^src/
+        additional_dependencies: [pydantic, pydantic-settings]

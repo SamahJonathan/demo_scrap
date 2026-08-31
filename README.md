@@ -75,15 +75,24 @@ Todo comprobado ejecutando requests contra la fuente, no leyendo documentación:
 
 ## Puesta en marcha
 
-Por ahora el repositorio contiene contexto y especificación, no código
-ejecutable. El andamiaje —dependencias, linter, tipos, tests, CI— llega en el
-Incremento 0 de la Fase 3, y esta sección crece con él.
-
 ```bash
 git clone git@github.com:SamahJonathan/demo_scrap.git
 cd demo_scrap
+python -m venv .venv && source .venv/Scripts/activate   # Windows: .venv\Scriptsctivate
+pip install -e ".[dev]"
 cp .env.example .env
 ```
+
+Verificar que quedó bien, en unos 16 segundos:
+
+```bash
+ruff check . && mypy src/ && pytest -q
+python -m contratos.cli --help
+```
+
+El CLI todavía no tiene subcomandos: **cada incremento agrega el suyo**, así que
+el comando que verifica un incremento existe desde que ese incremento se
+escribe.
 
 Luego edita `.env`. Como mínimo necesitas `MP_API_TICKET`, que se solicita con
 Clave Única en <https://www.chilecompra.cl/api/>; es personal y tiene un tope de
