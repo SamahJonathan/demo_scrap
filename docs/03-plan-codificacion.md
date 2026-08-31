@@ -717,3 +717,14 @@ sobre aquellos donde una regla determinista ya sospecha algo. Por eso los tests 
 corrida real se ejecuta aparte, nunca en el bucle de desarrollo.
 
 **Fuera de alcance:** cualquier inferencia en la ruta de un request.
+
+**Medido: 16 tests en 1,6 s**, sin modelo real. Un doble devuelve respuestas
+fijas y **cuenta las llamadas**: eso es lo que permite verificar en segundos un
+comportamiento que en produccion tarda 3,4 minutos por documento. El test mas
+importante afirma `modelo.llamadas == 0`.
+
+**El rol de esta capa no es el que se habia previsto.** No extrae campos: los
+estructurados salen de la API o de un selector, mas rapido y sin razonar sobre
+lo que leen. Hace dos cosas que ninguna alternativa deterministica puede hacer:
+extraer clausulas en prosa libre, y **verificar de forma cruzada** el campo
+tipado contra el texto del documento.

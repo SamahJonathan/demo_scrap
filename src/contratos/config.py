@@ -72,6 +72,19 @@ class Config(BaseSettings):
     estados_comprometido: Annotated[list[int], NoDecode] = [4, 5, 6, 12]
     estados_ejecutado: Annotated[list[int], NoDecode] = [6, 12]
 
+    # --- Capa de inferencia -----------------------------------------------
+    # local por defecto: el argumento arquitectonico es que un CLM enterprise
+    # procesa contratos confidenciales. Estos datos son publicos, asi que la
+    # decision es de diseno, no una necesidad de este caso.
+    inference_provider: str = "local"
+    ollama_base_url: str = "http://localhost:11434"
+    ollama_model: str = "llama3.1:8b"
+    hosted_inference_api_key: str = ""
+    hosted_inference_model: str = "claude-sonnet-5"
+    inference_temperature: float = 0.0
+    inference_max_tokens: int = 2048
+    inference_timeout_seconds: int = 1200
+
     # --- Umbrales de calidad que hacen fallar la corrida -------------------
     max_quarantine_rate: float = 0.05
     min_cobertura_garantias: float = 0.90
