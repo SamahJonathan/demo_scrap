@@ -363,6 +363,11 @@ completa.
 pytest tests/test_validacion.py -v
 ```
 Salida esperada: incluye `test_senama_36_horas_es_implausible PASSED`.
+**12 tests en 0,24 s**, bajo el presupuesto de 15.
+
+**Las reglas se prueban contra los casos reales que las originaron**, no contra
+ejemplos inventados: SENAMA para la garantia implausible, Puerto Montt para el
+precio unitario, y las tres licitaciones para el cruce con OCDS.
 
 **Tiempo de verificación:** ~15 s.
 
