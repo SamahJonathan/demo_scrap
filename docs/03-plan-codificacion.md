@@ -263,7 +263,14 @@ conecta en el incremento 5.
 ```bash
 pytest tests/test_ficha_web.py -v
 ```
-Salida esperada: 5 tests pasan, todos contra HTML guardado, **sin tocar la red**.
+Salida esperada: **9 tests pasan** en 0,23 s, todos contra HTML guardado, **sin
+tocar la red**.
+
+**El parseo NO usa regex sobre el texto.** La ficha es ASP.NET WebForms y su
+GridView deja ids estables —`grvGarantias_ctl02_lblFicha8Monto`,
+`..._lblFicha8FechaVencimiento`— así que se usan selectores CSS sobre esos ids.
+Si el sitio cambia el maquetado pero mantiene el GridView, el parser sigue
+funcionando. El regex del spike se rompía con cualquier cambio de espaciado.
 
 **Tiempo de verificación:** ~30 s, con **cero requests**.
 

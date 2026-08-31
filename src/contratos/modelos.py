@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from decimal import Decimal
-from enum import IntEnum
+from enum import IntEnum, StrEnum
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -132,3 +132,38 @@ class OrdenCompra(BaseModel):
             fecha_envio=_fecha(fechas.get("FechaEnvio")),
             fecha_aceptacion=_fecha(fechas.get("FechaAceptacion")),
         )
+
+
+class TipoGarantia(StrEnum):
+    """Un titulo que no reconocemos queda como OTRA, no se fuerza a un tipo."""
+
+    SERIEDAD_OFERTA = "seriedad_oferta"
+    FIEL_CUMPLIMIENTO = "fiel_cumplimiento"
+    OTRA = "otra"
+
+
+class Garantia(BaseModel):
+    """Caucion exigida por una licitacion.
+
+    Pertenece a la LICITACION, no a la orden de compra: si una licitacion
+    origina cinco ordenes, sus garantias son las mismas dos. Replicarlas por
+    contrato haria que contarlas diera diez.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    licitacion_codigo: str = Field(min_length=1)
+    tipo: TipoGarantia
+    titulo_original: str = ""
+
+    monto_valor: Decimal | None = None
+    # Un 5 % y $5 no son lo mismo. La ficha los distingue en TipoMoneda y el
+    # modelo tambien: colapsarlos haria que sumar montos diera cualquier cosa.
+    monto_es_porcentaje: bool = False
+    moneda: str | None = None
+
+    fecha_vencimiento: date | None = None
+    beneficiario: str | None = None
+
+    # Sin trazabilidad al origen el dato no es defendible.
+    fragmento_origen: str = Field(min_length=1)
