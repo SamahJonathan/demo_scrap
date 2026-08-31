@@ -161,6 +161,21 @@ copió. No tiene ticket ni lo necesita.
 documento; la instancia tiene 911 MB compartidos con otros tres sitios. La
 inferencia vive en la máquina de desarrollo, en lote.
 
+### Por qué certbot corre en cada despliegue
+
+**certbot modifica el archivo de nginx in situ** para agregar los bloques de
+SSL. Como el script sobrescribe ese archivo, saltarse certbot cuando el
+certificado ya existe **deja el sitio sin TLS**: el puerto 443 cae al
+certificado de otro sitio y el navegador reporta nombre incorrecto.
+
+Pasó una vez, en un redespliegue, y se detectó porque la verificación lo
+comprueba. Por eso ahora corre siempre con `--keep-until-expiring`, que
+reinstala la configuración sin volver a pedir el certificado ni gastar cuota de
+Let's Encrypt.
+
+La verificación final recorre **las siete rutas**, no solo la portada: un
+despliegue que prueba una sola ruta no detecta las otras seis rotas.
+
 ### Para actualizar solo los datos
 
 ```bash

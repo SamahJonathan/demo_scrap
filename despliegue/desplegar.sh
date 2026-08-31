@@ -94,27 +94,43 @@ ssh_ "sudo systemctl restart contratos && sleep 2 && \
 # --------------------------------------------------------------------------
 if [ "$SOLO_DATOS" -eq 0 ]; then
     paso "Certificado TLS"
-    if ssh_ "sudo test -d /etc/letsencrypt/live/$DOMINIO"; then
-        echo "  ya existe, no se vuelve a pedir"
-    else
-        ssh_ "sudo certbot --nginx -d $DOMINIO --non-interactive --agree-tos \
-              --register-unsafely-without-email --redirect" 2>&1 | tail -4 | sed 's/^/  /'
-    fi
+    # certbot modifica el archivo de nginx IN SITU para agregar los bloques de
+    # SSL. Como este script SOBRESCRIBE ese archivo en cada despliegue, hay que
+    # volver a ejecutarlo SIEMPRE: saltarselo deja el sitio sin TLS y el 443
+    # cae al certificado de otro sitio, con un error de nombre incorrecto.
+    #
+    # --keep-until-expiring reinstala la configuracion sin volver a pedir el
+    # certificado: es idempotente y no gasta cuota de Let's Encrypt.
+    CERTBOT="sudo certbot --nginx -d $DOMINIO --non-interactive --agree-tos"
+    CERTBOT="$CERTBOT --register-unsafely-without-email"
+    CERTBOT="$CERTBOT --keep-until-expiring --redirect"
+    ssh_ "$CERTBOT" 2>&1 \
+        | grep -iE "deploying|congratulations|not yet due|error" \
+        | head -3 | sed 's/^/  /' || true
 fi
 
 # --------------------------------------------------------------------------
 paso "Verificacion"
 
-echo "  dashboard:"
+echo "  dashboard (desde el propio servidor):"
 ssh_ "curl -sf http://127.0.0.1:8001/salud" | sed 's/^/    /'
 echo ""
-printf '    HTTPS  -> %s\n' "$(curl -sI "https://$DOMINIO/salud" | head -1 | tr -d '\r')"
+
+# GET y no HEAD: las rutas son GET-only y un HEAD devuelve 405, que parece un
+# fallo sin serlo. Se recorren TODAS: un despliegue que solo prueba la portada
+# no detecta una ruta rota.
+echo "  rutas publicas:"
+for r in / /vencimientos /garantias /plazos /contratos /estado /salud; do
+    printf '    %-14s HTTP %s\n' "$r" \
+        "$(curl -sS -o /dev/null -w '%{http_code}' "https://$DOMINIO$r")"
+done
 
 # Lo que de verdad importa: no haber roto lo que ya estaba.
 echo "  sitios existentes (no deben haberse tocado):"
 for sitio in serena acp; do
-    printf '    %-8s -> %s\n' "$sitio" \
-        "$(curl -sI "https://$sitio.54-207-164-201.sslip.io" | head -1 | tr -d '\r')"
+    printf '    %-8s      HTTP %s\n' "$sitio" \
+        "$(curl -sS -o /dev/null -w '%{http_code}' \
+            "https://$sitio.54-207-164-201.sslip.io")"
 done
 
 printf '\n\033[1mListo: https://%s\033[0m\n' "$DOMINIO"
