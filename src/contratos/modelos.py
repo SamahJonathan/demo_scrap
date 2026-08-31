@@ -286,3 +286,16 @@ class Licitacion(BaseModel):
             items=tuple(items),
             url_acta=adj.get("UrlActa") or None,
         )
+
+
+class EstadoVencimiento(StrEnum):
+    """Por que falta la fecha de termino, en vez de un NULL mudo.
+
+    Un nulo mezcla tres situaciones que exigen respuestas distintas:
+    NO_DECLARADO es una caracteristica de la modalidad de compra y no hay nada
+    que arreglar; UNIDAD_DESCONOCIDA es deuda nuestra y hay que investigarla.
+    """
+
+    CALCULADO = "calculado"
+    NO_DECLARADO = "no_declarado"
+    UNIDAD_DESCONOCIDA = "unidad_desconocida"

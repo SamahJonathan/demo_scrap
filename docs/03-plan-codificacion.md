@@ -415,7 +415,13 @@ y declare de dónde vino cada campo, para poder defender cada dato.
 ```bash
 pytest tests/test_reconstruccion.py -v
 ```
-Salida esperada: los 4 tests pasan, incluido `test_oc_huerfana_es_contrato_valido`.
+Salida esperada: **14 tests pasan** en 1,6 s, bajo el presupuesto de 20,
+incluido `test_una_oc_huerfana_es_un_contrato_valido`.
+
+**Fidelidad sobre correccion.** SENAMA declara 36 horas y el modelo calcula el
+vencimiento al dia siguiente de adjudicar. Es absurdo y se reproduce tal cual:
+marcarlo es trabajo de `validacion.py`, no de la reconstruccion. Un modulo que
+corrige mientras reconstruye esconde el problema que la validacion busca.
 
 **Tiempo de verificación:** ~20 s.
 
