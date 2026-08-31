@@ -40,7 +40,7 @@ confirmamos que existen.
 | 2 | ¿Qué garantías siguen vigentes, y cuáles vencen antes que el contrato que caucionan? | Ficha web § 8 + API | VERIFICADO |
 | 3 | ¿Cuánto tarda cada organismo entre publicar y adjudicar, y cuánto varía? | API: bloque `Fechas` | VERIFICADO |
 | 4 | ¿Qué organismos concentran mayor monto vigente, y con qué proveedores? | API: `MontoEstimado` + `Comprador` + `Adjudicacion` | VERIFICADO |
-| 5 | ¿Qué licitaciones adjudicadas no tienen orden de compra asociada? | API de licitaciones + API de OC | SUPUESTO POR VERIFICAR |
+| 5 | ¿Qué órdenes de compra no nacen de una licitación, y qué proporción del gasto representan? | API de OC: `CodigoLicitacion` vacío | **VERIFICADO**: 56% de las OC de un día |
 
 **Evidencia de la pregunta 3.** Medida sobre tres casos reales adjudicados el
 10-03-2025:
@@ -166,10 +166,61 @@ para lo que la API no expone".
 cruzando la API contra la sección 7 de la ficha en tres licitaciones. El resto de
 los valores sigue SIN decodificar y no debe asumirse.
 
-### 3.5 Pendiente de investigar
+### 3.5 El enlace licitación ↔ orden de compra — RESUELTO
 
-- Enlace exacto entre una licitación y su o sus órdenes de compra. **Es el punto
-  crítico del proyecto**: sin ese enlace no hay entidad contrato.
+**VERIFICADO.** El enlace existe como campo tipado: el detalle de una orden de
+compra trae **`CodigoLicitacion`**, no un texto libre.
+
+Pero solo lo traen algunas modalidades. Medido sobre las 9.206 OC del
+15-05-2025:
+
+| Tipo | Qué es | `CodigoLicitacion` | Volumen del día |
+|---|---|---|---|
+| **SE** | Solicitud desde licitación | ✅ poblado | 3.968 |
+| **CC** | — | ✅ poblado | 79 |
+| AG | Compra ágil | vacío | 3.473 |
+| CM | Convenio marco | vacío | 1.021 |
+| TD | Trato directo | vacío | 664 |
+
+**El 56% de las órdenes de compra no nace de una licitación.** No es un defecto
+del dato: compra ágil, convenio marco y trato directo son modalidades que no
+pasan por licitación. El modelo de datos debe aceptar OC huérfanas como caso
+válido, no como error.
+
+#### La restricción operativa que cambia la estrategia
+
+El enlace **solo se puede recorrer en una dirección**:
+
+- De OC a licitación: directo, el campo está ahí.
+- De licitación a sus OC: **no existe.** La API rechaza `codigoLicitacion` como
+  parámetro (HTTP 400, "Nombre de parametro no valido"). Y el LISTADO de OC solo
+  devuelve `Codigo`, `Nombre` y `CodigoEstado` — sin `CodigoLicitacion`, que solo
+  aparece pidiendo el detalle de cada una.
+
+Indexar un solo día de OC para poder ir de licitación a orden costaría **9.206
+requests**, el 92% del cupo diario. Filtrando a SE y CC siguen siendo ~4.047.
+Inviable para una ventana amplia.
+
+#### Consecuencia: la extracción se invierte
+
+En vez de partir de licitaciones y buscarles órdenes, **se parte de las órdenes
+de compra de tipo SE y CC**, se lee su `CodigoLicitacion` y se piden esas
+licitaciones. Cada contrato queda completo —proceso, adjudicación y ejecución—
+con costo acotado y predecible:
+
+```
+1 request    listado de OC de un día
+N requests   detalle de las OC tipo SE/CC de la muestra
+M requests   detalle de las licitaciones referenciadas (M <= N)
+```
+
+Para una muestra de 150 órdenes: ~300 requests, contra un cupo de 10.000.
+
+Además elimina el problema del rezago: si se parte de una OC ya publicada, su
+licitación existe con certeza. Partiendo al revés, la mayoría de las
+licitaciones recientes aparecería sin ejecución por el rezago de 1 a 2 meses.
+
+### 3.6 Pendiente de investigar
 - Datasets de Datos Abiertos y publicación OCDS. Hay que evaluarlos en serio y
   justificar el descarte: "¿por qué no usaste el bulk?" es pregunta probable en
   la entrevista.
@@ -182,8 +233,9 @@ los valores sigue SIN decodificar y no debe asumirse.
 
 ### Dentro
 
-- Licitaciones adjudicadas de una ventana angosta (5 días hábiles), vía API.
-- Detalle por código, con los 54 campos.
+- **Órdenes de compra de tipo SE y CC** de una ventana angosta, como punto de
+  partida, y las licitaciones que referencian.
+- Detalle por código, con los 54 campos de la licitación y los 28 de la OC.
 - Ficha web por GET limpio, para extraer garantías y cláusulas.
 - Reconstrucción de la entidad Contrato con procedencia declarada por campo.
 - Validación con reglas de plausibilidad, incluida garantía contra plazo.
@@ -205,7 +257,8 @@ los valores sigue SIN decodificar y no debe asumirse.
 
 | Riesgo | Prob. | Impacto | Mitigación |
 |---|---|---|---|
-| El enlace licitación ↔ orden de compra no existe o no es uno a uno | Alta | **Crítico**: sin él no hay entidad contrato | Investigarlo primero en Fase 2. Plan B: contrato = licitación adjudicada, sin ejecución |
+| ~~El enlace licitación ↔ OC no existe~~ | — | — | **DESCARTADO.** El campo `CodigoLicitacion` existe y está poblado en las OC tipo SE y CC |
+| El recorrido licitación → OC no es posible por API | **Confirmado** | Alto: obliga a invertir la extracción | Partir de órdenes de compra, no de licitaciones. Ver 3.5 |
 | Cambia la estructura HTML de la ficha | Media | Alto: se pierden las garantías | Selectores acotados, tests sobre HTML guardado, fallo ruidoso |
 | Se agota el cupo de 10.000 requests diarios | Media | Alto: corrida cortada | `MAX_REQUESTS_PER_RUN`, caché de respuestas, ventana angosta |
 | Datos corruptos en la fuente | **Confirmado** | Medio | Reglas de plausibilidad y cuarentena. Caso real ya detectado |
