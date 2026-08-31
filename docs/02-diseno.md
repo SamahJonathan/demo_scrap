@@ -237,7 +237,7 @@ Todo lo demás falla de inmediato y queda registrado. Nada de `except` silencios
 | Servidor web | nginx existente | Caddy | **Ya está activo en 80/443 con certbot funcionando. Caddy sería conflicto de puertos y RAM duplicada** | — |
 | Dominio | sslip.io | Comprar dominio | DNS comodín con IP embebida, sin costo, ya en uso en el servidor | Se necesita un dominio propio |
 | Inferencia | Ollama local, adaptador hosted conmutable | Solo hosted | Un CLM enterprise procesa contratos confidenciales y la pregunta comercial es a dónde van. **Honestidad: estos datos son públicos, la decisión es arquitectónica** | — |
-| Tests | pytest | — | Sobre parseo y validación, con HTML y JSON guardados. **Nunca sobre I/O de red** | — |
+| Tests | pytest + **respx** | — | Sobre parseo y validación, con HTML y JSON guardados. `respx` simula respuestas HTTP para que **ningún test toque la red** | — |
 | Calidad | ruff + mypy | — | Rápidos, un solo binario para lint y formato | — |
 
 ### Por qué NO Scrapy
@@ -303,6 +303,7 @@ demo_scrap/
 │   └── 03-plan-codificacion.md
 ├── src/contratos/
 │   ├── config.py            # carga y valida el entorno
+│   ├── cli.py               # subcomandos; cada incremento suma el suyo
 │   ├── cliente.py           # HTTP con throttling, reintentos y caché
 │   ├── fuentes/
 │   │   ├── api_oc.py        # listado y detalle de órdenes de compra
@@ -320,6 +321,7 @@ demo_scrap/
 │   ├── persistencia.py      # SQLite, upsert idempotente
 │   └── web/
 │       ├── app.py           # FastAPI
+│       ├── exportar.py      # dashboard.html autocontenido (respaldo)
 │       └── plantillas/
 ├── tests/
 │   └── fixtures/            # HTML y JSON reales guardados

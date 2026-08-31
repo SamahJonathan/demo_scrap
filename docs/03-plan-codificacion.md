@@ -27,13 +27,13 @@ Aplica a todos los incrementos, no se repite en cada uno:
 | 1 | Cliente HTTP con caché | A2 | 20 s | ✅ dentro |
 | 2 | Descubrimiento de órdenes de compra | A3 | 40 s | ✅ dentro |
 | 3 | Detalle de OC y enlace a licitación | A2 | 45 s | ✅ dentro |
-| 4 | **Ficha web: garantías** | A3 | 30 s | ✅ dentro |
-| 5 | Licitación y OCDS | A3 | 50 s | ✅ dentro |
+| 4 | **Parseo de garantías (sin red)** | A3 | 30 s | ✅ dentro |
+| 5 | Licitación, OCDS y descarga de ficha | A3 | 50 s | ✅ dentro |
 | 6 | Validación y cuarentena | A2 | 15 s | ✅ dentro |
 | 7 | Reconstrucción del Contrato | A2 | 20 s | ✅ dentro |
 | 8 | Persistencia idempotente | A2 | 25 s | ✅ dentro |
 | 9 | Consultas de análisis | A3 | 15 s | ✅ dentro |
-| 10 | Dashboard FastAPI | A3 | 30 s | ✅ dentro |
+| 10 | Dashboard FastAPI + export de respaldo | A3 | 30 s | ✅ dentro |
 | 11 | Despliegue a Lightsail | A4 | 60 s | ✅ dentro |
 | 12 | Endurecimiento y observabilidad | A3 | 40 s | ⬜ upside |
 | 13 | Inferencia: causales y discrepancias | A2 | 8 min | ⬜ upside |
@@ -53,21 +53,29 @@ hay que saberlo antes de construir ocho incrementos encima.
 para que cada incremento posterior se verifique solo.
 
 **Entrega:** `pyproject.toml`, `src/contratos/__init__.py`, `src/contratos/config.py`,
+**`src/contratos/cli.py`** (esqueleto con `--help`, sin subcomandos aun),
 `tests/test_config.py`, `.pre-commit-config.yaml`, `.github/workflows/ci.yml`.
+
+**Nota:** `cli.py` nace vacio aqui y **cada incremento posterior agrega su
+propio subcomando**. Sin esto, los comandos de verificacion de los
+incrementos 2 en adelante invocarian algo que no existe.
 
 **Criterios de aceptación:**
 - **Dado** un clon limpio, **cuando** ejecuto `pip install -e ".[dev]"`,
   **entonces** instala sin errores.
 - **Dado** el proyecto instalado, **cuando** ejecuto `pytest`, **entonces** corre
   al menos un test y pasa.
+- **Dado** el CLI, **cuando** ejecuto `python -m contratos.cli --help`,
+  **entonces** imprime la ayuda y sale con codigo 0.
 - **Dado** un `.env` con una variable obligatoria ausente, **cuando** importo
   `config`, **entonces** falla con un mensaje que nombra la variable faltante.
 
 **Comando de verificación:**
 ```bash
 pip install -e ".[dev]" && ruff check . && mypy src/ && pytest -q
+python -m contratos.cli --help
 ```
-Salida esperada: `1 passed`, sin errores de ruff ni mypy.
+Salida esperada: `2 passed`, sin errores de ruff ni mypy, y la ayuda del CLI.
 
 **Tiempo de verificación:** ~30 s.
 
@@ -178,20 +186,24 @@ Salida esperada: JSON con `codigo_licitacion: "1002772-78-LR24"`.
 
 ---
 
-### Incremento 4 — Ficha web: garantías   [Autonomía: A3]
+### Incremento 4 — Parseo de garantías desde HTML guardado   [Autonomía: A3]
 
 **Historia:** Como gestor de contratos, quiero las garantías exigidas, para saber
 qué cauciones siguen vivas.
 
-**ADELANTADO A PROPÓSITO.** Es el punto frágil del diseño y la única fuente de
-garantías. Si el parseo es inviable, hay que saberlo ahora.
+**ADELANTADO A PROPÓSITO, y deliberadamente SIN RED.** Es el punto frágil del
+diseño y la única fuente de garantías. El riesgo está en el **parseo**, no en la
+descarga, así que este incremento es una **función pura**: recibe HTML y
+devuelve garantías.
 
-**Entrega:** `src/contratos/fuentes/ficha_web.py`, `tests/test_ficha_web.py`,
-`tests/fixtures/ficha_2678.html` y dos fichas más.
+Eso resuelve además una dependencia invertida: `UrlActa` viene del detalle de la
+licitación, que todavía no está construido. La **descarga** de la ficha se
+conecta en el incremento 5.
+
+**Entrega:** `src/contratos/fuentes/ficha_web.py` (solo el parser),
+`tests/test_ficha_web.py`, tres fichas reales en `tests/fixtures/`.
 
 **Criterios de aceptación:**
-- **Dado** el `UrlActa` de una licitación, **cuando** extraigo el token `qs`,
-  **entonces** construyo la URL de la ficha y responde **200 con un GET limpio**.
 - **Dado** el HTML de una ficha, **cuando** parseo la sección 8, **entonces**
   obtengo las garantías con tipo, monto, si es porcentaje, y vencimiento.
 - **Dado** `ficha_2678.html`, **cuando** parseo, **entonces** obtengo exactamente
@@ -209,19 +221,20 @@ pytest tests/test_ficha_web.py -v
 ```
 Salida esperada: 5 tests pasan, todos contra HTML guardado, **sin tocar la red**.
 
-**Tiempo de verificación:** ~30 s.
+**Tiempo de verificación:** ~30 s, con **cero requests**.
 
-**Fuera de alcance:** las cláusulas en prosa de la sección 9. Los adjuntos, que
-están fuera de alcance del proyecto por el reCAPTCHA.
+**Fuera de alcance:** descargar la ficha (incremento 5), las cláusulas en prosa
+de la sección 9, y los adjuntos, fuera de alcance del proyecto por el reCAPTCHA.
 
 ---
 
-### Incremento 5 — Licitación y OCDS   [Autonomía: A3]
+### Incremento 5 — Licitación, OCDS y descarga de la ficha   [Autonomía: A3]
 
-**Historia:** Como analista, quiero los datos del proceso y su monto adjudicado,
-para distinguir lo presupuestado de lo efectivamente contratado.
+**Historia:** Como analista, quiero los datos del proceso, su monto adjudicado y
+la ficha descargada, para alimentar el parser del incremento 4.
 
-**Entrega:** `fuentes/api_licitacion.py`, `fuentes/ocds.py`, `tests/` de ambos.
+**Entrega:** `fuentes/api_licitacion.py`, `fuentes/ocds.py`, la función de
+descarga en `fuentes/ficha_web.py`, `tests/` de los tres.
 
 **Criterios de aceptación:**
 - **Dado** un código de licitación, **cuando** pido el detalle, **entonces**
@@ -233,6 +246,11 @@ para distinguir lo presupuestado de lo efectivamente contratado.
   monto adjudicado y el número de oferentes, **sin ticket y sin consumir cupo**.
 - **Dado** `2678-1-LR25`, **cuando** consulto ambas fuentes, **entonces** el
   estimado es `522500000` y el adjudicado `441600000`.
+- **Dado** el `UrlActa` que devuelve el detalle, **cuando** extraigo el token
+  `qs` y pido la ficha, **entonces** responde **200 con un GET limpio** y el HTML
+  queda en `data/raw/`.
+- **Dado** ese HTML, **cuando** lo paso al parser del incremento 4, **entonces**
+  devuelve las garantías. **Aquí se cierra el circuito.**
 
 **Comando de verificación:**
 ```bash
@@ -329,6 +347,9 @@ para poder reprocesar sin miedo.
   **entonces** hay 2 filas de garantía, no 4.
 - **Dado** el archivo generado, **cuando** lo abro con `sqlite3`, **entonces**
   las consultas funcionan **sin conversión ni migración**.
+- **Dado** el esquema, **cuando** se crea, **entonces** incluye las tablas
+  `clausula_extraida` y `discrepancia` **aunque queden vacías**: las puebla el
+  incremento 13, y el esquema no debe cambiar después.
 
 **Comando de verificación:**
 ```bash
@@ -363,7 +384,7 @@ consultas concretas, para no tener que explorar la base a mano.
 - **Dado** la pregunta de garantías, **cuando** la ejecuto, **entonces** lista
   las vigentes y **destaca las incoherentes con el plazo**.
 - **Dado** la pregunta de plazos por organismo, **cuando** la ejecuto,
-  **entonces** devuelve mediana y dispersión, **no solo promedio**.
+  **entonces** devuelve **p25, mediana y p75** por organismo, no solo el promedio.
 
 **Comando de verificación:**
 ```bash
@@ -395,12 +416,17 @@ responder las preguntas sin escribir SQL.
   **con la procedencia de cada campo visible**.
 - **Dado** `/salud`, **cuando** lo consulto, **entonces** devuelve el conteo de
   filas y la fecha de la última corrida.
+- **Dado** el subcomando `exportar`, **cuando** lo ejecuto, **entonces** genera
+  `dist/dashboard.html` **autocontenido**, con los datos embebidos y sin
+  dependencias externas. Es el **respaldo de la demo**: se abre con doble clic si
+  el servidor falla en vivo.
 
 **Comando de verificación:**
 ```bash
 pytest tests/test_web.py -v
 uvicorn contratos.web.app:app --port 8001 &
 curl -s localhost:8001/salud | jq
+python -m contratos.cli exportar && ls -la dist/dashboard.html
 ```
 Salida esperada: `{"contratos": 450, "ultima_corrida": "..."}`.
 
