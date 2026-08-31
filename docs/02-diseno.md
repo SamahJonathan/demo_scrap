@@ -228,7 +228,9 @@ Todo lo demás falla de inmediato y queda registrado. Nada de `except` silencios
 | Decisión | Elegido | Descartado | Criterio | Se revierte si |
 |---|---|---|---|---|
 | Lenguaje | Python 3.11+ | — | Ecosistema de datos y scraping | — |
-| Cliente HTTP | `httpx` o `requests` | Scrapy | **Scrapy es un framework para recorrer miles de URLs. Acá son ~900 requests secuenciales sobre 4 fuentes distintas. Su maquinaria no aporta y complica el testeo** | El volumen crece a decenas de miles |
+| Cliente HTTP | **httpx** | Scrapy, requests | Timeouts explícitos, HTTP/2, API limpia. Ver el apartado siguiente sobre Scrapy | — |
+| Reintentos | **tenacity** | Middleware propio | Decorador declarativo: backoff y tope en 5 líneas legibles | — |
+| Parseo HTML | **selectolax** | BeautifulSoup, lxml | Las fichas pesan ~370 KB y son 450. La velocidad se nota en el bucle de verificación | Se prefiere familiaridad sobre velocidad |
 | Validación | Pydantic | Esquemas a mano | Tipado, mensajes de error claros, integración con FastAPI | — |
 | **Persistencia** | **SQLite** | PostgreSQL | **450 filas de solo lectura. Un servidor sería ceremonia. Y el mismo archivo se explora con SQL en local y se despliega sin conversión** | El volumen crece o hay escrituras concurrentes |
 | API | FastAPI + uvicorn | Streamlit, HTML estático | Control del render, ~100 MB, y una app real se defiende mejor | — |
@@ -237,6 +239,36 @@ Todo lo demás falla de inmediato y queda registrado. Nada de `except` silencios
 | Inferencia | Ollama local, adaptador hosted conmutable | Solo hosted | Un CLM enterprise procesa contratos confidenciales y la pregunta comercial es a dónde van. **Honestidad: estos datos son públicos, la decisión es arquitectónica** | — |
 | Tests | pytest | — | Sobre parseo y validación, con HTML y JSON guardados. **Nunca sobre I/O de red** | — |
 | Calidad | ruff + mypy | — | Rápidos, un solo binario para lint y formato | — |
+
+### Por qué NO Scrapy
+
+Era la preferencia de partida declarada en el método. Se descarta con criterio.
+
+Scrapy está diseñado para recorrer **miles de URLs del mismo sitio** con
+scheduler, spiders, middlewares y pipelines. Este proyecto tiene **cuatro fuentes
+de formas distintas** —API de órdenes de compra, API de licitaciones, OCDS y
+HTML— y ~900 requests secuenciales.
+
+Lo que aporta Scrapy y con qué se reemplaza:
+
+| Scrapy | Reemplazo | Costo |
+|---|---|---|
+| Cliente HTTP | `httpx` | librería |
+| `DOWNLOAD_DELAY`, autothrottle | `sleep` + contador de requests | ~15 líneas |
+| `RetryMiddleware` | `tenacity` | ~5 líneas |
+| `HttpCacheMiddleware` | Crudo a `data/raw/` con hash de URL | ~20 líneas |
+| Selectores | `selectolax` | librería |
+| Item pipelines | `validacion.py`, `reconstruccion.py` | ya están en el diseño |
+
+Total: **~50 líneas propias** en `cliente.py`, legibles y testeables.
+
+Y hay un costo que pesa dado el método de trabajo: **testear Scrapy es
+incómodo**, exige fabricar objetos `Response`. Una función que recibe HTML y
+devuelve garantías se testea con un archivo guardado y un `assert`. Con el bucle
+de generación-verificación como eje del proyecto, eso decide.
+
+**Se revierte si** el volumen crece a decenas de miles de URLs o aparece la
+necesidad de concurrencia amplia sobre un mismo dominio.
 
 ### Límite de responsabilidad del modelo
 
