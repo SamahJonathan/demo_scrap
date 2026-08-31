@@ -81,8 +81,28 @@ de lenguaje local sobre bases de licitación reales). Timebox: 1 hora.
 | Fase 3 — Codificación | ⏳ Pendiente |
 | Fase 4 — Cierre y presentación | ⏳ Pendiente |
 
-**Bloqueante abierto:** el ticket de la API de Mercado Público se solicita con
-Clave Única en <https://www.chilecompra.cl/api/> y no se controla su tiempo de
-emisión. Muerde recién en el Incremento 1; hasta ahí no bloquea.
+**Bloqueante resuelto (2026-08-31):** ticket de la API de Mercado Público
+obtenido y verificado contra la fuente. Vive en `.env` como `MP_API_TICKET`,
+nunca en el repositorio.
+
+**Hechos verificados contra la API en la prueba de humo del 2026-08-31**, para
+no redescubrirlos en la Fase 1:
+- `licitaciones.json?fecha=ddmmaaaa&estado=adjudicada` devuelve un LISTADO
+  pobre: solo 4 campos (`CodigoExterno`, `Nombre`, `CodigoEstado`,
+  `FechaCierre`). No trae montos, ni organismo, ni adjudicación.
+- El detalle exige una segunda llamada, `licitaciones.json?codigo=<código>`, y
+  devuelve 54 campos de nivel 1, incluido un bloque contractual directamente
+  relevante para un CLM: `Adjudicacion` (con `UrlActa`),
+  `TiempoDuracionContrato`, `EsRenovable`, `PeriodoTiempoRenovacion`,
+  `SubContratacion`, `ProhibicionContratacion`, `NombreResponsableContrato`,
+  `Items`, `Comprador`.
+- Costo real: **1 request por día + 1 request por licitación**. El 10-03-2025
+  tuvo 248 licitaciones adjudicadas. Con tope de 10.000 requests diarios, eso
+  son ~40 días de ventana por jornada de cuota, no más. La ventana de
+  `EXTRACTION_DATE_FROM`/`TO` en `.env.example` (90 días) NO cabe en una
+  corrida y debe dimensionarse en la Fase 1.
+- Sospecha por verificar: `CantidadReclamos` marcó 11819 en una licitación
+  individual. Parece un contador global mal expuesto, no un dato del registro.
+  No usarlo sin confirmar.
 
 Este archivo se actualiza al cerrar cada fase.
