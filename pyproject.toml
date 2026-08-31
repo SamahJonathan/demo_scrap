@@ -37,7 +37,7 @@ where = ["src"]
 
 # El esquema viaja con el paquete: sin esto, un instalado no encuentra el .sql
 [tool.setuptools.package-data]
-contratos = ["*.sql"]
+contratos = ["*.sql", "consultas/*.sql"]
 
 [tool.ruff]
 line-length = 88
