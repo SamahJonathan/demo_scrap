@@ -153,15 +153,55 @@ distintas:
 - **Plazo del contrato**: `TiempoDuracionContrato` +
   `UnidadTiempoDuracionContrato`.
 
-`UnidadTiempoDuracionContrato = 4` significa **MESES**. Decodificado cruzando
-fuentes: en 2328-443-LR24 la API declara `TiempoDuracionContrato='24'` con
-`Unidad=4`, y el acta de adjudicación dice en prosa "Duración contrato: 24
-MESES". El resto de los valores del enum sigue SIN decodificar: `Unidad=1`
-aparece en 1300-43-LP24 con valor 36 y no es meses. NO asumir su significado.
+Enum `UnidadTiempoDuracionContrato`, decodificado cruzando la API contra la
+ficha web (sección "7. Montos y duración del contrato"):
+- **`1` = HORAS** — 1300-43-LP24: API `TiempoDuracionContrato='36'`, `Unidad=1`;
+  ficha: "36 Horas".
+- **`4` = MESES** — 2328-443-LR24: API `'24'`/`Unidad=4`; ficha: "24 Meses"; el
+  acta lo repite en prosa. Y 2678-1-LR25: API `'10'`/`Unidad=4`; ficha:
+  "10 Meses".
+- Los demás valores siguen SIN decodificar. No asumirlos.
 
 Esa validación cruzada —enum sin documentar contra prosa de un documento
 independiente— es material de demo: es como se audita un campo cuyo significado
 el proveedor de datos no publica.
+
+## La ficha web expone garantías que la API NO tiene
+
+Revisados los 54 campos de la respuesta de `licitaciones.json?codigo=`: **no hay
+ni un solo campo de garantías ni cauciones.** La ficha web sí las trae, en su
+sección "8. Garantías requeridas", y con detalle: tipo, beneficiario, fecha de
+vencimiento, monto (en pesos o en porcentaje), glosa exigida y condiciones de
+restitución.
+
+Este es EL caso que justifica la capa de scraping HTML bajo la regla "API
+primero, HTML solo para lo que la API no expone". Y la ficha se obtiene con un
+GET limpio, sin reCAPTCHA.
+
+Estructura constante en las tres fichas medidas: exactamente 2 garantías,
+seriedad de la oferta y fiel cumplimiento del contrato, con los mismos rótulos
+(`Beneficiario:`, `Fecha de vencimiento:`, `Monto:`, `Glosa:`).
+
+**Consecuencia para la capa de inferencia:** esa sección es TABULAR, y un regex
+la extrae entera y sin error. El modelo de lenguaje no debe tocarla. Su dominio
+legítimo se reduce a la prosa libre (descripción, glosa, condiciones de
+restitución) y a lo que solo vive en las bases administrativas, que están tras
+el reCAPTCHA. Esto acota mucho la capa 9 del backlog y hay que decidirlo con el
+resultado del spike en la mano.
+
+## Regla de validación derivada de un dato corrupto real
+
+1300-43-LP24 (SENAMA, aseo de una casa de acogida) declara plazo de contrato
+**36 horas** y, a la vez, una garantía de fiel cumplimiento que vence el
+**29-12-2027**. Nadie cauciona hasta 2027 un contrato de 36 horas: el plazo está
+mal cargado por el organismo, casi seguro son 36 meses.
+
+Regla de plausibilidad que se deriva y entra al pipeline: *el vencimiento de la
+garantía de fiel cumplimiento debe ser coherente con la fecha de adjudicación
+más la duración declarada del contrato.* Los otros dos casos la cumplen
+(Mostazal 10 meses / vence 02-03-2026; Puerto Montt 24 meses / vence
+29-04-2027). Es una regla nacida de los datos, no inventada, y detecta basura de
+la fuente sin necesidad de un modelo.
 
 ## El acta de adjudicación SÍ es accesible
 
