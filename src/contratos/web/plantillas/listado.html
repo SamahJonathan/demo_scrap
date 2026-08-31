@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block cuerpo %}
+<h1>Contratos</h1>
+<p class="sub">{{ filas|length }} resultado(s)</p>
+<form method="get">
+  <input name="organismo" value="{{ organismo }}" placeholder="Filtrar por organismo">
+  <label style="margin-left:10px">
+    <input type="checkbox" name="solo_con_proceso" value="true"
+           {% if solo_con_proceso %}checked{% endif %}> solo con licitación
+  </label>
+  <button type="submit">Filtrar</button>
+</form>
+<table>
+  <tr><th>Contrato</th><th>Organismo</th><th>Proveedor</th><th>Ejecutado</th>
+      <th>Vence</th><th>Estado vencimiento</th></tr>
+  {% for f in filas %}
+  <tr>
+    <td><a class="codigo" href="/contratos/{{ f.codigo_oc }}">{{ f.codigo_oc }}</a></td>
+    <td>{{ f.organismo }}</td>
+    <td>{{ f.proveedor }}</td>
+    <td>${{ "{:,.0f}".format(f.monto_ejecutado|float) }}</td>
+    <td>{{ f.fecha_termino_estimada or "—" }}</td>
+    <td class="proc">{{ f.estado_vencimiento }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

@@ -562,6 +562,13 @@ uvicorn contratos.web.app:app --port 8001 &
 curl -s localhost:8001/salud | jq
 python -m contratos.cli exportar && ls -la dist/dashboard.html
 ```
+**Medido: 15 tests en 3,2 s**, bajo el presupuesto de 30.
+
+**El export se verifica por lo que NO tiene.** Un test recorre el HTML buscando
+`<script`, `src=`, `rel="stylesheet"`, `http://` y `https://`, y falla si
+encuentra cualquiera. Autocontenido no es una intencion: es una propiedad que se
+comprueba.
+
 Salida esperada: un JSON con `contratos` **de al menos 400** de los 450
 esperados, y `ultima_corrida` con fecha, más un `dashboard.html` de un solo
 archivo.
