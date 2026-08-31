@@ -88,7 +88,27 @@ Eso habilita una sexta pregunta, que sí la requiere:
 
 | # | Pregunta | Fuente | Estado |
 |---|---|---|---|
-| 6 | ¿Qué contratos tienen su campo estructurado en contradicción con su propio texto, y cuál de los dos valores es el correcto? | Campo tipado + prosa vía inferencia | VERIFICADO en el spike |
+| 6 | ¿Sobre qué parte de la cartera pueden hablar las demás preguntas? | `estado_vencimiento` | VERIFICADO |
+| 7 | ¿Qué contratos tienen su campo estructurado en contradicción con su propio texto? | Campo tipado + prosa vía inferencia | VERIFICADO en el spike |
+
+**Las preguntas 6 y 7 no responden una necesidad del gestor: responden si se
+puede CONFIAR en lo que las otras muestran.** Un panel de vencimientos que no
+dice cuántos contratos deja fuera miente por omisión, y un vencimiento calculado
+desde un plazo mal cargado es un vencimiento falso mostrado con la misma
+confianza que los buenos.
+
+### Corrección de método: nunca medimos qué publicar
+
+Se midió el enum, los estados, los tiempos, la memoria y el ahorro de caché.
+**No se midió qué debía mostrar el dashboard**, así que sus páginas salieron de
+las consultas que resultaron escritas, no del objetivo. El resultado fue un menú
+que ofrecía diagnóstico operativo y ninguna de las tres cláusulas del objetivo.
+
+Hecha la medición, el objetivo soporta **siete** preguntas y el dashboard cubría
+cuatro. Faltaba, entre otras, la de plazos por organismo —cuya consulta ya
+existía sin página—, que es la que convierte un vencimiento en un plazo para
+actuar: saber que algo vence en 90 días no sirve si el organismo tarda 215 en
+adjudicar.
 
 La capa queda **dentro del alcance pero fuera de la línea de corte**: es upside.
 Su costo medido —minutos por documento y 7,34 GB de RAM— no permite ponerla en la

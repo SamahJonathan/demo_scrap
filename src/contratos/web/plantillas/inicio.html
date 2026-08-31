@@ -12,6 +12,46 @@ publica como tales: se arman uniendo orden de compra, licitación, OCDS y ficha 
   <div class="tarjeta"><b>{{ por_vencer }}</b><span>garantías vencen en 6 meses</span></div>
 </div>
 
+<div class="caja">
+  <b>Sobre qué parte de la cartera habla esta página</b>
+  <p class="sub" style="margin:6px 0 10px">Un panel de vencimientos que no dice
+  cuántos contratos deja fuera miente por omisión.</p>
+  <table>
+    <tr><th>Estado</th><th>Contratos</th><th>%</th><th>Qué significa</th></tr>
+    {% for c in cobertura %}
+    <tr>
+      <td class="proc">{{ c.estado_vencimiento }}</td>
+      <td>{{ c.contratos }}</td>
+      <td>{{ c.pct }}%</td>
+      <td class="{{ 'alerta' if c.estado_vencimiento == 'unidad_desconocida' else '' }}">
+        {{ c.explicacion }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+{% if discrepancias %}
+<div class="caja aviso">
+  <b class="alerta">{{ discrepancias|length }} contrato(s) con datos que se contradicen</b>
+  <p class="sub" style="margin:6px 0 10px">Un vencimiento calculado desde un
+  plazo mal cargado es un vencimiento falso. Se conservan <b>ambos</b> valores:
+  ni el parseo ni el modelo ganan por defecto.</p>
+  <table>
+    <tr><th>Licitación</th><th>Campo</th><th>Campo estructurado</th>
+        <th>Dice la prosa</th><th>Contratos afectados</th></tr>
+    {% for d in discrepancias %}
+    <tr>
+      <td class="codigo">{{ d.licitacion_codigo }}</td>
+      <td>{{ d.campo }}</td>
+      <td class="alerta">{{ d.valor_estructurado }}</td>
+      <td>{{ d.valor_prosa }}</td>
+      <td>{{ d.contratos_afectados }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endif %}
+
 {% if implausibles %}
 <div class="caja aviso">
   <b class="alerta">{{ implausibles|length }} garantía(s) incoherente(s) con el plazo del contrato</b>

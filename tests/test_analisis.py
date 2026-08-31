@@ -80,11 +80,16 @@ def base(tmp_path: Path) -> Path:
     return ruta
 
 
-def test_las_cinco_preguntas_devuelven_algo(base: Path) -> None:
+def test_las_siete_preguntas_se_ejecutan(base: Path) -> None:
+    """Cinco responden al gestor; la 6 y la 7 dicen si se puede confiar."""
     resultados = responder_todas(base, hoy=HOY)
-    assert set(resultados) == {1, 2, 3, 4, 5}
-    for numero, filas in resultados.items():
-        assert filas, f"la pregunta {numero} no devolvió filas"
+    assert set(resultados) == {1, 2, 3, 4, 5, 6, 7}
+
+    for numero in (1, 2, 3, 4, 5, 6):
+        assert resultados[numero], f"la pregunta {numero} no devolvió filas"
+
+    # La 7 vacía es una respuesta válida: no hay contradicciones detectadas.
+    assert resultados[7] == []
 
 
 # --------------------------------------------------------------------------
@@ -200,3 +205,56 @@ def test_las_consultas_viven_en_archivos_sql_legibles() -> None:
         sql = p.sql
         assert sql.lstrip().startswith("--"), "cada consulta explica qué responde"
         assert "SELECT" in sql
+
+
+# --------------------------------------------------------------------------
+# P6 y P7 — las que permiten confiar en las demas
+# --------------------------------------------------------------------------
+
+
+def test_p6_dice_sobre_que_universo_hablan_las_otras_paginas(base: Path) -> None:
+    """La fixture tiene 4 contratos con proceso, 2 sin proceso y 1 cancelada.
+
+    Los tres sin licitación no tienen vigencia: no aparecen en vencimientos, y
+    la página debe decirlo en vez de omitirlos.
+    """
+    filas = responder(base, PREGUNTAS[5], hoy=HOY)
+
+    por_estado = {f["estado_vencimiento"]: f for f in filas}
+    assert por_estado["calculado"]["contratos"] == 4
+    assert por_estado["no_declarado"]["contratos"] == 3
+    assert sum(f["pct"] for f in filas) == pytest.approx(100.0, abs=0.2)
+    # Cada estado explica su causa, no es un código suelto.
+    assert all(f["explicacion"] for f in filas)
+
+
+def test_p6_los_porcentajes_suman_el_total_de_la_cartera(base: Path) -> None:
+    filas = responder(base, PREGUNTAS[5], hoy=HOY)
+    assert sum(f["contratos"] for f in filas) == 7
+
+
+def test_p7_sin_discrepancias_no_inventa_filas(base: Path) -> None:
+    """La tabla existe desde el incremento 8 pero la puebla el 13."""
+    assert responder(base, PREGUNTAS[6], hoy=HOY) == []
+
+
+def test_p7_reporta_ambos_valores_y_cuantos_contratos_afecta(base: Path) -> None:
+    """El caso de SENAMA: la sección 7 dice 36 horas, la prosa dice 36 meses."""
+    from contratos.persistencia import abrir
+
+    with abrir(base) as con:
+        con.execute(
+            "INSERT INTO discrepancia (licitacion_codigo, campo, "
+            "valor_estructurado, valor_prosa, regla) VALUES (?,?,?,?,?)",
+            ("1300-43-LP24", "duracion", "36 horas", "36 meses", "prosa vs campo"),
+        )
+
+    filas = responder(base, PREGUNTAS[6], hoy=HOY)
+
+    assert len(filas) == 1
+    d = filas[0]
+    # Ninguno de los dos gana por defecto: se conservan ambos.
+    assert d["valor_estructurado"] == "36 horas"
+    assert d["valor_prosa"] == "36 meses"
+    # Y dice cuánto daño hace: cuántos contratos dependen de ese plazo.
+    assert d["contratos_afectados"] == 1

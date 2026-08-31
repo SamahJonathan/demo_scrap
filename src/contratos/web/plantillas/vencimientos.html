@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block cuerpo %}
+<h1>Qué relicitar y qué renovar</h1>
+<p class="sub">Dos de las tres preguntas del objetivo. Un contrato que vence sin
+aviso obliga a improvisar; uno renovable no necesita un proceso nuevo.</p>
+
+<form method="get">
+  <label>Horizonte
+    <input type="number" name="meses" value="{{ meses }}" min="1" max="60"
+           style="width:70px"> meses
+  </label>
+  <button type="submit">Ver</button>
+</form>
+
+{% if filas %}
+<table>
+  <tr><th>Contrato</th><th>Organismo</th><th>Proveedor</th><th>Vence</th>
+      <th>Días</th><th>Acción</th></tr>
+  {% for v in filas %}
+  <tr>
+    <td><a class="codigo" href="/contratos/{{ v.codigo_oc }}">{{ v.codigo_oc }}</a></td>
+    <td>{{ v.organismo }}</td>
+    <td>{{ v.proveedor }}</td>
+    <td>{{ v.fecha_termino_estimada }}</td>
+    <td{% if v.dias_restantes < 90 %} class="alerta"{% endif %}>{{ v.dias_restantes }}</td>
+    <td class="{{ 'ok' if v.accion == 'renovar' else 'alerta' }}">{{ v.accion }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<div class="caja">
+  <p class="sub" style="margin:0">Ninguno vence en los próximos {{ meses }} meses.</p>
+</div>
+{% endif %}
+
+<p class="sub" style="margin-top:12px">
+  Solo aparecen contratos <b>con vigencia</b>. Una compra ágil o un trato directo
+  es una compra puntual: no tiene vencimiento que vigilar, y no se le inventa uno.
+  Son el 56% de las órdenes.
+</p>
+{% endblock %}

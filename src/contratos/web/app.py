@@ -52,15 +52,20 @@ def crear_app(base: Path | None = None) -> FastAPI:
     app = FastAPI(title="Contratos públicos", docs_url="/api")
     resolver: Callable[[], Path] = (lambda: base) if base is not None else ruta_base
 
-    @app.get("/salud")
-    def salud() -> dict[str, Any]:
-        """Diagnóstico de la corrida, no solo un ping."""
+    def _diagnostico() -> dict[str, Any]:
+        """Los mismos datos para la maquina y para la persona."""
         ruta = resolver()
         con = _conectar(ruta)
         try:
             conteo = {
                 t: int(con.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0])
-                for t in ("contrato", "licitacion", "garantia", "discrepancia")
+                for t in (
+                    "contrato",
+                    "licitacion",
+                    "garantia",
+                    "discrepancia",
+                    "clausula_extraida",
+                )
             }
         finally:
             con.close()
@@ -74,6 +79,25 @@ def crear_app(base: Path | None = None) -> FastAPI:
                 timespec="seconds"
             ),
         }
+
+    @app.get("/salud")
+    def salud() -> dict[str, Any]:
+        """Endpoint de maquina: lo consumen la monitorizacion y el despliegue.
+
+        Se deja como JSON a proposito. La version para personas es /estado.
+        """
+        return _diagnostico()
+
+    @app.get("/estado", response_class=HTMLResponse)
+    def estado(request: Request) -> Any:
+        """La misma informacion, legible. Va en el pie, no en el menu.
+
+        Le sirve a quien mantiene el pipeline, no al gestor de contratos: no
+        responde ninguna de las tres preguntas del objetivo.
+        """
+        return PLANTILLAS.TemplateResponse(
+            request, "estado.html", {"d": _diagnostico()}
+        )
 
     @app.get("/", response_class=HTMLResponse)
     def inicio(request: Request) -> Any:
@@ -115,7 +139,46 @@ def crear_app(base: Path | None = None) -> FastAPI:
                 "por_vencer": por_vencer,
                 "implausibles": implausibles,
                 "vencimientos": responder(ruta, PREGUNTAS[0], meses=12)[:10],
+                # Sobre que universo habla la pagina, y si se puede confiar.
+                "cobertura": responder(ruta, PREGUNTAS[5]),
+                "discrepancias": responder(ruta, PREGUNTAS[6]),
             },
+        )
+
+    @app.get("/vencimientos", response_class=HTMLResponse)
+    def vencimientos(request: Request, meses: int = 12) -> Any:
+        """Qué relicitar y qué renovar: dos de las tres preguntas del objetivo."""
+        return PLANTILLAS.TemplateResponse(
+            request,
+            "vencimientos.html",
+            {
+                "filas": responder(resolver(), PREGUNTAS[0], meses=meses),
+                "meses": meses,
+            },
+        )
+
+    @app.get("/garantias", response_class=HTMLResponse)
+    def garantias(request: Request) -> Any:
+        """Qué cauciones siguen vivas: la tercera pregunta del objetivo."""
+        filas = responder(resolver(), PREGUNTAS[1])
+        return PLANTILLAS.TemplateResponse(
+            request,
+            "garantias.html",
+            {
+                "filas": filas,
+                "implausibles": [f for f in filas if f["implausible"] == 1],
+            },
+        )
+
+    @app.get("/plazos", response_class=HTMLResponse)
+    def plazos(request: Request) -> Any:
+        """Cuanto tarda cada organismo en adjudicar.
+
+        Convierte el vencimiento en un plazo para actuar: un contrato que vence
+        en 90 dias no da margen si el organismo tarda 215 en adjudicar.
+        """
+        return PLANTILLAS.TemplateResponse(
+            request, "plazos.html", {"filas": responder(resolver(), PREGUNTAS[2])}
         )
 
     @app.get("/contratos", response_class=HTMLResponse)
