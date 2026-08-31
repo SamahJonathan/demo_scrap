@@ -61,7 +61,12 @@ class Config(BaseSettings):
     oc_con_proceso_por_fecha: int = 100
     oc_sin_proceso_por_fecha: int = 50
     tipos_oc_con_licitacion: Annotated[list[str], NoDecode] = ["SE", "CC"]
-    tipos_oc_sin_licitacion: Annotated[list[str], NoDecode] = ["AG", "CM", "TD"]
+    tipos_oc_sin_licitacion: Annotated[list[str], NoDecode] = [
+        "AG",
+        "CM",
+        "TD",
+        "CT",
+    ]
 
     # Estados de orden de compra. "Gasto" son dos cosas distintas y se separan.
     estados_comprometido: Annotated[list[int], NoDecode] = [4, 5, 6, 12]
