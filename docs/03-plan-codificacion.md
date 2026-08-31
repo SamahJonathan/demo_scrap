@@ -75,7 +75,8 @@ incrementos 2 en adelante invocarian algo que no existe.
 pip install -e ".[dev]" && ruff check . && mypy src/ && pytest -q
 python -m contratos.cli --help
 ```
-Salida esperada: `2 passed`, sin errores de ruff ni mypy, y la ayuda del CLI.
+Salida esperada: **`5 passed`**, sin errores de ruff ni mypy, y la ayuda del
+CLI. **Medido: 16 s**, bajo el presupuesto de 30.
 
 **Tiempo de verificación:** ~30 s.
 
