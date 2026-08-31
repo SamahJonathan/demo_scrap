@@ -1,0 +1,88 @@
+# ---------------------------------------------------------------------------
+# Entorno y secretos
+# ---------------------------------------------------------------------------
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+
+# ---------------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+build/
+dist/
+*.egg-info/
+.eggs/
+.Python
+pip-wheel-metadata/
+
+# Herramientas de calidad
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+
+# ---------------------------------------------------------------------------
+# Scrapy y caché HTTP de desarrollo
+# ---------------------------------------------------------------------------
+.scrapy/
+httpcache/
+.httpcache/
+*.scrapy
+
+# ---------------------------------------------------------------------------
+# Datos extraídos: NO se versionan.
+# El repositorio contiene código y especificación, no el dataset.
+# data/samples/ sí se versiona (muestras pequeñas para tests).
+# ---------------------------------------------------------------------------
+data/raw/
+data/processed/
+data/quarantine/
+data/cache/
+*.jsonl
+*.sqlite
+*.sqlite3
+*.db
+*.parquet
+
+# Excepción: las muestras pequeñas para tests SÍ se versionan.
+!data/samples/**
+
+# ---------------------------------------------------------------------------
+# Spike: código desechable por definición, no entra al historial.
+# Su conclusión se copia a docs/00-spike.md antes de borrarlo.
+# ---------------------------------------------------------------------------
+spike/
+
+# ---------------------------------------------------------------------------
+# Salidas generadas del dashboard
+# ---------------------------------------------------------------------------
+dashboard/dist/
+dashboard/output/
+site/
+reports/
+
+# ---------------------------------------------------------------------------
+# Editor y sistema operativo
+# ---------------------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini

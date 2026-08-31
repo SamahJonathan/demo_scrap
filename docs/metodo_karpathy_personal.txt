@@ -1,0 +1,19 @@
+metodo adaptado karpathy
+
+
+1 Analisis : requerimientos - Objetivo
+
+2 diseño:
+ - diagrama de flujo
+ - tencnologia
+ - promt
+      - encuadre
+      - pasos - agile (verificacion comprobable)
+
+
+3 codificacion / prueba  x IA peticion respuesta a ambiguedades por mi persona
+
+4 salida despliegue desarrollo -> produccion
+
+5 mantencion establecer alertas que me busquen en el fallo
+
