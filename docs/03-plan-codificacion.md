@@ -514,7 +514,17 @@ consultas concretas, para no tener que explorar la base a mano.
 pytest tests/test_analisis.py -v
 python -m contratos.cli analizar
 ```
-Salida esperada: cuatro tablas en consola, una por pregunta.
+Salida esperada: **cinco tablas en consola**, una por pregunta.
+**Medido: 11 tests en 2,6 s**, bajo el presupuesto de 15.
+
+**Las consultas viven en `consultas/*.sql`, no incrustadas en Python.** Se
+abren con cualquier cliente de SQLite, se leen sin ejecutar el proyecto, y cada
+archivo empieza explicando que pregunta responde y por que filtra como filtra.
+Un test exige que sea asi.
+
+**Verificado con datos reales:** la P2 pone a SENAMA primera y marcada como
+implausible —36 horas de contrato con garantia hasta 2027—, y la P3 devuelve las
+medianas de 45, 115 y 215 dias medidas en la Fase 1.
 
 **Tiempo de verificación:** ~15 s.
 

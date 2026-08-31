@@ -11,6 +11,7 @@ import argparse
 import logging
 from collections.abc import Sequence
 from datetime import date
+from pathlib import Path
 
 from contratos import __version__
 
@@ -62,7 +63,39 @@ def construir_parser() -> argparse.ArgumentParser:
     lic.add_argument("--codigo", required=True, metavar="2678-1-LR25")
     lic.set_defaults(func=_cmd_licitacion)
 
+    # --- analizar (incremento 9) -------------------------------------------
+    a = subs.add_parser(
+        "analizar", help="responde las cinco preguntas de negocio con SQL"
+    )
+    a.add_argument("--base", type=Path, default=Path("data/contratos.db"))
+    a.add_argument("--meses", type=int, default=12, help="horizonte para P1")
+    a.set_defaults(func=_cmd_analizar)
+
     return parser
+
+
+def _cmd_analizar(args: argparse.Namespace) -> int:
+    from contratos.analisis import PREGUNTAS, responder
+
+    if not args.base.exists():
+        print(f"no existe {args.base}. Corre primero el pipeline.")
+        return 1
+
+    for pregunta in PREGUNTAS:
+        filas = responder(args.base, pregunta, meses=args.meses)
+        print("")
+        print(f"P{pregunta.numero}. {pregunta.titulo}")
+        print("-" * 72)
+        if not filas:
+            print("   (sin resultados)")
+            continue
+        columnas = list(filas[0])
+        print("   " + " | ".join(f"{c[:16]:<16}" for c in columnas))
+        for f in filas[:12]:
+            print("   " + " | ".join(f"{str(f[c])[:16]:<16}" for c in columnas))
+        if len(filas) > 12:
+            print(f"   ... {len(filas) - 12} filas más")
+    return 0
 
 
 def _cmd_licitacion(args: argparse.Namespace) -> int:
