@@ -97,12 +97,21 @@ no redescubrirlos en la Fase 1:
   `SubContratacion`, `ProhibicionContratacion`, `NombreResponsableContrato`,
   `Items`, `Comprador`.
 - Costo real: **1 request por día + 1 request por licitación**. El 10-03-2025
-  tuvo 248 licitaciones adjudicadas. Con tope de 10.000 requests diarios, eso
-  son ~40 días de ventana por jornada de cuota, no más. La ventana de
-  `EXTRACTION_DATE_FROM`/`TO` en `.env.example` (90 días) NO cabe en una
-  corrida y debe dimensionarse en la Fase 1.
-- Sospecha por verificar: `CantidadReclamos` marcó 11819 en una licitación
-  individual. Parece un contador global mal expuesto, no un dato del registro.
-  No usarlo sin confirmar.
+  tuvo 248 licitaciones adjudicadas. Con tope de 10.000 requests diarios, una
+  ventana amplia no cabe en una sola corrida.
+
+## Decisiones tomadas (2026-08-31)
+
+- **Profundidad sobre volumen.** La demo no aspira a cobertura exhaustiva de la
+  fuente. Reconstruye BIEN un conjunto acotado de contratos: ventana de 5 días
+  hábiles y tope de `MAX_LICITACIONES_DETALLE` por corrida. El criterio de
+  éxito es la completitud y la trazabilidad de cada contrato reconstruido, no
+  cuántos son. Si en la entrevista preguntan por el volumen, la respuesta es
+  que el volumen es una variable de configuración y la parte difícil —la
+  reconstrucción de la entidad contrato— es la misma con 50 que con 50.000.
+- **`CantidadReclamos` queda FUERA del modelo de datos.** Marcó 11819 en una
+  licitación individual, lo que delata un contador global mal expuesto y no un
+  dato del registro. No se incluye ningún campo cuyo significado no podamos
+  defender.
 
 Este archivo se actualiza al cerrar cada fase.
