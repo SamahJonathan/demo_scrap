@@ -311,6 +311,29 @@ que es más barato y rápido.
 PostgreSQL juntos necesitan 1 GB como mínimo; con 512 MB habría que volver al
 snapshot de solo lectura.
 
+## Consultas en lenguaje natural: EVALUADO Y DESCARTADO
+
+Se consideró un endpoint de preguntas sobre los contratos, vía adaptador hosted
+(el local queda descartado por sus 7,34 GB y minutos por documento). Era viable
+técnicamente y barato: ~5.000 tokens por pregunta, menos de tres centavos.
+
+**Se descarta.** El dashboard entrega reportería sobre datos ya validados, y no
+conversación.
+
+Razones:
+- Es el componente con más probabilidad de fallar delante del entrevistador. Un
+  monto mal respondido derriba el rigor construido en todo el resto.
+- El propio Spike 0 mostró al modelo confundiendo readjudicación con causal de
+  término. Esa clase de error, en vivo y sobre un dato que el usuario no puede
+  verificar, es peor que no tener la función.
+- No está en la línea de corte y compite por tiempo con la reconstrucción del
+  contrato, que es el núcleo del proyecto.
+
+Variante que se propuso y también queda fuera, anotada por si se retoma: que el
+modelo traduzca la pregunta a **SQL y se muestre la consulta junto al
+resultado**, de modo que nunca afirme un hecho, solo escriba una consulta
+auditable.
+
 ## Muestra de datos (decidido el 2026-08-31)
 
 **150 órdenes de compra por día, en 3 días distintos.** Se parte de OC tipo SE y
