@@ -80,50 +80,92 @@ La base solo recibe entidades ya normalizadas.
 
 ## 2. Modelo de datos
 
-### La entidad Contrato es DERIVADA
+### Dos niveles, porque la fuente tiene dos niveles
 
-No existe en la fuente. Se construye uniendo orden de compra, licitación, OCDS y
-ficha web. **Cada campo declara de dónde vino**; sin esa procedencia el dato no
-es defendible.
+Un hecho puede pertenecer a **la licitación** (el proceso) o a **la orden de
+compra** (la ejecución). Confundirlos duplica datos y produce agregados
+inflados.
+
+- Una licitación puede originar **varias** órdenes de compra.
+- El 56% de las órdenes **no tiene** licitación.
+
+Por eso hay dos entidades y no una. `Contrato` es la unidad de la demo —una
+orden de compra, un proveedor, un monto real— y `Licitacion` guarda lo que
+pertenece al proceso y sería redundante replicar.
 
 Procedencias posibles: `api_oc`, `api_licitacion`, `ocds`, `ficha_web`,
 `inferencia`, `derivado`.
 
-### Contrato
+### Contrato — una fila por orden de compra
 
 | Campo | Tipo | Oblig. | Procedencia | Ejemplo | Validación |
 |---|---|---|---|---|---|
-| `id` | texto | sí | derivado | `1002-183-SE25` | código de la OC |
-| `codigo_oc` | texto | sí | api_oc | `1002-183-SE25` | formato `N-N-XX##` |
+| `codigo_oc` | texto | sí | api_oc | `1002-183-SE25` | **clave primaria** |
 | `codigo_licitacion` | texto | **no** | api_oc | `1002-9-LQ25` | nulo en el 56% |
 | `tiene_proceso` | bool | sí | derivado | `true` | `codigo_licitacion is not null` |
+| `tipo_oc` | enum | sí | derivado | `SE` | `SE`, `CC`, `AG`, `CM`, `TD` |
+| `codigo_estado` | entero | sí | api_oc | `12` | uno de los 5 conocidos |
+| `estado` | texto | sí | api_oc | `Recepción Conforme` | — |
+| `cuenta_como_gasto` | bool | sí | derivado | `true` | `codigo_estado != 9` |
 | `organismo` | texto | sí | api_oc | `I. MUNICIPALIDAD DE MOSTAZAL` | no vacío |
 | `organismo_rut` | texto | sí | api_oc | `69.080.500-6` | dígito verificador |
-| `proveedor` | texto | sí | api_oc | `COMERCIALIZADORA C&J LTDA.` | no vacío |
-| `monto_ejecutado` | decimal | sí | api_oc | `975800` | > 0 |
-| `monto_estimado` | decimal | no | api_licitacion | `522500000` | > 0 si existe |
-| `monto_adjudicado` | decimal | no | api_licitacion | `167000000` | > 0 si existe |
-| `fecha_publicacion` | fecha | no | api_licitacion | `2025-01-24` | ≤ `fecha_adjudicacion` |
-| `fecha_adjudicacion` | fecha | no | api_licitacion | `2025-03-10` | ≤ hoy |
-| `duracion_valor` | entero | no | api_licitacion | `10` | > 0 |
-| `duracion_unidad` | enum | no | api_licitacion | `meses` | `1`=horas, `4`=meses; **otros = desconocido** |
+| `proveedor` | texto | sí | api_oc | `Sociedad de Transporte Jiménez Hnos.` | no vacío |
+| `proveedor_rut` | texto | sí | api_oc | `76.036.979-9` | dígito verificador |
+| `monto_ejecutado` | decimal | sí | api_oc | `975800` | ≥ 0 |
+| `monto_adjudicado` | decimal | no | api_licitacion | `167000000` | ver atribución |
+| `fecha_envio` | fecha | no | api_oc | `2025-05-15` | — |
 | `fecha_termino_estimada` | fecha | no | derivado | `2026-01-10` | adjudicación + duración |
-| `es_renovable` | bool | no | api_licitacion | `false` | — |
-| `permite_subcontratacion` | bool | no | api_licitacion | `true` | — |
-| `n_oferentes` | entero | no | ocds | `6` | ≥ 1 |
-| `estado_ejecucion` | texto | sí | api_oc | `Recepción Conforme` | — |
 
-**Cómo se calcula `monto_adjudicado`, y por qué NO se prorratea.** Una
-adjudicación puede repartirse entre varios proveedores: en `2678-1-LR25` son
-**cinco**, sobre un total de $441.600.000. Como cada `Contrato` es una orden de
-compra con **un** proveedor, asignarle el total a cada uno quintuplicaría la suma.
+### Licitacion — una fila por proceso, solo para el 44% que lo tiene
+
+| Campo | Tipo | Oblig. | Procedencia | Ejemplo |
+|---|---|---|---|---|
+| `codigo` | texto | sí | api_licitacion | `2678-1-LR25` (**clave primaria**) |
+| `nombre` | texto | sí | api_licitacion | `SERVICIO ACERCAMIENTO TRANSPORTE ESCOLAR` |
+| `fecha_publicacion` | fecha | no | api_licitacion | `2025-01-24` |
+| `fecha_adjudicacion` | fecha | no | api_licitacion | `2025-03-10` |
+| `monto_estimado` | decimal | no | api_licitacion | `522500000` |
+| `monto_adjudicado_total` | decimal | no | ocds | `441600000` |
+| `duracion_valor` | entero | no | api_licitacion | `10` |
+| `duracion_unidad` | enum | no | api_licitacion | `1`=horas, `4`=meses, otros `desconocido` |
+| `es_renovable` | bool | no | api_licitacion | `false` |
+| `permite_subcontratacion` | bool | no | api_licitacion | `true` |
+| `n_oferentes` | entero | no | ocds | `6` |
+
+**Por qué estos campos NO viven en el Contrato:** si una licitación origina cinco
+órdenes, replicar `n_oferentes` en las cinco haría que contar oferentes diera 30
+en vez de 6. Es el mismo error que se evitó con el monto adjudicado.
+
+### Los cinco estados de una orden de compra
+
+Medidos sobre 9.206 órdenes del 15-05-2025, con su etiqueta obtenida de la API:
+
+| Código | Estado | Volumen | ¿Cuenta como gasto? |
+|---|---|---|---|
+| 12 | Recepción Conforme | 71,1% | sí |
+| 6 | Aceptada | 24,3% | sí |
+| 9 | **Cancelada** | 3,6% | **no** |
+| 4 | Enviada a proveedor | 1,0% | sí |
+| 5 | En proceso | 0,03% | sí |
+
+**Se ingestan todas**, y el estado se guarda. Las canceladas traen monto distinto
+de cero —se midió una de $1.346.366— así que sumarlas al gasto lo inflaría. De
+ahí sale `cuenta_como_gasto`, y **toda consulta de montos debe filtrar por ese
+campo**.
+
+Ingerir las canceladas no es ruido: cuántas órdenes mueren en el camino es
+información que a un CLM le importa.
+
+### Atribución del monto adjudicado
+
+Una adjudicación puede repartirse entre varios proveedores: en `2678-1-LR25` son
+**cinco**, sobre $441.600.000. Como cada `Contrato` es una orden con **un**
+proveedor, asignarle el total a cada uno quintuplicaría la suma.
 
 La fuente permite atribuir exacto. Cada elemento de `Items[].Adjudicacion` trae
-`RutProveedor`, `Cantidad` y `MontoUnitario`. El monto adjudicado de un contrato
-es la **suma de los ítems adjudicados al RUT del proveedor de su orden de
-compra**:
+`RutProveedor`, `Cantidad` y `MontoUnitario`:
 
-| RUT del proveedor | Ítems | Monto adjudicado |
+| RUT | Ítems | Monto |
 |---|---|---|
 | 76.036.979-9 | 7 | $167.000.000 |
 | 11.175.478-0 | 6 | $123.100.000 |
@@ -132,51 +174,32 @@ compra**:
 | 10.200.595-3 | 1 | $19.000.000 |
 | **Total** | **20** | **$441.600.000** |
 
-Ese total **cuadra al peso con el `award.value` de OCDS**. De ahí sale una regla
-de validación cruzada entre dos fuentes independientes: si la suma de los ítems
-no coincide con lo que declara OCDS, el registro va a cuarentena. Nunca se
-reparte por partes iguales: sería un número inventado, y el rango real va de $19M
-a $167M.
+Ese total **cuadra al peso con `award.value` de OCDS**. De ahí sale una regla de
+validación cruzada entre dos fuentes independientes: si no coincide, cuarentena.
 
-**Nota sobre las dos fechas del proceso:** `fecha_publicacion` y
-`fecha_adjudicacion` existen para responder la pregunta de negocio 3 —cuánto
-tarda cada organismo entre publicar y adjudicar—. La diferencia **no se
-almacena**: se calcula en la consulta, porque un campo derivado que se puede
-recomputar solo agrega una forma de quedar desincronizado.
+**Prorratear está prohibido.** El reparto real va de $19M a $167M; por partes
+iguales daría $88,3M a cada uno, un número que no existe en ninguna parte.
 
-Ambas son nulas en las OC huérfanas: sin licitación no hay proceso que medir. La
-pregunta 3 aplica al **44% con proceso**, y la consulta debe filtrar por
-`tiene_proceso = 1`.
-
-**Nota sobre montos:** son tres cosas distintas y el modelo las separa a
-propósito. El estimado es el presupuesto publicado, el adjudicado es por lo que
-se firmó, y el ejecutado es lo que la orden de compra realmente movió. En
-`2678-1-LR25` el estimado eran $522,5M y el adjudicado $441,6M: **81 millones de
-diferencia**, y solo OCDS expone el segundo.
-
-### Garantia
+### Garantia — pertenece a la licitación
 
 | Campo | Tipo | Oblig. | Procedencia | Ejemplo |
 |---|---|---|---|---|
-| `contrato_id` | texto | sí | derivado | `1002-183-SE25` |
+| `licitacion_codigo` | texto | sí | derivado | `2678-1-LR25` |
 | `tipo` | enum | sí | ficha_web | `seriedad_oferta`, `fiel_cumplimiento` |
 | `monto_valor` | decimal | no | ficha_web | `1500000` |
 | `monto_es_porcentaje` | bool | sí | ficha_web | `true` para "5 %" |
-| `moneda` | texto | no | ficha_web | `CLP` |
 | `fecha_vencimiento` | fecha | no | ficha_web | `2026-03-02` |
 | `beneficiario` | texto | no | ficha_web | `Municipalidad de Mostazal` |
 | `fragmento_origen` | texto | sí | ficha_web | posición en el HTML |
 
-**Solo la ficha web las tiene.** Ninguno de los 54 campos de la API REST expone
-garantías, y OCDS tampoco (0 menciones). Es el caso que justifica el scraping.
+**Solo la ficha web las tiene.** Ninguno de los 54 campos de la API REST las
+expone, y OCDS tampoco (0 menciones). Es el caso que justifica el scraping.
 
-### ClausulaExtraida
-
-Solo se crea si el Spike dejó la capa dentro del alcance. Lo hizo, como upside.
+### ClausulaExtraida — pertenece a la licitación
 
 | Campo | Tipo | Oblig. | Procedencia |
 |---|---|---|---|
-| `contrato_id` | texto | sí | derivado |
+| `licitacion_codigo` | texto | sí | derivado |
 | `tipo` | enum | sí | derivado (`causales_termino`) |
 | `texto` | texto | sí | inferencia |
 | `fragmento_origen` | texto | **sí** | ficha_web |
@@ -185,16 +208,16 @@ Solo se crea si el Spike dejó la capa dentro del alcance. Lo hizo, como upside.
 
 **`fragmento_origen` y `posicion_inicio` son obligatorios.** Un dato inferido sin
 poder mostrar de dónde salió no entra. Durante el Spike, esa trazabilidad fue lo
-que permitió auditar un resultado que se había interpretado mal.
+que permitió auditar un resultado mal interpretado.
 
-### Discrepancia
+### Discrepancia — pertenece a la licitación
 
 Nace del hallazgo central del Spike: la ficha de SENAMA declara `36 Horas` en su
 campo estructurado y **36 meses tres veces en su propia prosa**.
 
 | Campo | Tipo | Procedencia |
 |---|---|---|
-| `contrato_id` | texto | derivado |
+| `licitacion_codigo` | texto | derivado |
 | `campo` | texto | derivado |
 | `valor_estructurado` | texto | api_licitacion o ficha_web |
 | `valor_prosa` | texto | inferencia |
@@ -208,14 +231,12 @@ resultado, no un problema a ocultar.
 
 | Caso | Frecuencia medida | Respuesta del modelo |
 |---|---|---|
-| Una licitación con **varias** OC | esperado | Varios `Contrato` comparten `codigo_licitacion`. La licitación NO es la clave |
-| Una OC **sin** licitación | **56%** | `codigo_licitacion` nulo y `tiene_proceso=false`. Es un contrato válido, no un error |
+| Una licitación con **varias** OC | esperado | Varios `Contrato` apuntan a la misma `Licitacion`. Nada se duplica |
+| Una OC **sin** licitación | **56%** | `codigo_licitacion` nulo, `tiene_proceso=false`, sin fila en `Licitacion`. Es un contrato válido |
 | La ficha **se contradice** | 1 de 3 en el spike | Fila en `Discrepancia`; ambos valores se conservan |
 
-**La clave primaria es el código de la orden de compra**, no el de la licitación.
-Esa decisión sale directamente de los dos primeros casos.
-
----
+**La clave primaria del Contrato es `codigo_oc`.** No hay un `id` separado: la
+clave natural existe, es estable y dice de dónde viene el dato.
 
 ## 3. Estrategia de extracción
 

@@ -132,12 +132,15 @@ quedarme solo con las que pueden tener licitación, para acotar el trabajo.
 **Criterios de aceptación:**
 - **Dado** una fecha, **cuando** pido el listado, **entonces** obtengo los
   registros con `Codigo`, `Nombre` y `CodigoEstado`.
-- **Dado** el listado, **cuando** filtro por sufijo del código, **entonces**
-  quedan solo los tipos `SE` y `CC`, **sin emitir ningún request adicional**.
-- **Dado** el listado de muestra guardado, **cuando** aplico el filtro,
-  **entonces** de 9.206 registros quedan 4.047.
-- **Dado** un límite de 150, **cuando** lo aplico, **entonces** devuelve
-  exactamente 150.
+- **Dado** el listado, **cuando** clasifico por sufijo del código, **entonces**
+  separo los que pueden tener licitación (`SE`, `CC`) de los que no
+  (`AG`, `CM`, `TD`), **sin emitir ningún request adicional**.
+- **Dado** el listado de muestra guardado, **cuando** clasifico, **entonces** de
+  9.206 registros 4.047 son enlazables y 5.159 huérfanos.
+- **Dado** los límites configurados, **cuando** los aplico, **entonces** devuelve
+  100 con proceso y 50 sin proceso. **Ambos grupos entran a la muestra**: sin los
+  huérfanos, la pregunta de negocio 5 no tiene respuesta y el caso 'OC sin
+  licitación' del modelo nunca se ejercita.
 
 **Comando de verificación:**
 ```bash
@@ -170,8 +173,15 @@ licitación, para poder reconstruir el proceso que la originó.
 - **Dado** una OC de tipo `AG`, `CM` o `TD`, **cuando** leo ese campo,
   **entonces** viene vacío, y el modelo lo acepta como **`None` válido, no como
   error**.
-- **Dado** un lote de 150, **cuando** proceso, **entonces** se registra cuántas
-  quedaron sin licitación.
+- **Dado** un lote, **cuando** proceso, **entonces** se registra cuántas quedaron
+  sin licitación.
+- **Dado** el `CodigoEstado`, **cuando** lo mapeo, **entonces** reconozco los
+  cinco valores medidos: 12 Recepción Conforme, 6 Aceptada, 9 Cancelada,
+  4 Enviada a proveedor, 5 En proceso. **Un valor desconocido no se adivina**:
+  el registro va a cuarentena.
+- **Dado** una orden en estado 9 (Cancelada), **cuando** la proceso, **entonces**
+  se ingesta igual pero con `cuenta_como_gasto = false`. Se midió una cancelada
+  con monto $1.346.366: sumarla al gasto lo inflaría.
 
 **Comando de verificación:**
 ```bash
@@ -321,10 +331,15 @@ y declare de dónde vino cada campo, para poder defender cada dato.
 
 **Criterios de aceptación:**
 - **Dado** una OC con licitación, **cuando** reconstruyo, **entonces** obtengo un
-  `Contrato` con `tiene_proceso=true` y **cada campo con su procedencia**
-  (`api_oc`, `api_licitacion`, `ocds`, `ficha_web`, `derivado`).
+  `Contrato` con `tiene_proceso=true`, una fila en `Licitacion`, y **cada campo
+  con su procedencia** (`api_oc`, `api_licitacion`, `ocds`, `ficha_web`,
+  `derivado`).
+- **Dado** cinco OC de la misma licitación, **cuando** reconstruyo, **entonces**
+  hay **una sola** fila en `Licitacion`. Garantías y oferentes **no se
+  replican**: contar oferentes debe dar 6, no 30.
 - **Dado** una OC **sin** licitación, **cuando** reconstruyo, **entonces**
-  obtengo un `Contrato` válido con `tiene_proceso=false`. **No es un error.**
+  obtengo un `Contrato` válido con `tiene_proceso=false` y **sin** fila en
+  `Licitacion`. **No es un error.**
 - **Dado** dos OC que comparten licitación, **cuando** reconstruyo, **entonces**
   obtengo **dos** contratos distintos con el mismo `codigo_licitacion`.
 - **Dado** una OC cuyo proveedor tiene RUT `X`, **cuando** calculo
@@ -364,9 +379,13 @@ para poder reprocesar sin miedo.
   **entonces** hay 2 filas de garantía, no 4.
 - **Dado** el archivo generado, **cuando** lo abro con `sqlite3`, **entonces**
   las consultas funcionan **sin conversión ni migración**.
-- **Dado** el esquema, **cuando** se crea, **entonces** incluye las tablas
-  `clausula_extraida` y `discrepancia` **aunque queden vacías**: las puebla el
-  incremento 13, y el esquema no debe cambiar después.
+- **Dado** el esquema, **cuando** se crea, **entonces** incluye `contrato`,
+  `licitacion`, `garantia`, `clausula_extraida` y `discrepancia`. Las dos
+  últimas quedan vacías hasta el incremento 13, pero el esquema no cambia
+  después.
+- **Dado** `contrato.codigo_licitacion`, **cuando** se define, **entonces** es
+  clave foránea **anulable** hacia `licitacion.codigo`. El 56% la tiene nula y
+  eso es válido.
 
 **Comando de verificación:**
 ```bash
@@ -399,7 +418,13 @@ consultas concretas, para no tener que explorar la base a mano.
   devuelve contratos ordenados por `fecha_termino_estimada`, marcando cuáles son
   renovables.
 - **Dado** la pregunta de garantías, **cuando** la ejecuto, **entonces** lista
-  las vigentes y **destaca las incoherentes con el plazo**.
+  las vigentes y **destaca las incoherentes con el plazo**, contándolas **una
+  vez por licitación**, no una por contrato.
+- **Dado** cualquier consulta de montos, **cuando** la ejecuto, **entonces**
+  filtra por `cuenta_como_gasto = 1`. Las canceladas traen monto y lo inflarían.
+- **Dado** la pregunta 5, **cuando** la ejecuto, **entonces** compara gasto con
+  proceso contra gasto sin proceso, usando los contratos huérfanos que el
+  incremento 2 incluyó a propósito.
 - **Dado** la pregunta de plazos por organismo, **cuando** la ejecuto,
   **entonces** devuelve **p25, mediana y p75** de los días entre
   `fecha_publicacion` y `fecha_adjudicacion`, por organismo, y **filtra por
