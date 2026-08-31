@@ -100,6 +100,42 @@ no redescubrirlos en la Fase 1:
   tuvo 248 licitaciones adjudicadas. Con tope de 10.000 requests diarios, una
   ventana amplia no cabe en una sola corrida.
 
+## Cadena de acceso a los documentos, verificada el 2026-08-31
+
+Recorrido real, comprobado request a request:
+1. `licitaciones.json?codigo=<código>` devuelve `Adjudicacion.UrlActa`, que
+   contiene el token `qs` cifrado de la ficha. **No hay que hacer ingeniería
+   inversa del token: la API lo entrega.**
+2. `RFB/DetailsAcquisition.aspx?qs=<token>` carga con un **GET limpio**
+   (HTTP 200, ~370 KB). Corrige el supuesto de `docs/00-metodo.md`, que daba
+   por hecho que el ViewState impedía el GET directo. La ficha sí trae
+   ViewState, pero no lo exige para leerla.
+3. El HTML de la ficha trae, en el `onclick` de `imgAdjuntos`, el token `enc`
+   de la página de adjuntos.
+4. **`Attachment/ViewAttachment.aspx?enc=<token>` está protegida por reCAPTCHA
+   Enterprise con scoring de bot.** Devuelve 4.6 KB que ejecutan
+   `grecaptcha.enterprise.execute(...)`, envían el token por POST a
+   `ViewAttachment.aspx?ajax=1`, y según el score (umbral 0.5) redirigen a
+   `ViewAttachmentLC.aspx?enc=...` o a `/Procurement/403.html`.
+
+**Consecuencia de diseño, no negociable:** la descarga automatizada de adjuntos
+queda FUERA DE ALCANCE. El token de redirección viene en el HTML y permitiría
+saltarse el chequeo, pero eso es evadir detección de bots y contradice una
+restricción explícita del proyecto. No se hace, y el hallazgo se documenta y se
+defiende como decisión.
+
+Alternativas para la capa de documentos, a resolver en la Fase 1:
+- Apoyarse en los campos contractuales que la API YA entrega de forma
+  determinista, que son sustanciales.
+- Ingesta asistida: un humano deposita los PDF en una carpeta y el pipeline los
+  procesa. Es honesto y además refleja cómo un CLM real ingesta contratos
+  nacidos fuera del sistema.
+- Evaluar Datos Abiertos / OCDS como fuente alternativa de documentos.
+
+Dato menor pero útil: **`https://www.mercadopublico.cl/robots.txt` devuelve 404.**
+La fuente no declara reglas de exclusión. No habilita nada: el throttling
+conservador se mantiene igual.
+
 ## Decisiones tomadas (2026-08-31)
 
 - **Profundidad sobre volumen.** La demo no aspira a cobertura exhaustiva de la
