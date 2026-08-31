@@ -587,11 +587,14 @@ pytest tests/test_inferencia.py -v            # ~20 s, sin modelo, todo simulado
 python -m contratos.cli inferir --limite 1    # ~8 min, con modelo real
 ```
 
-**Tiempo de verificación:** los tests, 20 s. La corrida real, **entre 8 y 65
-minutos por documento** — ese es el rango medido en el Spike 0 sobre documentos
-completos, con 7,34 GB de RAM y CPU saturada. El filtro de recuperacion deberia
-reducirlo al enviar entre un 43% y un 76% menos de texto, **pero eso no esta
-medido todavia** y no se promete. Por eso los tests usan respuestas simuladas y la
+**Tiempo de verificación:** los tests, 20 s. La corrida real, **~3,4 minutos por
+documento** con el filtro de recuperación puesto — medido en el Spike 0: 10,2
+minutos para los tres documentos, contra 88 minutos enviándolos completos. Son
+**8,7 veces más rápido** y además corrige dos fallos del enfoque monolítico.
+
+La verificación cruzada de discrepancias es otro asunto: exige el documento
+entero y cuesta ~30 minutos. Por eso **no corre sobre todos los contratos**, solo
+sobre aquellos donde una regla determinista ya sospecha algo. Por eso los tests usan respuestas simuladas y la
 corrida real se ejecuta aparte, nunca en el bucle de desarrollo.
 
 **Fuera de alcance:** cualquier inferencia en la ruta de un request.

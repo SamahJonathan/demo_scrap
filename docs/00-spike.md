@@ -175,7 +175,49 @@ deja como upside, no como parte de la demo mínima.
 5. Una lección de método: la referencia contra la que mides también puede estar
    equivocada. El regex era la "verdad" y era el que fallaba.
 
+## Medición adicional: monolítico contra fragmentado
+
+Se repitió el experimento enviando al modelo solo las secciones relevantes en vez
+del documento entero, con un filtro de pasajes por palabras clave y `num_ctx`
+bajado de 16384 a 4096.
+
+| Documento | Monolítico | Fragmentado | Mejora | Texto enviado |
+|---|---|---|---|---|
+| Mostazal | 499 s | **108 s** | 4,6× | 30% |
+| SENAMA | 3.950 s | **289 s** | **13,7×** | 50% |
+| Puerto Montt | 860 s | **214 s** | 4,0× | 25% |
+| **Total** | **88 min** | **10,2 min** | **8,7×** | 36% |
+
+**Fragmentar arregló los dos fallos del monolítico:**
+
+- **Mostazal, causales de término.** El monolítico inventó una readjudicación
+  tras 8 minutos. El filtro no encuentra pasajes, responde `null` **sin llamar al
+  modelo**, y acierta en cero segundos.
+- **Puerto Montt, fechas de garantía.** El monolítico devolvía la regla en prosa
+  ("no inferior a 90 días corridos") en vez del valor tabulado. El fragmentado
+  devuelve `17-03-2025` y `29-04-2027`, exactas.
+
+**Y perdió la reconciliación entre secciones:**
+
+- **SENAMA, plazo.** El fragmentado responde `36 Horas`, fiel a la sección 7. El
+  monolítico respondía `36 meses`, que es lo que dice la prosa tres veces.
+- **Puerto Montt, monto.** El monolítico lo hallaba en la prosa; el fragmentado
+  no, porque solo ve la sección 7.
+
+### La conclusión que cierra el spike
+
+**Fragmentar gana en extracción y pierde en reconciliación.** Son dos trabajos
+distintos y el diseño ya los separa:
+
+| Trabajo | Cómo se hace | Coste |
+|---|---|---|
+| **Extraer** cláusulas en prosa | Filtro de pasajes + modelo sobre la sección | ~3,4 min por documento |
+| **Verificar** contradicciones | Modelo sobre el documento completo | ~30 min por documento |
+
+La extracción entra en cada corrida. La verificación cruzada corre solo sobre los
+contratos donde una regla determinista ya sospecha algo — no sobre todos.
+
 ## Pendiente
 
-Comparación con `llama3.2:3b` y con el adaptador hosted sobre el mismo documento,
-para responder cuál es el modelo mínimo viable. No cambia la recomendación.
+Comparación con `llama3.2:3b` y con el adaptador hosted, para responder cuál es
+el modelo mínimo viable. No cambia la recomendación.
