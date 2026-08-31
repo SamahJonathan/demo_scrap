@@ -68,8 +68,10 @@ especificación. Al iniciar cada sesión, relee /docs antes de proponer nada.
 
 ## Estado actual
 
-**Fase en curso:** Fase 3 — Codificación, desde el Incremento 0.
-**Cerradas:** Fase 0, Spike 0, Fase 1 y Fase 2, con sus gates verificados.
+**Fase en curso:** Fase 4 — Cierre y presentación.
+**Cerradas:** Fase 0, Spike 0, Fase 1, Fase 2 y Fase 3.
+
+**La demo está en vivo:** https://contratos.54-207-164-201.sslip.io
 
 | Fase | Estado | Entregable |
 |---|---|---|
@@ -77,8 +79,8 @@ especificación. Al iniciar cada sesión, relee /docs antes de proponer nada.
 | Spike 0 — Validación de supuesto | ✅ Cerrado | `docs/00-spike.md` |
 | Fase 1 — Análisis | ✅ Cerrada | `docs/01-analisis.md` |
 | Fase 2 — Diseño | ✅ Cerrada | `docs/02-diseno.md`, `docs/03-plan-codificacion.md` |
-| Fase 3 — Codificación | 🟡 En curso | Incrementos 0 a 13 |
-| Fase 4 — Cierre y presentación | ⏳ Pendiente | Documentación final |
+| Fase 3 — Codificación | ✅ Cerrada | 14 incrementos, 159 tests |
+| Fase 4 — Cierre y presentación | 🟡 En curso | Documentación final |
 
 **Eje de la demo, decidido:** ciclo de vida contractual. Vencimientos,
 renovaciones y garantías al centro; los montos agregados son contexto.
