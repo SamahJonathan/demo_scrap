@@ -68,15 +68,14 @@ especificación. Al iniciar cada sesión, relee /docs antes de proponer nada.
 
 ## Estado actual
 
-**Fase en curso:** Fase 1 — Análisis. `docs/01-analisis.md` escrito con las seis
-secciones; falta responder las preguntas abiertas para cerrar el gate.
-**Siguiente:** Fase 2 — Diseño.
+**Fase en curso:** Fase 2 — Diseño.
+**Cerradas:** Fase 0, Spike 0 y Fase 1, con sus gates cumplidos.
 
 | Fase | Estado | Entregable |
 |---|---|---|
 | Fase 0 — Repositorio y contexto | ✅ Cerrada | `CLAUDE.md`, `.gitignore`, `.env.example`, README, LICENSE |
 | Spike 0 — Validación de supuesto | ✅ Cerrado | `docs/00-spike.md` |
-| Fase 1 — Análisis | 🟡 En curso | `docs/01-analisis.md` |
+| Fase 1 — Análisis | ✅ Cerrada | `docs/01-analisis.md` |
 | Fase 2 — Diseño | ⏳ Pendiente | `docs/02-diseno.md`, `docs/03-plan-codificacion.md` |
 | Fase 3 — Codificación | ⏳ Pendiente | Incrementos 0 a 9 |
 | Fase 4 — Cierre y presentación | ⏳ Pendiente | Documentación final |
@@ -307,9 +306,21 @@ sostiene la arquitectura: el adaptador local existe porque un cliente enterprise
 pregunta a dónde van sus contratos. Subirlo a la nube ya es el adaptador hosted,
 que es más barato y rápido.
 
-**Pendiente de verificar:** cuánta RAM tiene el plan de la instancia. FastAPI y
-PostgreSQL juntos necesitan 1 GB como mínimo; con 512 MB habría que volver al
-snapshot de solo lectura.
+**Instancia confirmada:** `serena-demo` — 1 GB RAM, 2 vCPU, 40 GB SSD, São Paulo
+zona A. Alcanza para PostgreSQL + FastAPI + Caddy con 450 contratos, pero exige
+tres ajustes:
+
+1. **Swap de 2 GB.** Las instancias de 1 GB suelen venir sin swap. Aquí SÍ
+   corresponde, a diferencia del modelo de lenguaje: PostgreSQL y FastAPI tienen
+   páginas frías que pueden irse a disco sin costo. El modelo no las tiene —
+   recorre todos sus pesos por cada token— y por eso ahí el swap era inviable.
+   La distinción es la naturaleza del acceso a memoria, no una regla general.
+2. **PostgreSQL afinado para máquina chica:** `shared_buffers=64MB`,
+   `max_connections=20`, `work_mem=4MB`, `effective_cache_size=256MB`. Los
+   valores por defecto asumen un servidor grande.
+3. **Verificar qué corre ya en la instancia.** El nombre sugiere otro proyecto
+   desplegado; si lo hay, el presupuesto de memoria cambia y hay que medirlo
+   antes de desplegar.
 
 ## Consultas en lenguaje natural: EVALUADO Y DESCARTADO
 

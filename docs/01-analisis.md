@@ -412,7 +412,13 @@ Observables, verificables ejecutando algo.
 request. Corre en lote, offline, y persiste sus resultados. Medido: 7,34 GB de
 RAM y entre 8 y 65 minutos por documento.
 
-## Pendiente para cerrar el gate
+## Gate de salida
 
-- Verificar cuánta RAM tiene el plan de la instancia Lightsail. Con menos de
-  1 GB, PostgreSQL no cabe junto a FastAPI y habría que servir un snapshot.
+- [x] `docs/01-analisis.md` con las seis secciones
+- [x] El objetivo cabe en una frase y no menciona Python ni Scrapy
+- [x] Hay ejemplos reales de respuesta de la fuente, verificados con requests
+- [x] El *out of scope* tiene más de 4 ítems
+- [x] Los criterios de éxito se verifican ejecutando algo
+- [x] Todo lo no verificado está marcado como SUPUESTO POR VERIFICAR
+- [x] Preguntas abiertas resueltas
+- [x] Infraestructura confirmada: Lightsail 1 GB / 2 vCPU en São Paulo

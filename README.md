@@ -33,7 +33,7 @@ fase. El método completo está en [docs/00-metodo.md](docs/00-metodo.md).
 |---|---|---|
 | Fase 0 — Repositorio y contexto | `CLAUDE.md`, `.gitignore`, `.env.example`, README, licencia | ✅ Cerrada |
 | Spike 0 — Validación de supuesto | [`docs/00-spike.md`](docs/00-spike.md) | ✅ Cerrado |
-| Fase 1 — Análisis | [`docs/01-analisis.md`](docs/01-analisis.md) | 🟡 En curso |
+| Fase 1 — Análisis | [`docs/01-analisis.md`](docs/01-analisis.md) | ✅ Cerrada |
 | Fase 2 — Diseño | `docs/02-diseno.md`, `docs/03-plan-codificacion.md` | ⏳ Pendiente |
 | Fase 3 — Codificación | Incrementos 0 a 9 | ⏳ Pendiente |
 | Fase 4 — Cierre y presentación | Documentación final y demo | ⏳ Pendiente |
