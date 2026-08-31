@@ -142,6 +142,8 @@ quedarme solo con las que pueden tener licitación, para acotar el trabajo.
   (`AG`, `CM`, `TD`), **sin emitir ningún request adicional**.
 - **Dado** el listado de muestra guardado, **cuando** clasifico, **entonces** de
   9.206 registros 4.047 son enlazables y 5.159 huérfanos.
+- **Dado** un tipo de orden que no está en ninguna lista, **cuando** clasifico,
+  **entonces** se aparta y se cuenta. **No se asume a qué grupo pertenece.**
 - **Dado** los límites configurados, **cuando** los aplico, **entonces** devuelve
   100 con proceso y 50 sin proceso. **Ambos grupos entran a la muestra**: sin los
   huérfanos, la pregunta de negocio 5 no tiene respuesta y el caso 'OC sin
@@ -152,11 +154,21 @@ quedarme solo con las que pueden tener licitación, para acotar el trabajo.
 pytest tests/test_api_oc.py -v
 python -m contratos.cli descubrir --fecha 2025-05-15 --limite 5
 ```
-Salida esperada: 5 códigos, todos terminados en `SE##` o `CC##`, y una línea que
-diga `requests emitidos: 1`.
+Salida esperada: los dos grupos con sus conteos —4.047 con proceso y 5.159 sin
+proceso— y `requests emitidos: 1` en la primera corrida, **0 en las siguientes**
+porque salen de caché.
 
-**Tiempo de verificación:** ~40 s (incluye 1 request real la primera vez; luego
-sale de caché).
+**Tiempo de verificación:** **3 s medidos** con un request real, bajo el
+presupuesto de 40. La suite: 25 tests en ~3 s.
+
+**Hallazgo del incremento.** Apareció un sexto tipo de orden, `CT`, que no
+estaba en ninguna de las dos listas. Se verificó pidiendo su detalle antes de
+clasificarlo: `CodigoLicitacion` vacío, o sea huérfana. Se agregó a la lista con
+evidencia, no por descarte.
+
+**Fallo corregido.** El logger de `httpx` imprimía la URL completa en INFO, y el
+ticket viaja como parámetro: quedaba a la vista en cualquier consola o captura
+de pantalla. Se subió su umbral a WARNING y hay un test de regresión.
 
 **Fuera de alcance:** el detalle de cada orden.
 

@@ -30,6 +30,12 @@ from contratos.config import Config, cargar
 
 log = logging.getLogger(__name__)
 
+# httpx registra la URL completa en INFO, y el ticket viaja como parametro. Eso
+# lo dejaria en cualquier consola, log o captura de pantalla. Se sube su umbral
+# a WARNING: los errores siguen visibles, la URL con el secreto no.
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("httpcore").setLevel(logging.WARNING)
+
 
 class LimiteDeRequests(RuntimeError):
     """Se alcanzó `MAX_REQUESTS_PER_RUN`.

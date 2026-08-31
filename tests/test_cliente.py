@@ -122,3 +122,24 @@ def test_el_ticket_no_entra_en_la_clave_de_cache(config: Config) -> None:
 
         assert c.emitidos == 1
         assert c.aciertos_cache == 1
+
+
+@respx.mock
+def test_el_ticket_no_aparece_en_los_logs(
+    config: Config, caplog: pytest.LogCaptureFixture
+) -> None:
+    """httpx registra la URL completa en INFO, y el ticket viaja ahi.
+
+    Una captura de pantalla en una entrevista, o un log en el servidor, dejaria
+    el ticket personal a la vista.
+    """
+    import logging
+
+    respx.get(URL).mock(return_value=httpx.Response(200, json=CUERPO))
+    secreto = "TICKET-SECRETO-QUE-NO-DEBE-SALIR"
+
+    with caplog.at_level(logging.DEBUG), Cliente(config) as c:
+        c.obtener(URL, {"fecha": "15052025", "ticket": secreto})
+
+    for r in caplog.records:
+        assert secreto not in r.getMessage()
