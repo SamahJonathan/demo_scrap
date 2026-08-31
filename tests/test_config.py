@@ -6,6 +6,8 @@ su propio entorno.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 from pydantic import ValidationError
 
@@ -54,3 +56,29 @@ def test_el_cli_sin_argumentos_muestra_la_ayuda_y_sale_en_cero(
 ) -> None:
     assert main([]) == 0
     assert "contratos" in capsys.readouterr().out
+
+
+def test_carga_desde_un_env_real_con_listas_separadas_por_comas(
+    tmp_path: Path,
+) -> None:
+    """El .env que el proyecto entrega usa comas, no JSON.
+
+    Los demas tests pasan _env_file=None y nunca ejercitan esta ruta. Este es el
+    que atrapa el fallo: pydantic-settings intenta decodificar JSON en los
+    campos de lista, y sin NoDecode revienta al arrancar.
+    """
+    env = tmp_path / ".env"
+    env.write_text(
+        "MP_API_TICKET=abc-123\n"
+        "RETRY_HTTP_CODES=429,503\n"
+        "FECHAS_OC=2025-01-15,2025-05-15\n"
+        "TIPOS_OC_CON_LICITACION=SE,CC\n"
+        "ESTADOS_EJECUTADO=6,12\n",
+        encoding="utf-8",
+    )
+    c = Config(_env_file=env)  # type: ignore[call-arg]
+
+    assert c.retry_http_codes == [429, 503]
+    assert [str(f) for f in c.fechas_oc] == ["2025-01-15", "2025-05-15"]
+    assert c.tipos_oc_con_licitacion == ["SE", "CC"]
+    assert c.estados_ejecutado == [6, 12]

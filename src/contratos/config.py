@@ -9,9 +9,10 @@ from __future__ import annotations
 from datetime import date
 from functools import lru_cache
 from pathlib import Path
+from typing import Annotated
 
 from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 RAIZ = Path(__file__).resolve().parents[2]
 
@@ -42,7 +43,7 @@ class Config(BaseSettings):
     request_timeout_seconds: int = 30
     retry_max_attempts: int = 3
     retry_backoff_base_seconds: float = 2.0
-    retry_http_codes: list[int] = [429, 500, 502, 503, 504]
+    retry_http_codes: Annotated[list[int], NoDecode] = [429, 500, 502, 503, 504]
     # Cortafuegos: el ticket tiene tope de 10.000 requests diarios.
     max_requests_per_run: int = 2000
 
@@ -52,19 +53,19 @@ class Config(BaseSettings):
 
     # --- Muestra -----------------------------------------------------------
     # Tres fechas elegidas midiendo el volumen de cada una. Ver docs/02-diseno.md.
-    fechas_oc: list[date] = [
+    fechas_oc: Annotated[list[date], NoDecode] = [
         date(2025, 1, 15),
         date(2025, 5, 15),
         date(2025, 10, 15),
     ]
     oc_con_proceso_por_fecha: int = 100
     oc_sin_proceso_por_fecha: int = 50
-    tipos_oc_con_licitacion: list[str] = ["SE", "CC"]
-    tipos_oc_sin_licitacion: list[str] = ["AG", "CM", "TD"]
+    tipos_oc_con_licitacion: Annotated[list[str], NoDecode] = ["SE", "CC"]
+    tipos_oc_sin_licitacion: Annotated[list[str], NoDecode] = ["AG", "CM", "TD"]
 
     # Estados de orden de compra. "Gasto" son dos cosas distintas y se separan.
-    estados_comprometido: list[int] = [4, 5, 6, 12]
-    estados_ejecutado: list[int] = [6, 12]
+    estados_comprometido: Annotated[list[int], NoDecode] = [4, 5, 6, 12]
+    estados_ejecutado: Annotated[list[int], NoDecode] = [6, 12]
 
     # --- Umbrales de calidad que hacen fallar la corrida -------------------
     max_quarantine_rate: float = 0.05
@@ -73,6 +74,27 @@ class Config(BaseSettings):
     # --- Operación ---------------------------------------------------------
     log_level: str = "INFO"
     database_url: str = "sqlite:///data/contratos.db"
+
+    @field_validator(
+        "retry_http_codes",
+        "fechas_oc",
+        "tipos_oc_con_licitacion",
+        "tipos_oc_sin_licitacion",
+        "estados_comprometido",
+        "estados_ejecutado",
+        mode="before",
+    )
+    @classmethod
+    def _lista_separada_por_comas(cls, v: object) -> object:
+        """Acepta `429,500,502` ademas de JSON.
+
+        pydantic-settings espera JSON para tipos complejos, pero un .env que
+        obliga a escribir ["SE","CC"] es hostil para quien lo edita a mano. El
+        formato legible manda; el codigo se adapta.
+        """
+        if isinstance(v, str):
+            return [x.strip() for x in v.split(",") if x.strip()]
+        return v
 
     @field_validator("tipos_oc_con_licitacion", "tipos_oc_sin_licitacion", mode="after")
     @classmethod
