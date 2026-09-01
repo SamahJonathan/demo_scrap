@@ -69,6 +69,18 @@ paso "Copiando la base"
 scp_ "$BASE_LOCAL" "$SERVIDOR:$DESTINO/data/contratos.db"
 ssh_ "ls -lh $DESTINO/data/contratos.db | awk '{print \"  \" \$5, \$9}'"
 
+# El registro de la inferencia viaja con la base. Sin el, /inferencia pierde
+# el embudo —cuantos documentos NO necesitaron el modelo—, que es el dato con
+# el que esa pagina argumenta.
+REGISTRO="$(dirname "$BASE_LOCAL")/corridas/inferencia.json"
+if [ -f "$REGISTRO" ]; then
+    ssh_ "mkdir -p $DESTINO/data/corridas"
+    scp_ "$REGISTRO" "$SERVIDOR:$DESTINO/data/corridas/inferencia.json"
+    echo "  registro de inferencia copiado"
+else
+    echo "  sin registro de inferencia local: la pagina lo declarara"
+fi
+
 # --------------------------------------------------------------------------
 if [ "$SOLO_DATOS" -eq 0 ]; then
     paso "Servicio systemd"

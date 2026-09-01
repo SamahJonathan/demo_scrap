@@ -427,12 +427,36 @@ def test_la_pagina_muestra_cuantos_documentos_NO_necesitaron_el_modelo(
     assert "no necesitaron el modelo" in html
 
 
-def test_sin_corrida_de_inferencia_lo_dice_en_vez_de_mostrar_ceros(
+def test_sin_registro_falta_el_embudo_pero_NO_se_esconden_las_clausulas(
     base: Path,
 ) -> None:
-    """Cero cláusulas porque no se corrió no es lo mismo que cero encontradas."""
+    """Un dato real no puede desaparecer porque falte un archivo de metadatos.
+
+    Pasó en el servidor: el `.db` viajaba con sus cláusulas y el registro de
+    la corrida no, así que la página decía "no se ha corrido" y ocultaba tres
+    cláusulas que sí estaban publicadas.
+    """
+    from contratos.modelos import ClausulaExtraida
+    from contratos.persistencia import abrir, guardar_clausula
+
+    with abrir(base) as con:
+        guardar_clausula(
+            con,
+            ClausulaExtraida(
+                licitacion_codigo="1300-43-LP24",
+                tipo="causales_termino",
+                texto="quiebra del proveedor",
+                fragmento_origen="…término anticipado…",
+                posicion_inicio=10,
+                modelo="llama3.1:8b",
+            ),
+        )
+
     html = TestClient(crear_app(base)).get("/inferencia").text
-    assert "no se ha corrido" in html
+
+    assert "No hay registro" in html, "se declara que falta el embudo"
+    assert "quiebra del proveedor" in html, "pero el dato real se muestra igual"
+    assert "llama3.1:8b" in html, "con su trazabilidad"
 
 
 def test_cero_discrepancias_se_explica_como_resultado_no_como_fallo(

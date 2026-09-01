@@ -9,10 +9,12 @@
 
 {% if not r %}
 <div class="caja aviso">
-  <b class="alerta">La inferencia no se ha corrido sobre esta base.</b>
-  <p class="sub" style="margin:6px 0 0">Es un paso de lote, offline, en la
-  máquina de desarrollo: pide 7,34 GB y minutos por documento. El servidor nunca
-  lo ejecuta. Se corre con <code>python -m contratos.cli inferir</code>.</p>
+  <b class="alerta">No hay registro de la última corrida de inferencia.</b>
+  <p class="sub" style="margin:6px 0 0">Falta el embudo, que es el dato de
+  <b>cuántos documentos se resolvieron sin llamar al modelo</b>. Lo que el
+  modelo sí produjo se sigue mostrando más abajo: vive en la base, no en el
+  registro. Es un paso de lote, offline, en la máquina de desarrollo —pide
+  7,34 GB y minutos por documento—; el servidor nunca lo ejecuta.</p>
 </div>
 {% else %}
 
@@ -90,6 +92,8 @@
   </table>
 </div>
 
+{% endif %}
+
 {% if clausulas %}
 <div class="caja">
   <b>Lo que sí produjo, con su trazabilidad</b>
@@ -151,6 +155,4 @@
     cero. Es la medición que decide dónde vale la pena y dónde no.
   </p>
 </div>
-
-{% endif %}
 {% endblock %}
