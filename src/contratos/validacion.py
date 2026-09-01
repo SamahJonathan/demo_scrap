@@ -260,3 +260,62 @@ def validar_orden(crudo: dict[str, Any], carpeta: Path) -> OrdenCompra | None:
             carpeta,
         )
         return None
+
+
+# Bajo este monto, un contrato con garantías exigidas no es creíble. No es un
+# numero teorico: en la cartera real hay SEIS licitaciones adjudicadas en
+# exactamente $1 que exigen boleta de garantia. Nadie cauciona un peso.
+MONTO_ADJUDICADO_MINIMO = Decimal("10000")
+
+
+def revisar_monto_adjudicado(
+    licitacion: Licitacion,
+    monto_declarado: Decimal | None,
+    tiene_garantias: bool,
+    monto_ejecutado: Decimal | None = None,
+) -> list[Hallazgo]:
+    """Detecta el monto adjudicado que en realidad es un precio unitario.
+
+    Dos señales independientes, y basta una:
+
+    1. **Monto irrisorio con garantías exigidas.** Una licitación adjudicada en
+       $1 que pide boleta de fiel cumplimiento no vale $1: OCDS está
+       entregando el precio ofertado por unidad, no el total del convenio.
+    2. **Lo ejecutado desborda lo adjudicado.** Puerto Montt adjudica $783,19
+       —el litro de diésel— y sus órdenes suman millones.
+
+    Es la misma forma de razonar que la regla de las garantías: un dato de la
+    fuente que se delata al cruzarlo con otro, no al mirarlo solo.
+    """
+    if monto_declarado is None or monto_declarado <= 0:
+        return []
+
+    razones: list[str] = []
+    if tiene_garantias and monto_declarado < MONTO_ADJUDICADO_MINIMO:
+        razones.append(
+            f"adjudicada en {monto_declarado} y exige garantías: "
+            "nadie cauciona un monto así"
+        )
+    if monto_ejecutado is not None and monto_ejecutado > monto_declarado * 10:
+        razones.append(
+            f"lo ejecutado ({monto_ejecutado}) supera diez veces lo declarado "
+            f"({monto_declarado})"
+        )
+
+    if not razones:
+        return []
+    return [
+        Hallazgo(
+            identificador=licitacion.codigo,
+            motivo=Motivo.PRECIO_UNITARIO,
+            detalle=(
+                "el monto adjudicado parece un precio unitario, no el valor "
+                "del contrato: " + "; ".join(razones) + ". No debe sumarse "
+                "entre contratos ni usarse para calcular garantías."
+            ),
+            valores={
+                "declarado": str(monto_declarado),
+                "ejecutado": str(monto_ejecutado) if monto_ejecutado else "",
+            },
+        )
+    ]

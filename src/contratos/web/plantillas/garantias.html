@@ -39,6 +39,7 @@ tampoco. Es el caso que justifica el scraping.</p>
     <td class="codigo">{{ g.licitacion_codigo }}</td>
     <td>{{ g.tipo }}</td>
     <td>{% if g.monto_es_porcentaje %}{{ g.monto_valor }} %
+          {% if g.monto_pesos %}<br><span class="proc">≈ ${{ "{:,.0f}".format(g.monto_pesos) }}</span>{% endif %}
         {% else %}${{ "{:,.0f}".format(g.monto_valor|float) }}{% endif %}</td>
     <td>{{ g.fecha_vencimiento or "—" }}</td>
     <td>{{ g.duracion_valor }} {{ g.duracion_unidad }}</td>
@@ -59,5 +60,10 @@ tampoco. Es el caso que justifica el scraping.</p>
   <b>«Ver ficha» abre el documento original en Mercado Público.</b> Un dato que
   marcamos como dudoso tiene que poder contrastarse contra la fuente en un
   clic, no de palabra.
+  <br>
+  <b>El monto en pesos bajo un porcentaje lo calculamos nosotros</b>, no viene
+  de la fuente: es el porcentaje aplicado al monto adjudicado. Se omite cuando
+  ese monto <b>parece un precio unitario</b> —un convenio de suministro daría
+  una boleta de centavos—, y esos casos los marca la validación de la corrida.
 </p>
 {% endblock %}

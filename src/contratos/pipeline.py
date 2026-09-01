@@ -14,6 +14,7 @@ from __future__ import annotations
 import contextlib
 import logging
 from datetime import date
+from decimal import Decimal
 from pathlib import Path
 
 from contratos.cliente import Cliente, ErrorDeLaFuente, RespuestaDefinitiva
@@ -29,6 +30,7 @@ from contratos.validacion import (
     cuarentenar,
     revisar_garantias,
     revisar_licitacion,
+    revisar_monto_adjudicado,
     revisar_montos,
 )
 
@@ -146,6 +148,32 @@ def correr(
                 licitaciones[codigo] = lic
                 if gs:
                     garantias[codigo] = gs
+
+        # El monto adjudicado solo se puede juzgar con la licitacion Y sus
+        # ordenes delante, y eso recien existe aqui. La regla anterior vivia en
+        # `_proceso_de`, donde el monto ejecutado no se conoce: su rama de
+        # precio unitario nunca llegaba a dispararse en produccion.
+        ejecutado_por_licitacion: dict[str, Decimal] = {}
+        for o in ordenes:
+            if o.codigo_licitacion:
+                ejecutado_por_licitacion[o.codigo_licitacion] = (
+                    ejecutado_por_licitacion.get(o.codigo_licitacion, Decimal(0))
+                    + o.monto_total
+                )
+        for codigo, lic in list(licitaciones.items()):
+            hallazgos = revisar_monto_adjudicado(
+                lic,
+                lic.monto_adjudicado_total,
+                bool(garantias.get(codigo)),
+                ejecutado_por_licitacion.get(codigo),
+            )
+            m.hallazgos.extend(hallazgos)
+            if hallazgos:
+                # La marca se PERSISTE: el dashboard la necesita para no
+                # calcular garantias sobre un precio unitario.
+                licitaciones[codigo] = lic.model_copy(
+                    update={"monto_es_unitario": True}
+                )
 
         cartera = reconstruir_cartera(ordenes, licitaciones, garantias)
         m.procesados = len(cartera.contratos)

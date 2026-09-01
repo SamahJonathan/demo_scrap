@@ -54,7 +54,8 @@ ven las demás áreas, leído desde las cauciones y las cláusulas.</p>
       <td class="codigo">{{ g.licitacion_codigo }}</td>
       <td>{{ g.tipo }}</td>
       <td>{% if g.monto_es_porcentaje %}{{ g.monto_valor }} %
-          {% else %}${{ "{:,.0f}".format(g.monto_valor|float) }}{% endif %}</td>
+          {% if g.monto_pesos %}<br><span class="proc">≈ ${{ "{:,.0f}".format(g.monto_pesos) }}</span>{% endif %}
+        {% else %}${{ "{:,.0f}".format(g.monto_valor|float) }}{% endif %}</td>
       <td>{{ g.fecha_vencimiento }}</td>
       <td>{% if fichas.get(g.licitacion_codigo) %}
           <a href="{{ fichas[g.licitacion_codigo] }}" target="_blank"
@@ -65,7 +66,11 @@ ven las demás áreas, leído desde las cauciones y las cláusulas.</p>
   <p class="sub" style="margin-top:10px"><b>Un porcentaje no es un vacío.</b> La
   seriedad de la oferta va en pesos porque se exige <b>antes</b> de que exista
   monto; el fiel cumplimiento va en porcentaje porque se exige <b>después</b> de
-  adjudicar, cuando ya hay una cifra a la que referirse.</p>
+  adjudicar, cuando ya hay una cifra a la que referirse.
+  <br>
+  Por eso, donde se puede, el porcentaje se traduce: <b>una obligación
+  declarativa no es exigible hasta que es un número</b>. La cifra la calculamos
+  nosotros y se omite si el monto adjudicado parece un precio unitario.</p>
 </div>
 
 {% if clausulas %}

@@ -261,3 +261,63 @@ def test_p7_reporta_ambos_valores_y_cuantos_contratos_afecta(base: Path) -> None
     assert d["valor_prosa"] == "36 meses"
     # Y dice cuánto daño hace: cuántos contratos dependen de ese plazo.
     assert d["contratos_afectados"] == 1
+
+
+def test_una_garantia_porcentual_se_traduce_a_pesos_con_su_base(base: Path) -> None:
+    """Una obligación declarativa no es exigible hasta que es un número.
+
+    El 5% se calcula sobre el monto adjudicado, y la BASE viaja con el
+    resultado: sin ella el número sería una afirmación nuestra en vez de una
+    operación que cualquiera puede rehacer.
+    """
+    from contratos.persistencia import abrir
+
+    with abrir(base) as con:
+        con.execute(
+            "UPDATE licitacion SET monto_adjudicado_total = '100000000', "
+            "monto_es_unitario = 0 WHERE codigo = ?",
+            ("2678-1-LR25",),
+        )
+        con.execute(
+            "UPDATE garantia SET monto_es_porcentaje = 1, monto_valor = '5' "
+            "WHERE licitacion_codigo = ?",
+            ("2678-1-LR25",),
+        )
+
+    filas = [
+        f
+        for f in responder(base, PREGUNTAS[1], hoy=HOY)
+        if f["licitacion_codigo"] == "2678-1-LR25"
+    ]
+    assert filas
+    assert filas[0]["monto_pesos"] == 5_000_000
+    assert filas[0]["base_calculo"] == 100_000_000
+
+
+def test_un_monto_marcado_como_unitario_NO_se_traduce(base: Path) -> None:
+    """Un convenio de suministro daría una boleta de centavos.
+
+    Es la guarda que hace segura la traducción: sin ella publicaríamos una
+    caución de $39 sobre un contrato de mil quinientos millones.
+    """
+    from contratos.persistencia import abrir
+
+    with abrir(base) as con:
+        con.execute(
+            "UPDATE licitacion SET monto_adjudicado_total = '783', "
+            "monto_es_unitario = 1 WHERE codigo = ?",
+            ("2678-1-LR25",),
+        )
+        con.execute(
+            "UPDATE garantia SET monto_es_porcentaje = 1, monto_valor = '5' "
+            "WHERE licitacion_codigo = ?",
+            ("2678-1-LR25",),
+        )
+
+    filas = [
+        f
+        for f in responder(base, PREGUNTAS[1], hoy=HOY)
+        if f["licitacion_codigo"] == "2678-1-LR25"
+    ]
+    assert filas
+    assert filas[0]["monto_pesos"] is None, "no se inventa una cifra sobre un unitario"

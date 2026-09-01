@@ -37,7 +37,25 @@ SELECT
         THEN CASE WHEN l.duracion_valor = 0
                   THEN 'duracion_cero' ELSE 'unidad_sospechosa' END
     END AS motivo,
-    CASE WHEN g.fecha_vencimiento >= :hoy THEN 1 ELSE 0 END AS vigente
+    CASE WHEN g.fecha_vencimiento >= :hoy THEN 1 ELSE 0 END AS vigente,
+    -- Una caucion expresada en porcentaje no es exigible hasta traducirla a
+    -- pesos. Se calcula SOLO si hay monto adjudicado y ese monto es creible:
+    -- `monto_es_unitario` lo marca la validacion cuando el monto declarado
+    -- parece un precio por unidad. Sin esa guarda, un convenio de suministro
+    -- daria una boleta de centavos.
+    CASE
+        WHEN g.monto_es_porcentaje = 1
+         AND l.monto_es_unitario = 0
+         AND CAST(l.monto_adjudicado_total AS REAL) > 0
+        THEN ROUND(CAST(l.monto_adjudicado_total AS REAL)
+                   * CAST(g.monto_valor AS REAL) / 100.0)
+    END AS monto_pesos,
+    -- La base del calculo viaja con el resultado: sin ella el numero seria
+    -- una afirmacion nuestra en vez de una operacion auditable.
+    CASE
+        WHEN g.monto_es_porcentaje = 1 AND l.monto_es_unitario = 0
+        THEN CAST(l.monto_adjudicado_total AS REAL)
+    END AS base_calculo
 FROM garantia g
 JOIN licitacion l ON l.codigo = g.licitacion_codigo
 ORDER BY implausible DESC, g.fecha_vencimiento;

@@ -22,7 +22,9 @@ CREATE TABLE IF NOT EXISTS licitacion (
     -- URL de la ficha publica. Se guarda para que el dashboard pueda enlazar
     -- al documento original: un dato marcado como dudoso tiene que poder
     -- contrastarse contra la fuente en un clic, no de palabra.
-    url_ficha               TEXT
+    url_ficha               TEXT,
+    -- El monto declarado parece un precio unitario y no el valor del contrato.
+    monto_es_unitario       INTEGER NOT NULL DEFAULT 0
 );
 
 -- La unidad de la demo: una orden de compra, un proveedor, un monto real.

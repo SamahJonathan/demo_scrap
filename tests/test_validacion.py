@@ -25,6 +25,7 @@ from contratos.validacion import (
     fecha_termino,
     revisar_garantias,
     revisar_licitacion,
+    revisar_monto_adjudicado,
     revisar_montos,
     validar_orden,
 )
@@ -190,3 +191,64 @@ def test_la_tasa_de_cuarentena_hace_fallar_la_corrida() -> None:
 def test_una_corrida_sin_registros_no_divide_por_cero() -> None:
     assert Reporte().tasa == 0.0
     assert Reporte().supera_umbral(0.05) is False
+
+
+# --------------------------------------------------------------------------
+# El monto adjudicado que en realidad es un precio unitario
+# --------------------------------------------------------------------------
+
+
+def test_un_monto_irrisorio_con_garantias_delata_un_precio_unitario() -> None:
+    """Caso real: seis licitaciones adjudicadas en exactamente $1 con boleta.
+
+    Nadie cauciona un peso. OCDS está entregando el precio ofertado por
+    unidad, no el total del convenio.
+    """
+    h = revisar_monto_adjudicado(
+        _lic("2678-1-LR25"), Decimal("1"), tiene_garantias=True
+    )
+
+    assert h, "un contrato de $1 con garantías no es un contrato de $1"
+    assert h[0].motivo is Motivo.PRECIO_UNITARIO
+    assert "nadie cauciona" in h[0].detalle
+
+
+def test_un_monto_irrisorio_SIN_garantias_no_se_marca() -> None:
+    """Sin caución no hay contradicción: puede ser una compra chica de verdad."""
+    assert (
+        revisar_monto_adjudicado(
+            _lic("2678-1-LR25"), Decimal("1"), tiene_garantias=False
+        )
+        == []
+    )
+
+
+def test_lo_ejecutado_que_desborda_lo_adjudicado_tambien_lo_delata() -> None:
+    """Puerto Montt adjudica $783,19 el litro y sus órdenes suman millones."""
+    h = revisar_monto_adjudicado(
+        _lic("2328-443-LR24"),
+        Decimal("783.19"),
+        tiene_garantias=False,
+        monto_ejecutado=Decimal("1500000000"),
+    )
+
+    assert h and h[0].motivo is Motivo.PRECIO_UNITARIO
+    assert "supera diez veces" in h[0].detalle
+
+
+def test_un_monto_normal_no_se_marca() -> None:
+    """La regla no puede ensuciar los contratos sanos."""
+    assert (
+        revisar_monto_adjudicado(
+            _lic("2678-1-LR25"),
+            Decimal("140452700"),
+            tiene_garantias=True,
+            monto_ejecutado=Decimal("120000000"),
+        )
+        == []
+    )
+
+
+def test_sin_monto_declarado_no_hay_nada_que_juzgar() -> None:
+    assert revisar_monto_adjudicado(_lic("2678-1-LR25"), None, True) == []
+    assert revisar_monto_adjudicado(_lic("2678-1-LR25"), Decimal("0"), True) == []

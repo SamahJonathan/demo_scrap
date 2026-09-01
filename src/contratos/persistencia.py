@@ -40,6 +40,7 @@ def _texto(valor: object) -> str | None:
 # reventaria con "no such column" en el primer INSERT.
 _COLUMNAS_NUEVAS: tuple[tuple[str, str, str], ...] = (
     ("licitacion", "url_ficha", "TEXT"),
+    ("licitacion", "monto_es_unitario", "INTEGER NOT NULL DEFAULT 0"),
 )
 
 
@@ -74,8 +75,8 @@ def guardar_licitacion(con: sqlite3.Connection, lic: Licitacion) -> None:
         """
         INSERT INTO licitacion (codigo, nombre, fecha_publicacion,
             fecha_adjudicacion, duracion_valor, duracion_unidad, es_renovable,
-            monto_adjudicado_total, n_oferentes, url_ficha)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            monto_adjudicado_total, n_oferentes, url_ficha, monto_es_unitario)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(codigo) DO UPDATE SET
             nombre = excluded.nombre,
             fecha_publicacion = excluded.fecha_publicacion,
@@ -85,7 +86,8 @@ def guardar_licitacion(con: sqlite3.Connection, lic: Licitacion) -> None:
             es_renovable = excluded.es_renovable,
             monto_adjudicado_total = excluded.monto_adjudicado_total,
             n_oferentes = excluded.n_oferentes,
-            url_ficha = excluded.url_ficha
+            url_ficha = excluded.url_ficha,
+            monto_es_unitario = excluded.monto_es_unitario
         """,
         (
             lic.codigo,
@@ -98,6 +100,7 @@ def guardar_licitacion(con: sqlite3.Connection, lic: Licitacion) -> None:
             _texto(lic.monto_adjudicado_total),
             lic.n_oferentes,
             lic.url_ficha,
+            int(lic.monto_es_unitario),
         ),
     )
 

@@ -242,6 +242,10 @@ class Licitacion(BaseModel):
     # `fuentes.api_licitacion.url_ficha`, que es la unica que conoce la ruta;
     # aca solo se transporta para que el dashboard pueda enlazarla.
     url_ficha: str | None = None
+    # Lo marca `validacion.revisar_monto_adjudicado`: el monto declarado
+    # parece un precio unitario y NO el valor del contrato. Sin esta marca,
+    # calcular "5% del monto adjudicado" daria cauciones de centavos.
+    monto_es_unitario: bool = False
 
     # De OCDS, que no consume cupo de requests.
     monto_adjudicado_total: Decimal | None = None
