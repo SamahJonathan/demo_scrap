@@ -37,7 +37,7 @@ cp .env.example .env                   # luego edita MP_API_TICKET
 Verificar que quedó bien, en unos 25 segundos y **sin tocar la red**:
 
 ```bash
-ruff check . && mypy src/ && pytest -q     # 187 tests
+ruff check . && mypy src/ && pytest -q     # 223 tests
 ```
 
 ## Los comandos
@@ -45,10 +45,20 @@ ruff check . && mypy src/ && pytest -q     # 187 tests
 ```bash
 python -m contratos.cli correr --reporte   # pipeline completo (~35 min)
 python -m contratos.cli corridas           # compara corridas, avisa qué empeoró
-python -m contratos.cli analizar           # las siete preguntas de negocio
+python -m contratos.cli analizar           # las ocho preguntas de negocio
 python -m contratos.cli exportar           # HTML autocontenido, sin servidor
 python -m contratos.cli inferir            # capa de modelo (LENTO, en lote)
 ```
+
+Y para publicar, en Git Bash —no corre en PowerShell—:
+
+```bash
+bash despliegue/desplegar.sh               # código, datos, nginx y TLS
+bash despliegue/desplegar.sh --solo-datos  # solo el .db y reiniciar
+```
+
+Necesita `LIGHTSAIL_KEY` en el `.env`. La copia publicable de la base la genera
+el propio script.
 
 Y tres para inspeccionar la fuente sin correr el pipeline entero:
 
@@ -187,7 +197,7 @@ Método completo en [docs/00-metodo.md](docs/00-metodo.md).
 | Spike 0 — Validación de supuesto | [`docs/00-spike.md`](docs/00-spike.md) | ✅ |
 | Fase 1 — Análisis | [`docs/01-analisis.md`](docs/01-analisis.md) | ✅ |
 | Fase 2 — Diseño | [`docs/02-diseno.md`](docs/02-diseno.md), [`docs/03-plan-codificacion.md`](docs/03-plan-codificacion.md) | ✅ |
-| Fase 3 — Codificación | 14 incrementos, 187 tests | ✅ |
+| Fase 3 — Codificación | 14 incrementos, 223 tests | ✅ |
 | Fase 4 — Despliegue | Registro de corridas, README, [`docs/demo.md`](docs/demo.md) | 🟡 |
 
 ## Regla de este README
