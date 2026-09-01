@@ -17,7 +17,12 @@ from contextlib import contextmanager
 from decimal import Decimal
 from pathlib import Path
 
-from contratos.modelos import Garantia, Licitacion
+from contratos.modelos import (
+    ClausulaExtraida,
+    Discrepancia,
+    Garantia,
+    Licitacion,
+)
 from contratos.reconstruccion import Cartera, Contrato
 
 log = logging.getLogger(__name__)
@@ -198,3 +203,49 @@ def monto_ejecutado_total(ruta: Path, solo_ejecutado: bool = True) -> Decimal:
             f"SELECT monto_ejecutado FROM contrato WHERE {columna} = 1"  # noqa: S608
         ).fetchall()
     return sum((Decimal(f[0]) for f in filas), Decimal(0))
+
+
+def guardar_clausula(con: sqlite3.Connection, c: ClausulaExtraida) -> None:
+    """Una clausula inferida. Trazabilidad obligatoria: sin origen no entra."""
+    con.execute(
+        """
+        INSERT INTO clausula_extraida (licitacion_codigo, tipo, texto,
+            fragmento_origen, posicion_inicio, modelo)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(licitacion_codigo, tipo) DO UPDATE SET
+            texto = excluded.texto,
+            fragmento_origen = excluded.fragmento_origen,
+            posicion_inicio = excluded.posicion_inicio,
+            modelo = excluded.modelo
+        """,
+        (
+            c.licitacion_codigo,
+            c.tipo,
+            c.texto,
+            c.fragmento_origen,
+            c.posicion_inicio,
+            c.modelo,
+        ),
+    )
+
+
+def guardar_discrepancia(con: sqlite3.Connection, d: Discrepancia) -> None:
+    """Se conservan AMBOS valores: ni el parseo ni el modelo ganan por defecto."""
+    con.execute(
+        """
+        INSERT INTO discrepancia (licitacion_codigo, campo, valor_estructurado,
+            valor_prosa, regla)
+        VALUES (?, ?, ?, ?, ?)
+        ON CONFLICT(licitacion_codigo, campo) DO UPDATE SET
+            valor_estructurado = excluded.valor_estructurado,
+            valor_prosa = excluded.valor_prosa,
+            regla = excluded.regla
+        """,
+        (d.licitacion_codigo, d.campo, d.valor_estructurado, d.valor_prosa, d.regla),
+    )
+
+
+def licitaciones_guardadas(ruta: Path) -> list[str]:
+    """Codigos de las licitaciones ya persistidas, para alimentar la inferencia."""
+    with abrir(ruta) as con:
+        return [f[0] for f in con.execute("SELECT codigo FROM licitacion").fetchall()]

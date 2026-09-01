@@ -380,4 +380,41 @@ un día atípico distorsione los agregados.
   dato del registro. No se incluye ningún campo cuyo significado no podamos
   defender.
 
+## Inferencia real (2026-08-31)
+
+**La discrepancia `36 horas vs 36 meses` que estuvo publicada en la portada la
+insertó Claude a mano con un `INSERT`.** La base lo delataba: `clausula_extraida
+= 0`. Se detectó porque el usuario preguntó quién había tomado esa decisión. Ya
+no está: la base se reconstruyó limpia y se corrió inferencia de verdad.
+
+Lo verificado en esa corrida, sobre 6 licitaciones y 1,8 minutos:
+
+- **2 cláusulas extraídas, 0 discrepancias, 4 resueltas sin llamar al modelo.**
+  El filtro de pasajes evitó el 67% de las llamadas.
+- **Las 0 discrepancias son un resultado, no un fallo enmascarado.** Se
+  comprobó con un espía que contaba llamadas: el modelo SÍ fue invocado en las
+  dos licitaciones con duración declarada y respondió
+  `{"valor": 24, "unidad": "meses"}`, coincidiendo con el campo tipado. El caso
+  SENAMA (`1300-43-LP24`, 36 horas contra 36 meses) es real, pero su licitación
+  no está en esta muestra.
+- **`INFERENCE_TIMEOUT_SECONDS` estaba en 120 s**, puesto en la Fase 0 **antes**
+  de medir nada; el Spike 0 midió ~204 s por documento. Cortaba la segunda
+  llamada de cada documento, y un timeout se veía exactamente igual que un "no
+  hay discrepancia". Ahora 900 s.
+- **Costo real, con el modelo caliente: 46–63 s por documento**, no los 204 s
+  del spike (que midió en frío). El spike sobreestimó ~4x.
+
+Lecciones de método:
+
+- **Un diagnóstico que no distingue dos causas no es un diagnóstico.**
+  `verificar_duracion` devuelve `crudo=None` tanto si no llamó al modelo como
+  si el modelo respondió y coincidió. Claude leyó ese `None` como "nunca se
+  llamó" y lo afirmó; era falso. Hubo que contar llamadas para saberlo.
+- **Un `with` que abarca todo el bucle hace commit al final.** Sobre la cartera
+  completa la corrida dura horas: una caída en el documento 200 tiraba los 199
+  anteriores. Ahora el commit es por documento.
+- **Producir un dato no es publicarlo.** Las cláusulas existían en la base y en
+  el dashboard eran solo un número en `/estado`. La salida real del modelo era
+  invisible mientras el dato fabricado sí se veía.
+
 Este archivo se actualiza al cerrar cada fase.

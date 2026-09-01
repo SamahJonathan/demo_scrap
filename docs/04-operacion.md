@@ -143,6 +143,24 @@ python -m contratos.cli correr --reporte   # 0 requests si ya está en caché
 
 ---
 
+## Antes de desplegar: la clave SSH
+
+El script asume la clave en `~/.ssh/LightsailDefaultKey-sa-east-1.pem`. Si no
+está ahí, se le indica dónde:
+
+```bash
+CLAVE="/c/Users/.../LightsailDefaultKey-sa-east-1.pem" bash despliegue/desplegar.sh
+```
+
+Sin eso el despliegue **falla en el primer `ssh`** con `Permission denied
+(publickey)`, que parece un problema de permisos en el servidor y no lo es. La
+clave nunca entra al repo: es una ruta local, no un secreto versionado.
+
+`SERVIDOR`, `DOMINIO` y `BASE_LOCAL` se sobrescriben igual, por variable de
+entorno.
+
+---
+
 ## En el servidor
 
 ```bash

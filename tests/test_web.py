@@ -307,3 +307,45 @@ def test_la_portada_dice_sobre_que_universo_habla(cliente: TestClient) -> None:
     assert "Sobre qué parte de la cartera" in cuerpo
     assert "no_declarado" in cuerpo
     assert "compra puntual" in cuerpo
+
+
+# --------------------------------------------------------------------------
+# Lo que produjo el modelo se muestra CON su trazabilidad
+# --------------------------------------------------------------------------
+
+
+def test_las_causales_extraidas_se_ven_en_la_ficha_con_su_origen(base: Path) -> None:
+    """Una cláusula sin modelo ni posición no es defendible: no se publica sola.
+
+    Las causales de término anticipado solo viven en la prosa de las bases, y
+    son lo único de la página que produjo un modelo. Por eso la ficha declara
+    cuál lo produjo y en qué carácter del documento lo leyó.
+    """
+    from contratos.modelos import ClausulaExtraida
+    from contratos.persistencia import abrir, guardar_clausula
+
+    with abrir(base) as con:
+        guardar_clausula(
+            con,
+            ClausulaExtraida(
+                licitacion_codigo="1300-43-LP24",
+                tipo="causales_termino",
+                texto="incumplimiento grave | quiebra del proveedor",
+                fragmento_origen="…podrá poner término anticipado al contrato…",
+                posicion_inicio=60039,
+                modelo="llama3.1:8b",
+            ),
+        )
+
+    html = TestClient(crear_app(base)).get("/contratos/2-1-SE25").text
+
+    assert "incumplimiento grave" in html
+    assert "llama3.1:8b" in html, "sin decir qué modelo lo produjo, no se publica"
+    assert "60039" in html, "sin la posición no se puede auditar contra la ficha"
+    assert "poner término anticipado" in html, "el fragmento de origen se muestra"
+
+
+def test_sin_clausulas_la_ficha_no_muestra_el_bloque_vacio(cliente: TestClient) -> None:
+    """Con 0 cláusulas el bloque desaparece, no queda una tabla sin filas."""
+    html = cliente.get("/contratos/2-1-SE25").text
+    assert "Causales de término anticipado" not in html
