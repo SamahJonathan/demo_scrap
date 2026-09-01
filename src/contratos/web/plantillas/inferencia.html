@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block cuerpo %}
+<h1>Cómo intervino el modelo</h1>
+<p class="sub">
+  Publicar solo lo que un modelo produjo da una impresión falsa de cuánto se
+  apoya el sistema en él. El dato honesto es el <b>embudo</b>: cuántos documentos
+  se resolvieron <b>sin llamarlo</b>.
+</p>
+
+{% if not r %}
+<div class="caja aviso">
+  <b class="alerta">La inferencia no se ha corrido sobre esta base.</b>
+  <p class="sub" style="margin:6px 0 0">Es un paso de lote, offline, en la
+  máquina de desarrollo: pide 7,34 GB y minutos por documento. El servidor nunca
+  lo ejecuta. Se corre con <code>python -m contratos.cli inferir</code>.</p>
+</div>
+{% else %}
+
+<div class="caja">
+  <b>El embudo</b>
+  <p class="sub" style="margin:6px 0 10px">Cada fila descarta trabajo que la
+  siguiente ya no tiene que hacer. El modelo es el último recurso, no el
+  primero.</p>
+  <table>
+    <tr><th style="width:52%">Paso</th><th>Documentos</th><th>Costo</th></tr>
+    <tr>
+      <td>Licitaciones con documento</td>
+      <td><b>{{ r.licitaciones }}</b></td>
+      <td class="proc">—</td>
+    </tr>
+    <tr>
+      <td>Resueltas por el <b>filtro de pasajes</b>, sin llamar al modelo</td>
+      <td class="ok"><b>{{ r.resueltas_por_el_filtro }}</b></td>
+      <td class="proc">0 s</td>
+    </tr>
+    <tr>
+      <td>Llegaron al modelo</td>
+      <td class="alerta"><b>{{ r.llamadas_al_modelo }}</b></td>
+      <td class="proc">{{ r.segundos | round(0) | int }} s en total</td>
+    </tr>
+    <tr>
+      <td>Produjeron una cláusula</td>
+      <td><b>{{ r.clausulas }}</b></td>
+      <td class="proc">modelo {{ r.modelo }}</td>
+    </tr>
+  </table>
+  {% if r.licitaciones %}
+  <p class="sub" style="margin:10px 0 0">
+    <b>{{ (100 * r.resueltas_por_el_filtro / r.licitaciones) | round(0) | int }}%
+    de los documentos no necesitaron el modelo.</b>
+    Cuando el texto no contiene ningún pasaje sobre término anticipado, la
+    respuesta correcta es <code>null</code>, y un regex la da en microsegundos.
+    En el Spike 0 el modelo, con el documento completo, inventó una
+    readjudicación como causal de término tras 8 minutos de cómputo.
+  </p>
+  {% endif %}
+</div>
+
+<div class="caja">
+  <b>Lo que el modelo tiene prohibido tocar</b>
+  <p class="sub" style="margin:6px 0 10px">Pedir por inferencia un dato que ya
+  está tipado es pagar alucinaciones por algo cierto.</p>
+  <table>
+    <tr><th>Dato</th><th>De dónde sale</th><th>Por qué no lo hace el modelo</th></tr>
+    <tr><td>Fechas del proceso</td><td class="proc">API, bloque <code>Fechas</code></td>
+        <td>Se comprobó campo por campo contra la ficha: coinciden 11 de 11</td></tr>
+    <tr><td>Duración del contrato</td><td class="proc">API, campo tipado</td>
+        <td>Es un entero más su unidad; no hay nada que interpretar</td></tr>
+    <tr><td>Garantías</td><td class="proc">Ficha web, IDs de GridView</td>
+        <td>La sección es tabular: un selector la extrae entera y sin error</td></tr>
+    <tr><td>Montos y adjudicación</td><td class="proc">API y OCDS</td>
+        <td>Atribución exacta por ítem; prorratear está prohibido</td></tr>
+  </table>
+</div>
+
+{% if clausulas %}
+<div class="caja">
+  <b>Lo que sí produjo, con su trazabilidad</b>
+  <p class="sub" style="margin:6px 0 10px">Las causales de término viven
+  <b>solo en la prosa</b> de las bases: ningún campo de la API las expone. Cada
+  una declara qué modelo la leyó y en qué carácter del documento, para poder
+  auditarla contra la ficha original.</p>
+  {% for cl in clausulas %}
+  <table style="margin-bottom:14px">
+    <tr><th style="width:20%">Licitación</th>
+        <td class="codigo">{{ cl.licitacion_codigo }}</td></tr>
+    <tr><th>Causales</th><td>{{ cl.texto.replace(" | ", " · ") }}</td></tr>
+    <tr><th>Fragmento leído</th>
+        <td class="proc">…{{ cl.fragmento_origen }}…</td></tr>
+    <tr><th>Trazabilidad</th>
+        <td class="proc">modelo <b>{{ cl.modelo }}</b>, carácter
+        {{ cl.posicion_inicio }}</td></tr>
+  </table>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="caja">
+  <b>Verificación cruzada: {{ discrepancias|length }} contradicciones</b>
+  <p class="sub" style="margin:6px 0 10px">El segundo trabajo del modelo es
+  releer la prosa y contrastarla contra el campo tipado. Cuando difieren,
+  <b>se conservan los dos valores</b> y no se corrige ninguno.</p>
+  {% if discrepancias %}
+  <table>
+    <tr><th>Licitación</th><th>Campo</th><th>Campo tipado</th><th>Dice la prosa</th></tr>
+    {% for d in discrepancias %}
+    <tr>
+      <td class="codigo">{{ d.licitacion_codigo }}</td>
+      <td>{{ d.campo }}</td>
+      <td class="alerta">{{ d.valor_estructurado }}</td>
+      <td>{{ d.valor_prosa }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p class="sub" style="margin:0">
+    <b>Cero es un resultado, no un fallo enmascarado.</b> Se verificó contando
+    llamadas: el modelo fue invocado, respondió, y su lectura coincidió con el
+    campo tipado. El caso conocido de contradicción —un contrato declarado de
+    36 horas con una garantía que vence dos años después— lo detecta una
+    <b>regla SQL</b>, sin modelo, y se ve en
+    <a href="/garantias">Garantías</a>.
+  </p>
+  {% endif %}
+</div>
+
+<div class="caja">
+  <b>Y dónde el modelo tampoco hizo falta, aunque se le llamó</b>
+  <p class="sub" style="margin:6px 0 0">
+    Medido sobre las mismas fichas: cuando las causales vienen como lista
+    enumerada —<code>a) b) c)</code>— un extractor de expresiones regulares
+    devuelve <b>exactamente las mismas</b> que el modelo, en 0 s. El modelo solo
+    gana cuando el documento las escribe en prosa corrida, donde el regex saca
+    cero. Es la medición que decide dónde vale la pena y dónde no.
+  </p>
+</div>
+
+{% endif %}
+{% endblock %}

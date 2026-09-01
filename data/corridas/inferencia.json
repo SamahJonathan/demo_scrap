@@ -1,0 +1,23 @@
+{
+  "momento": "2026-08-31T20:55:00",
+  "modelo": "llama3.1:8b",
+  "licitaciones": 218,
+  "resueltas_por_el_filtro": 2,
+  "llamadas_al_modelo": 0,
+  "clausulas": 0,
+  "discrepancias": 0,
+  "no_parseables": 0,
+  "segundos": 0.8,
+  "detalle": [
+    {
+      "codigo": "1000-1-LE24",
+      "via": "filtro",
+      "segundos": 0.0
+    },
+    {
+      "codigo": "1000813-64-LE24",
+      "via": "filtro",
+      "segundos": 0.0
+    }
+  ]
+}

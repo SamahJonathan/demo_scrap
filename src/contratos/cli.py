@@ -65,7 +65,7 @@ def construir_parser() -> argparse.ArgumentParser:
 
     # --- analizar (incremento 9) -------------------------------------------
     a = subs.add_parser(
-        "analizar", help="responde las cinco preguntas de negocio con SQL"
+        "analizar", help="responde las siete preguntas de negocio con SQL"
     )
     a.add_argument("--base", type=Path, default=Path("data/contratos.db"))
     a.add_argument("--meses", type=int, default=12, help="horizonte para P1")
@@ -107,7 +107,24 @@ def construir_parser() -> argparse.ArgumentParser:
     i.add_argument("--limite", type=int, default=None, help="cuantas licitaciones")
     i.set_defaults(func=_cmd_inferir)
 
+    # --- corridas -----------------------------------------------------------
+    h = subs.add_parser(
+        "corridas", help="compara las ultimas corridas y avisa que empeoro"
+    )
+    h.add_argument("--base", type=Path, default=Path("data/contratos.db"))
+    h.add_argument("--limite", type=int, default=10)
+    h.set_defaults(func=_cmd_corridas)
+
     return parser
+
+
+def _cmd_corridas(args: argparse.Namespace) -> int:
+    """Historial de corridas. Un umbral fijo no ve una degradacion gradual."""
+    from contratos.corridas import historial, tabla
+
+    corridas = historial(args.base.parent / "corridas", limite=args.limite)
+    print(tabla(corridas))
+    return 0 if not corridas or corridas[0]["confiable"] else 1
 
 
 def _cmd_inferir(args: argparse.Namespace) -> int:
@@ -116,7 +133,9 @@ def _cmd_inferir(args: argparse.Namespace) -> int:
     Medido en el Spike 0: ~3,4 minutos por documento con el filtro de pasajes
     puesto, y varios GB de RAM. Por eso vive aca y no en el dashboard.
     """
+    import json
     import time
+    from datetime import datetime
 
     from contratos.cliente import Cliente
     from contratos.fuentes import api_licitacion
@@ -147,6 +166,38 @@ def _cmd_inferir(args: argparse.Namespace) -> int:
     clausulas = discrepancias = sin_pasajes = fallidas = 0
     t0 = time.time()
 
+    # Donde el modelo NO hizo falta es tan publicable como lo que produjo: es
+    # la unica forma de mostrar que se le llamo por necesidad y no por reflejo.
+    detalle: list[dict[str, object]] = []
+    destino = args.base.parent / "corridas" / "inferencia.json"
+
+    def _volcar() -> None:
+        """Se reescribe por documento: una corrida de una hora no se pierde."""
+        destino.parent.mkdir(parents=True, exist_ok=True)
+        destino.write_text(
+            json.dumps(
+                {
+                    "momento": datetime.now().isoformat(timespec="seconds"),
+                    "modelo": modelo.nombre,
+                    "licitaciones": len(codigos),
+                    "resueltas_por_el_filtro": sin_pasajes,
+                    "llamadas_al_modelo": len(codigos) - sin_pasajes - pendientes(),
+                    "clausulas": clausulas,
+                    "discrepancias": discrepancias,
+                    "no_parseables": fallidas,
+                    "segundos": round(time.time() - t0, 1),
+                    "detalle": detalle,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+    def pendientes() -> int:
+        return len(codigos) - len(detalle)
+
     with Cliente() as c:
         for n, codigo in enumerate(codigos, 1):
             lic = api_licitacion.detalle(c, codigo)
@@ -155,6 +206,8 @@ def _cmd_inferir(args: argparse.Namespace) -> int:
             if not pasajes(texto):
                 # El filtro responde sin gastar una llamada al modelo.
                 sin_pasajes += 1
+                detalle.append({"codigo": codigo, "via": "filtro", "segundos": 0.0})
+                _volcar()
                 print(f"  [{n}/{len(codigos)}] {codigo}: sin pasajes -> null, 0 s")
                 continue
 
@@ -173,6 +226,15 @@ def _cmd_inferir(args: argparse.Namespace) -> int:
                     guardar_discrepancia(con, r.discrepancia)
                     discrepancias += 1
             fallidas += len(r.respuestas_no_parseables)
+            detalle.append(
+                {
+                    "codigo": codigo,
+                    "via": "modelo",
+                    "segundos": round(dt, 1),
+                    "clausula": bool(r.clausula),
+                }
+            )
+            _volcar()
 
             print(
                 f"  [{n}/{len(codigos)}] {codigo}: {dt:.0f} s | "
@@ -186,11 +248,13 @@ def _cmd_inferir(args: argparse.Namespace) -> int:
     print(f"  sin pasajes (0 s)     : {sin_pasajes}")
     print(f"  respuestas no parseables: {fallidas}")
     print(f"  duracion              : {(time.time() - t0) / 60:.1f} min")
+    print(f"  registro              : {destino}")
     return 0
 
 
 def _cmd_correr(args: argparse.Namespace) -> int:
     from contratos.config import cargar
+    from contratos.corridas import guardar, historial, instantanea, regresiones
     from contratos.pipeline import correr
 
     cfg = cargar()
@@ -205,6 +269,17 @@ def _cmd_correr(args: argparse.Namespace) -> int:
             f"{m.procesados} contratos en {m.duracion:.1f}s "
             f"({m.requests_emitidos} requests, {m.aciertos_cache} de cache)"
         )
+
+    # El registro se escribe SIEMPRE, tambien cuando la corrida sale mal: una
+    # corrida que fallo es la que mas hay que poder comparar despues.
+    reg = instantanea(m, cfg.max_quarantine_rate, 1, [str(f) for f in fechas])
+    ruta = guardar(reg, args.base.parent / "corridas")
+    print(f"  registro de la corrida: {ruta}")
+
+    previas = historial(args.base.parent / "corridas", limite=2)
+    if len(previas) >= 2:
+        for aviso in regresiones(previas[0], previas[1]):
+            print(f"  REGRESION: {aviso}")
 
     # Codigo distinto de cero si un umbral se supera: asi la corrida se puede
     # encadenar en un cron o en CI sin revisarla a ojo.

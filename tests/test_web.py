@@ -349,3 +349,79 @@ def test_sin_clausulas_la_ficha_no_muestra_el_bloque_vacio(cliente: TestClient) 
     """Con 0 cláusulas el bloque desaparece, no queda una tabla sin filas."""
     html = cliente.get("/contratos/2-1-SE25").text
     assert "Causales de término anticipado" not in html
+
+
+# --------------------------------------------------------------------------
+# La pagina que muestra donde intervino el modelo
+# --------------------------------------------------------------------------
+
+
+def _registro(base: Path, **cambios: object) -> None:
+    import json
+
+    datos: dict[str, Any] = {
+        "momento": "2026-08-31T21:00:00",
+        "modelo": "llama3.1:8b",
+        "licitaciones": 100,
+        "resueltas_por_el_filtro": 67,
+        "llamadas_al_modelo": 33,
+        "clausulas": 12,
+        "discrepancias": 0,
+        "no_parseables": 0,
+        "segundos": 1800.0,
+        "detalle": [],
+    }
+    datos.update(cambios)
+    d = base.parent / "corridas"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / "inferencia.json").write_text(
+        json.dumps(datos, ensure_ascii=False), encoding="utf-8"
+    )
+
+
+def test_la_pagina_muestra_cuantos_documentos_NO_necesitaron_el_modelo(
+    base: Path,
+) -> None:
+    """El embudo es el dato honesto: publicar solo lo producido exagera su peso."""
+    _registro(base)
+    html = TestClient(crear_app(base)).get("/inferencia").text
+
+    assert "67" in html, "los resueltos por el filtro son el número principal"
+    assert "no necesitaron el modelo" in html
+
+
+def test_sin_corrida_de_inferencia_lo_dice_en_vez_de_mostrar_ceros(
+    base: Path,
+) -> None:
+    """Cero cláusulas porque no se corrió no es lo mismo que cero encontradas."""
+    html = TestClient(crear_app(base)).get("/inferencia").text
+    assert "no se ha corrido" in html
+
+
+def test_cero_discrepancias_se_explica_como_resultado_no_como_fallo(
+    base: Path,
+) -> None:
+    _registro(base)
+    html = TestClient(crear_app(base)).get("/inferencia").text
+    assert "Cero es un resultado" in html
+    assert "regla SQL" in html, "dice quién sí detecta el caso conocido"
+
+
+def test_la_pagina_declara_que_no_puede_tocar_el_modelo(base: Path) -> None:
+    """Sin esa tabla, la página vendería al modelo en vez de acotarlo."""
+    _registro(base)
+    html = TestClient(crear_app(base)).get("/inferencia").text
+
+    assert "prohibido tocar" in html
+    for dato in ("Fechas del proceso", "Garantías", "Montos"):
+        assert dato in html
+
+
+def test_el_metodo_no_ocupa_el_menu_del_gestor(base: Path) -> None:
+    """Misma regla que /estado: el menú es para las tres preguntas del objetivo."""
+    _registro(base)
+    cuerpo = TestClient(crear_app(base)).get("/").text
+    encabezado, pie = cuerpo.split("</header>")[0], cuerpo.split("<footer>")[-1]
+
+    assert 'href="/inferencia"' not in encabezado
+    assert 'href="/inferencia"' in pie

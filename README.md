@@ -1,115 +1,186 @@
 # demo_scrap — Contratos públicos de Mercado Público
 
-Este proyecto extrae, valida y estructura información de compras públicas de
-Chile (Mercado Público / ChileCompra) para reconstruir algo que la fuente no
-publica como tal: el **contrato**. La plataforma expone licitaciones, órdenes de
-compra, compra ágil y proveedores, pero no existe una entidad "contrato". Hay que
-armarla uniendo el proceso de licitación, el acto de adjudicación, el instrumento
-de ejecución —la orden de compra— y los documentos adjuntos de la ficha web.
+Reconstruye algo que la fuente **no publica**: el contrato.
 
-Esa reconstrucción es el núcleo del trabajo de ingeniería. El pipeline recorre la
-API oficial día por día, valida cada registro contra un esquema explícito, manda
-a cuarentena lo que no cumple en vez de dejarlo pasar, persiste de forma
-idempotente y termina en un dashboard estático que responde preguntas de negocio
-concretas sobre montos, plazos, organismos y proveedores.
+Mercado Público (ChileCompra) expone licitaciones, órdenes de compra, compra ágil
+y proveedores. No existe una entidad "contrato". Hay que armarla uniendo el
+proceso de licitación, el acto de adjudicación y el instrumento de ejecución —la
+orden de compra—. Y la fecha de vencimiento, el dato más elemental de un CLM, no
+existe en ninguna parte: se deriva.
 
-## Por qué esta fuente
+**Demo en vivo:** <https://contratos.54-207-164-201.sslip.io>
 
-Los datos de compras públicas **son** datos contractuales: montos, plazos,
-contrapartes, adjudicaciones, garantías, causales de término y documentos
-adjuntos. Un CLM —software de gestión del ciclo de vida de contratos— enfrenta
-exactamente este problema cuando ingesta contratos nacidos fuera del sistema: los
-datos llegan dispersos entre varias fuentes, sin una entidad unificada, con
-relaciones que no siempre son uno a uno y con la parte más valiosa encerrada en
-PDF. Reconstruir el contrato desde Mercado Público es una versión pública y
-verificable de ese mismo problema.
+Este README tiene dos mitades. La primera es para ejecutarlo en 2 minutos; la
+segunda, para entender por qué está construido así.
 
-## Fases
+---
 
-Este repositorio sigue un ciclo de vida explícito, con un *gate* de salida por
-fase. El método completo está en [docs/00-metodo.md](docs/00-metodo.md).
+# Parte 1 — Ejecutarlo
 
-| Fase | Entregable | Estado |
-|---|---|---|
-| Fase 0 — Repositorio y contexto | `CLAUDE.md`, `.gitignore`, `.env.example`, README, licencia | ✅ Cerrada |
-| Spike 0 — Validación de supuesto | [`docs/00-spike.md`](docs/00-spike.md) | ✅ Cerrado |
-| Fase 1 — Análisis | [`docs/01-analisis.md`](docs/01-analisis.md) | ✅ Cerrada |
-| Fase 2 — Diseño | [`docs/02-diseno.md`](docs/02-diseno.md), [`docs/03-plan-codificacion.md`](docs/03-plan-codificacion.md) | ✅ Cerrada |
-| Fase 3 — Codificación | 14 incrementos, 159 tests | ✅ Cerrada |
-| Fase 4 — Cierre y presentación | Documentación final y demo | 🟡 En curso |
+## Requisitos
 
-### Lo que la investigación ya estableció
+Python 3.11+ y un ticket de la API de Mercado Público, que se pide con Clave
+Única en <https://www.chilecompra.cl/api/>. Es personal, **se renueva a diario** y
+tiene un tope de 10.000 requests.
 
-Todo comprobado ejecutando requests contra la fuente, no leyendo documentación:
-
-- **La fuente no publica contratos.** Expone licitaciones, órdenes de compra,
-  compra ágil y proveedores. La entidad contrato hay que reconstruirla, y ese es
-  el núcleo del trabajo.
-- **Se usan cuatro fuentes, cada una para lo que hace mejor:** API REST para el
-  descubrimiento por fecha y el enlace con órdenes de compra, **OCDS** para el
-  monto adjudicado y los oferentes (y sin consumir cupo de requests), y la ficha
-  web para las garantías, que ninguna API expone.
-- **Los datos están bajo licencia CC0**, declarada por la Dirección de Compras y
-  Contratación Pública dentro del propio dato.
-- **Los documentos adjuntos quedan fuera de alcance:** están tras reCAPTCHA
-  Enterprise y no se evade.
-
-## La demo
-
-**https://contratos.54-207-164-201.sslip.io**
-
-```bash
-python -m contratos.cli correr --reporte   # pipeline completo
-python -m contratos.cli analizar           # las cinco preguntas de negocio
-python -m contratos.cli exportar           # HTML autocontenido de respaldo
-```
-
-Operación, lectura del reporte y qué hacer cuando algo falla:
-[docs/04-operacion.md](docs/04-operacion.md).
-
-## Principios que este repositorio respeta
-
-- **API oficial primero.** El scraping de HTML se usa solo para lo que la API no
-  expone —principalmente los documentos adjuntos de la ficha— y esa decisión se
-  documenta caso a caso.
-- **Identificación honesta.** User-Agent con nombre del proyecto y medio de
-  contacto real. No se imita un navegador, no se evaden CAPTCHAs ni mecanismos de
-  detección.
-- **Throttling conservador.** Espera entre requests, concurrencia mínima,
-  autothrottle y un tope de requests por corrida. La fuente es un servicio
-  público con un cupo diario finito.
-- **Solo datos públicos.** Nada que requiera autenticación de un tercero ni que
-  exponga información personal más allá de lo que la fuente ya publica.
-- **Los datos no se versionan.** El repositorio contiene código y especificación,
-  no el dataset. `data/raw/`, `data/processed/` y `data/quarantine/` están fuera
-  del control de versiones.
-- **Sin secretos en el repo.** Toda la configuración va por variables de entorno.
-  `.env.example` es una plantilla sin un solo valor real.
-
-## Puesta en marcha
+## Instalación
 
 ```bash
 git clone git@github.com:SamahJonathan/demo_scrap.git
 cd demo_scrap
-python -m venv .venv && source .venv/Scripts/activate   # Windows: .venv\Scriptsctivate
+python -m venv .venv
+source .venv/Scripts/activate          # Linux/macOS: source .venv/bin/activate
 pip install -e ".[dev]"
-cp .env.example .env
+cp .env.example .env                   # luego edita MP_API_TICKET
 ```
 
-Verificar que quedó bien, en unos 16 segundos:
+Verificar que quedó bien, en unos 25 segundos y **sin tocar la red**:
 
 ```bash
-ruff check . && mypy src/ && pytest -q
-python -m contratos.cli --help
+ruff check . && mypy src/ && pytest -q     # 182 tests
 ```
 
-El CLI todavía no tiene subcomandos: **cada incremento agrega el suyo**, así que
-el comando que verifica un incremento existe desde que ese incremento se
-escribe.
+## Los comandos
 
-Luego edita `.env`. Como mínimo necesitas `MP_API_TICKET`, que se solicita con
-Clave Única en <https://www.chilecompra.cl/api/>; es personal y tiene un tope de
-10.000 requests diarios.
+```bash
+python -m contratos.cli correr --reporte   # pipeline completo (~35 min)
+python -m contratos.cli corridas           # compara corridas, avisa qué empeoró
+python -m contratos.cli analizar           # las siete preguntas de negocio
+python -m contratos.cli exportar           # HTML autocontenido, sin servidor
+python -m contratos.cli inferir            # capa de modelo (LENTO, en lote)
+```
+
+Y tres para inspeccionar la fuente sin correr el pipeline entero:
+
+```bash
+python -m contratos.cli descubrir 2025-01-15
+python -m contratos.cli detalle-oc  <código>
+python -m contratos.cli licitacion  <código>
+```
+
+**`correr` sale con código distinto de cero** si se supera un umbral de calidad,
+así se encadena en cron o CI sin revisarla a ojo.
+
+## Qué mirar después
+
+| | |
+|---|---|
+| Qué preguntas responde el dashboard | [docs/05-preguntas.md](docs/05-preguntas.md) |
+| Operación y qué hacer cuando falla | [docs/04-operacion.md](docs/04-operacion.md) |
+| Recorrido de demo de 5 minutos | [docs/demo.md](docs/demo.md) |
+
+---
+
+# Parte 2 — Por qué está construido así
+
+## Por qué esta fuente
+
+Los datos de compras públicas **son** datos contractuales: montos, plazos,
+contrapartes, adjudicaciones y garantías. Un CLM enfrenta exactamente este
+problema al ingestar contratos nacidos fuera del sistema: los datos llegan
+dispersos, sin entidad unificada, con relaciones que no son uno a uno y con la
+parte valiosa encerrada en documentos. Reconstruir el contrato desde Mercado
+Público es una versión pública y verificable de ese mismo problema.
+
+## La decisión de arquitectura que más costó
+
+**La extracción va al revés de lo intuitivo: se parte de las órdenes de compra,
+no de las licitaciones.** El detalle de una OC trae `CodigoLicitacion` como campo
+tipado, pero **la API no permite el camino inverso**: dada una licitación, no hay
+forma de pedir sus órdenes. Justificación en
+[docs/01-analisis.md](docs/01-analisis.md) § 3.5.
+
+## Cuatro fuentes, cada una para lo que hace mejor
+
+| Fuente | Para qué | Por qué esa y no otra |
+|---|---|---|
+| API REST | Descubrimiento por fecha, detalle de OC y de licitación | Oficial, tipada, y trae el enlace OC → licitación |
+| OCDS | Monto adjudicado y oferentes | **No consume cupo de requests** ni pide ticket |
+| Ficha web | **Garantías** | 0 de los 54 campos de la API las expone. Es el único caso que justifica scrapear |
+| Acta de adjudicación | Prosa contractual | GET limpio, sin reCAPTCHA |
+
+## Dónde entra un modelo de lenguaje, y dónde no
+
+Su dominio se reduce a **prosa que ningún campo expone** (causales de término) y
+a **verificación cruzada** del campo tipado contra el documento.
+
+Ninguna fecha, monto ni garantía se le pide a un modelo. Son campos tipados y
+exactos; pedirlos por inferencia es pagar alucinaciones por datos ciertos. Se
+comprobó campo por campo: la sección "Etapas y plazos" de la ficha es, 11 de 11,
+el bloque `Fechas` de la API.
+
+Además, **la inferencia nunca corre en la ruta de un request**: pide 7,34 GB y
+minutos por documento. Es un paso de lote, offline, y el dashboard lee filas.
+
+## Cómo se sabe que los datos son correctos
+
+1. **Esquema explícito** a la entrada: nada entra sin validarse.
+2. **Reglas de plausibilidad derivadas de datos reales.** La principal nació de
+   un dato corrupto: `1300-43-LP24` declara un contrato de 36 horas con una
+   garantía que vence en 2027.
+3. **Comparación entre corridas**, que ve la degradación gradual que un umbral
+   fijo deja pasar.
+
+Lo que no se puede validar **se aparta a cuarentena con su motivo**, no se
+adivina. Cuando la fuente se contradice se conservan **los dos valores** y se
+marca la fila: ni el parseo ni el modelo ganan por defecto.
+
+## Principios que este repositorio respeta
+
+- **API oficial primero.** El scraping se usa solo para lo que la API no expone
+  —las garantías— y la decisión está documentada.
+- **Identificación honesta.** User-Agent con nombre del proyecto y contacto real.
+  No se imita un navegador ni se evaden CAPTCHAs.
+- **Throttling conservador.** 2 s entre requests, concurrencia mínima y tope por
+  corrida. La fuente es un servicio público con cupo finito.
+- **Solo datos públicos**, bajo licencia CC0 declarada por la Dirección de
+  Compras dentro del propio dato.
+- **Sin secretos en el repo.** Todo por variables de entorno; `.env.example` no
+  tiene un solo valor real.
+- **Los datos no se versionan.** El repositorio guarda código y especificación.
+
+---
+
+## Limitaciones conocidas
+
+Honestidad antes que cobertura.
+
+- **Los adjuntos quedan fuera de alcance.** `ViewAttachment.aspx` está protegida
+  por reCAPTCHA Enterprise. El token de redirección viene en el HTML y permitiría
+  saltarse el chequeo; **no se hace**, porque es evadir detección de bots. Es una
+  decisión, no una limitación técnica.
+- **La muestra es chica, a propósito.** Profundidad sobre volumen: el criterio de
+  éxito es la trazabilidad de cada contrato reconstruido, no cuántos son. El
+  volumen es una variable de configuración.
+- **La ficha web es el punto frágil.** Se parsea con IDs estables de GridView, no
+  con regex sobre texto, pero un rediseño del sitio la rompe. Por eso hay umbral
+  de cobertura que hace fallar la corrida.
+- **El enum `UnidadTiempoDuracionContrato` está decodificado a medias.** El valor
+  `1` es horas y el `4` es meses, verificados cruzando tres fuentes. **Los demás
+  no se asumen**: caen a cuarentena.
+- **`monto_adjudicado` no es comparable entre contratos.** En un convenio de
+  suministro es un precio unitario: Puerto Montt adjudica 783,19 pesos el litro
+  de diésel.
+- **El repositorio no se ejecuta solo en el servidor.** El servidor solo sirve un
+  SQLite de lectura; el pipeline corre en la máquina de desarrollo, donde vive el
+  ticket.
+- **Sin contenedor todavía.** La reproducibilidad en máquina limpia está
+  pendiente (Fase 4).
+- **P4 y P5 no tienen página.** Existen como SQL y salen por `cli analizar`, pero
+  ninguna ruta del dashboard las publica.
+
+## Fases
+
+Método completo en [docs/00-metodo.md](docs/00-metodo.md).
+
+| Fase | Entregable | Estado |
+|---|---|---|
+| Fase 0 — Repositorio y contexto | `CLAUDE.md`, `.env.example`, README, licencia | ✅ |
+| Spike 0 — Validación de supuesto | [`docs/00-spike.md`](docs/00-spike.md) | ✅ |
+| Fase 1 — Análisis | [`docs/01-analisis.md`](docs/01-analisis.md) | ✅ |
+| Fase 2 — Diseño | [`docs/02-diseno.md`](docs/02-diseno.md), [`docs/03-plan-codificacion.md`](docs/03-plan-codificacion.md) | ✅ |
+| Fase 3 — Codificación | 14 incrementos, 182 tests | ✅ |
+| Fase 4 — Despliegue | Reproducibilidad, corridas, README, [`docs/demo.md`](docs/demo.md) | 🟡 |
 
 ## Regla de este README
 

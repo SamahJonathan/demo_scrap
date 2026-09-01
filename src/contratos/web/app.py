@@ -10,6 +10,7 @@ en la máquina de desarrollo y se copia al servidor sin conversión.
 
 from __future__ import annotations
 
+import json
 import sqlite3
 from collections.abc import Callable
 from datetime import date, datetime, timedelta
@@ -97,6 +98,44 @@ def crear_app(base: Path | None = None) -> FastAPI:
         """
         return PLANTILLAS.TemplateResponse(
             request, "estado.html", {"d": _diagnostico()}
+        )
+
+    @app.get("/inferencia", response_class=HTMLResponse)
+    def inferencia(request: Request) -> Any:
+        """Donde intervino el modelo, y sobre todo donde NO hizo falta.
+
+        Publicar solo lo que el modelo produjo daria una impresion falsa de
+        cuanto se apoya el sistema en el. El dato honesto es el embudo: cuantos
+        documentos se resolvieron sin llamarlo.
+        """
+        ruta = resolver()
+        registro: dict[str, Any] = {}
+        archivo = ruta.parent / "corridas" / "inferencia.json"
+        if archivo.is_file():
+            registro = json.loads(archivo.read_text(encoding="utf-8"))
+
+        con = _conectar(ruta)
+        try:
+            clausulas = [
+                dict(c)
+                for c in con.execute(
+                    "SELECT * FROM clausula_extraida ORDER BY licitacion_codigo"
+                ).fetchall()
+            ]
+            discrepancias = [
+                dict(d) for d in con.execute("SELECT * FROM discrepancia").fetchall()
+            ]
+        finally:
+            con.close()
+
+        return PLANTILLAS.TemplateResponse(
+            request,
+            "inferencia.html",
+            {
+                "r": registro,
+                "clausulas": clausulas,
+                "discrepancias": discrepancias,
+            },
         )
 
     @app.get("/", response_class=HTMLResponse)
