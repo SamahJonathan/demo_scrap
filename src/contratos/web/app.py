@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from contratos.analisis import PREGUNTAS, responder
@@ -139,7 +139,11 @@ def crear_app(base: Path | None = None) -> FastAPI:
 
     @app.get("/legal", response_class=HTMLResponse)
     def legal(request: Request) -> Any:
-        """Obligaciones vivas: cauciones, causales de termino, renovacion."""
+        """Cauciones y obligaciones. Absorbio a la antigua /garantias.
+
+        Eran dos paginas sobre el mismo dato: una resumia y la otra listaba.
+        Ahora una sola, y /garantias redirige aca.
+        """
         ruta = resolver()
         garantias = responder(ruta, PREGUNTAS[1])
         con = _conectar(ruta)
@@ -153,10 +157,14 @@ def crear_app(base: Path | None = None) -> FastAPI:
             request,
             "legal.html",
             {
+                # La tabla completa: /legal absorbio a /garantias, que eran dos
+                # rutas sobre el mismo dato con nombres distintos.
+                "filas": garantias,
                 "vivas": [g for g in garantias if g["vigente"] == 1],
                 "sospechosas": [
                     g for g in garantias if g["motivo"] == "unidad_sospechosa"
                 ],
+                "cero": [g for g in garantias if g["motivo"] == "duracion_cero"],
                 "renovables": renovables,
                 "licitaciones": len({g["licitacion_codigo"] for g in garantias}),
                 "fichas": _fichas(ruta),
@@ -332,28 +340,15 @@ def crear_app(base: Path | None = None) -> FastAPI:
             },
         )
 
-    @app.get("/garantias", response_class=HTMLResponse)
-    def garantias(request: Request) -> Any:
-        """Qué cauciones siguen vivas: la tercera pregunta del objetivo.
+    @app.get("/garantias")
+    def garantias() -> RedirectResponse:
+        """Redirige a /legal, que ya es esta pagina.
 
-        Las marcadas se separan por MOTIVO: una duración declarada en cero es
-        un campo sin llenar, y una duración en horas con una caución de años es
-        una unidad mal cargada. Mezclarlas daba un solo aviso para dos defectos
-        que se diagnostican distinto.
+        Eran dos rutas sobre el mismo dato: una resumia las cauciones y la otra
+        las listaba, con nombres distintos. La URL se conserva porque esta
+        enlazada desde los documentos y desde el guion de la demo.
         """
-        filas = responder(resolver(), PREGUNTAS[1])
-        return PLANTILLAS.TemplateResponse(
-            request,
-            "garantias.html",
-            {
-                "filas": filas,
-                "sospechosas": [f for f in filas if f["motivo"] == "unidad_sospechosa"],
-                "cero": [f for f in filas if f["motivo"] == "duracion_cero"],
-                # Enlace al documento original: lo marcado tiene que poder
-                # contrastarse contra la fuente, no contra nuestra palabra.
-                "fichas": _fichas(resolver()),
-            },
-        )
+        return RedirectResponse("/legal", status_code=308)
 
     @app.get("/plazos", response_class=HTMLResponse)
     def plazos(request: Request) -> Any:

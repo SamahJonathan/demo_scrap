@@ -521,7 +521,7 @@ implementan esas carpetas o se corrige § 1.
 
 | Ruta | Para quién |
 |---|---|
-| `/`, `/vencimientos`, `/garantias`, `/plazos`, `/contratos` | el gestor: las tres preguntas del objetivo |
+| `/`, `/contratos`, `/legal`, `/compras`, `/finanzas`, `/comercial` | el gestor: las tres preguntas del objetivo |
 | `/contratos/{codigo}` | ficha con procedencia campo a campo |
 | `/estado`, `/inferencia` | quien mantiene el pipeline; van en el pie, no en el menú |
 | `/salud` | máquinas: monitorización y despliegue |

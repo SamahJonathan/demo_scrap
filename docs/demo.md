@@ -61,7 +61,7 @@ Si hay tiempo, la frase que resume el criterio:
 
 ## 3 · El hallazgo que vende el rigor (90 s) — **el núcleo de la demo**
 
-Ir a `/garantias` y buscar `1300-43-LP24` (SENAMA).
+Ir a `/legal` y buscar `1300-43-LP24` (SENAMA).
 
 - El campo estructurado declara un plazo de contrato de **36 horas**.
 - Su garantía de fiel cumplimiento vence el **29-12-2027**.

@@ -29,7 +29,7 @@ cinco anteriores.
 | # | Pregunta | Página | Qué decide quien la lee |
 |---|---|---|---|
 | 1 | ¿Qué contratos vencen en los próximos N meses, y cuáles son renovables frente a cuáles hay que relicitar? | `/vencimientos` y portada | Abrir un proceso nuevo, o ejercer la renovación |
-| 2 | ¿Qué garantías siguen vigentes, y cuáles vencen antes que el contrato que caucionan? | `/garantias` y portada | Exigir renovación de la caución antes de quedar descubierto |
+| 2 | ¿Qué garantías siguen vigentes, y cuáles vencen antes que el contrato que caucionan? | `/legal` y portada | Exigir renovación de la caución antes de quedar descubierto |
 | 3 | ¿Cuánto tarda cada organismo entre publicar y adjudicar, y cuánto varía? | `/plazos` | Con cuánta anticipación hay que empezar a relicitar |
 | 4 | ¿Qué organismos concentran mayor monto vigente, y con qué proveedores? | **ninguna** — solo `cli analizar` | — |
 | 5 | ¿Qué órdenes de compra no nacen de una licitación, y qué proporción del gasto representan? | **ninguna** — solo `cli analizar` | — |

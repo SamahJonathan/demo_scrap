@@ -1,11 +1,13 @@
 {% extends "base.html" %}
 {% block cuerpo %}
-<h1>Legal</h1>
-<p class="sub">Qué obligaciones siguen vivas. El mismo contrato reconstruido que
-ven las demás áreas, leído desde las cauciones y las cláusulas.</p>
+<h1>Legal — cauciones y obligaciones</h1>
+<p class="sub">Qué garantías siguen vivas, cuáles vencen antes que el contrato
+que caucionan y cuáles tienen el dato mal cargado en el origen. El mismo
+contrato reconstruido que ven las demás áreas, leído desde las obligaciones.</p>
 
 <div class="tarjetas">
   <div class="tarjeta"><b>{{ vivas|length }}</b><span>cauciones vigentes</span></div>
+  <div class="tarjeta"><b>{{ filas|length }}</b><span>cauciones en total</span></div>
   <div class="tarjeta"><b>{{ licitaciones }}</b><span>procesos con garantía</span></div>
   <div class="tarjeta"><b>{{ renovables }}</b><span>renovables</span></div>
 </div>
@@ -15,63 +17,85 @@ ven las demás áreas, leído desde las cauciones y las cláusulas.</p>
   <p class="sub" style="margin:6px 0 0">Se revisaron los <b>54 campos</b> que
   devuelve la API de licitaciones: <b>ninguno</b> trae garantías. OCDS tampoco.
   Solo la ficha web las publica, con beneficiario, vencimiento, monto y glosa.
-  Es el único caso del proyecto que justifica scrapear HTML.</p>
+  Es el único caso del proyecto que justifica scrapear HTML, y por eso esta
+  página existe.</p>
 </div>
 
 {% if sospechosas %}
 <div class="caja aviso">
-  <b class="alerta">{{ sospechosas|length }} caución(es) con la unidad del plazo
-  sospechosa</b>
-  <p class="sub" style="margin:6px 0 10px">El contrato declara plazo <b>en
-  horas</b> y la caución vive años. Casi seguro son meses cargados como horas.
-  No se corrige: se marca y se enlaza el original.</p>
-  <table>
-    <tr><th>Licitación</th><th>Vence</th><th>Duración declarada</th><th></th></tr>
-    {% for g in sospechosas %}
-    <tr>
-      <td class="codigo">{{ g.licitacion_codigo }}</td>
-      <td>{{ g.fecha_vencimiento }}</td>
-      <td class="alerta">{{ g.duracion_valor }} {{ g.duracion_unidad }}</td>
-      <td>{% if fichas.get(g.licitacion_codigo) %}
-          <a href="{{ fichas[g.licitacion_codigo] }}" target="_blank"
-             rel="noopener">ver ficha</a>{% endif %}</td>
-    </tr>
-    {% endfor %}
-  </table>
+  <b class="alerta">{{ sospechosas|selectattr("vigente")|list|length }}
+  vigente(s) con la unidad del plazo sospechosa</b>
+  <span class="proc">({{ sospechosas|length }} en total; el resto ya venció y
+  es un defecto histórico, no un riesgo de hoy)</span>
+  <p class="sub" style="margin:6px 0 0">
+    El contrato declara un plazo <b>en horas</b> y su garantía de fiel
+    cumplimiento vive más de un año. Nadie cauciona por años un contrato de
+    horas: casi seguro son <b>meses cargados como horas</b> en el origen.
+    No se corrige ninguno de los dos valores, se marca — y se abre la ficha
+    original para comprobarlo.
+  </p>
 </div>
 {% endif %}
 
-<div class="caja">
-  <b>Cauciones vigentes</b>
-  <p class="sub" style="margin:6px 0 10px">Las que aún puede cobrar el organismo.
-  Una vencida antes que su contrato deja al Estado descubierto.
-  <a href="/garantias">Ver las {{ vivas|length }} con detalle</a>.</p>
-  <table>
-    <tr><th>Licitación</th><th>Tipo</th><th>Monto</th><th>Vence</th><th></th></tr>
-    {% for g in vivas[:15] %}
-    <tr>
-      <td class="codigo">{{ g.licitacion_codigo }}</td>
-      <td>{{ g.tipo }}</td>
-      <td>{% if g.monto_es_porcentaje %}{{ g.monto_valor }} %
+{% if cero %}
+<div class="caja aviso">
+  <b class="alerta">{{ cero|selectattr("vigente")|list|length }}
+  vigente(s) caucionan un contrato con duración declarada en cero</b>
+  <span class="proc">({{ cero|length }} en total)</span>
+  <p class="sub" style="margin:6px 0 0">
+    Esto <b>no es una contradicción, es un vacío</b>: el organismo dejó el campo
+    de duración en 0. Un contrato de duración cero no existe, así que de esas
+    licitaciones <b>no se publica fecha de vencimiento</b> — antes se calculaba
+    una igual a la de adjudicación y se marcaba como confiable.
+  </p>
+</div>
+{% endif %}
+
+<table>
+  <tr><th>Licitación</th><th>Tipo</th><th>Monto</th><th>Vence</th>
+      <th>Duración del contrato</th><th>Estado</th><th>Marca</th><th></th></tr>
+  {% for g in filas %}
+  <tr{% if g.implausible %} class="alerta"{% endif %}>
+    <td class="codigo">{{ g.licitacion_codigo }}</td>
+    <td>{{ g.tipo }}</td>
+    <td>{% if g.monto_es_porcentaje %}{{ g.monto_valor }} %
           {% if g.monto_pesos %}<br><span class="proc">≈ ${{ "{:,.0f}".format(g.monto_pesos) }}</span>
           {% elif g.sin_cifra_porque == "sin_monto_adjudicado" %}<br><span class="proc">sin monto adjudicado en la fuente</span>
           {% elif g.sin_cifra_porque == "monto_no_confiable" %}<br><span class="proc">monto parece precio unitario</span>{% endif %}
         {% else %}${{ "{:,.0f}".format(g.monto_valor|float) }}{% endif %}</td>
-      <td>{{ g.fecha_vencimiento }}</td>
-      <td>{% if fichas.get(g.licitacion_codigo) %}
-          <a href="{{ fichas[g.licitacion_codigo] }}" target="_blank"
-             rel="noopener">ver ficha</a>{% endif %}</td>
-    </tr>
-    {% endfor %}
-  </table>
-  <p class="sub" style="margin-top:10px"><b>Un porcentaje no es un vacío.</b> La
-  seriedad de la oferta va en pesos porque se exige <b>antes</b> de que exista
-  monto; el fiel cumplimiento va en porcentaje porque se exige <b>después</b> de
-  adjudicar, cuando ya hay una cifra a la que referirse.
-  <br>
-  Por eso, donde se puede, el porcentaje se traduce: <b>una obligación
-  declarativa no es exigible hasta que es un número</b>. La cifra la calculamos
-  nosotros y se omite si el monto adjudicado parece un precio unitario.</p>
-</div>
+    <td>{{ g.fecha_vencimiento or "—" }}</td>
+    <td>{{ g.duracion_valor }} {{ g.duracion_unidad }}</td>
+    <td>{% if g.vigente %}<span class="ok">vigente</span>
+        {% else %}vencida{% endif %}</td>
+    <td class="proc">{% if g.motivo == "duracion_cero" %}duración en cero
+        {% elif g.motivo == "unidad_sospechosa" %}unidad sospechosa{% endif %}</td>
+    <td>{% if fichas.get(g.licitacion_codigo) %}
+        <a href="{{ fichas[g.licitacion_codigo] }}" target="_blank"
+           rel="noopener">ver ficha</a>{% endif %}</td>
+  </tr>
+  {% endfor %}
+</table>
 
+<p class="sub" style="margin-top:12px">
+  Se cuentan <b>una vez por licitación</b>, no una por contrato: varias órdenes
+  del mismo proceso comparten las mismas cauciones.
+  <br>
+  <b>Vigencia y marca son cosas distintas y van en columnas distintas.</b> Una
+  caución <b>vencida</b> con el dato mal cargado es un defecto histórico de un
+  contrato ya cerrado; la misma marca sobre una <b>vigente</b> es un riesgo
+  ahora. Mezclarlas exageraba la alerta: de 12 marcadas, 9 ya vencieron.
+  <br>
+  <b>«Ver ficha» abre el documento original en Mercado Público.</b> Un dato que
+  marcamos como dudoso tiene que poder contrastarse contra la fuente en un
+  clic, no de palabra.
+  <br>
+  <b>Un porcentaje no es un vacío.</b> La seriedad de la oferta va en pesos
+  porque se exige <b>antes</b> de que exista monto; el fiel cumplimiento va en
+  porcentaje porque se exige <b>después</b> de adjudicar, cuando ya hay una
+  cifra a la que referirse. Donde se puede, se traduce: el monto en pesos
+  <b>lo calculamos nosotros</b> aplicando el porcentaje al monto adjudicado.
+  Cuando no está, la celda dice por qué — que <b>OCDS no publique el monto</b>
+  (36 casos) o que ese monto <b>parezca un precio unitario</b> y calcular sobre
+  él daría una boleta de centavos (23 casos). De 171 se traducen 112.
+</p>
 {% endblock %}

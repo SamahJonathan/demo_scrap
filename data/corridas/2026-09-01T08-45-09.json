@@ -1,0 +1,224 @@
+{
+  "momento": "2026-09-01T08:45:09",
+  "fechas": [
+    "2025-01-15",
+    "2025-05-15",
+    "2025-10-15"
+  ],
+  "duracion_s": 175.7,
+  "requests_emitidos": 0,
+  "aciertos_cache": 1107,
+  "ahorro_cache": 1.0,
+  "procesados": 450,
+  "por_fuente": {
+    "contratos": 450,
+    "filas_persistidas": 450,
+    "garantias": 299,
+    "licitaciones": 218,
+    "oc_detalladas": 450,
+    "oc_listadas": 450,
+    "ocds": 218
+  },
+  "fuentes_fallidas": {
+    "ficha_web": "2157-76-LE24: no se encontró la tabla #grvGarantias. La ficha cambió de estructu"
+  },
+  "cuarentena": 0,
+  "tasa_cuarentena": 0.0,
+  "cuarentena_por_motivo": {},
+  "hallazgos": [
+    {
+      "identificador": "1002588-160-L124",
+      "motivo": "unidad_de_duracion_sin_decodificar"
+    },
+    {
+      "identificador": "1002772-127-LR23",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1002772-30-LQ23",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1002772-5-LQ23",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1002772-58-LR19",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1002772-96-LQ23",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1004-56-LP24",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1027-14-LQ25",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1031849-11-LP22",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1036-8-LR24",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1057055-69-LP24",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1057402-120-LP24",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1057404-82-LQ24",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1057404-85-LR23",
+      "motivo": "unidad_de_duracion_sin_decodificar"
+    },
+    {
+      "identificador": "1057417-209-LR23",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1057439-19-LR22",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1057472-4-LQ25",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1057472-99-LQ25",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1057472-99-LQ25",
+      "motivo": "items_no_cuadran_con_ocds"
+    },
+    {
+      "identificador": "1002-25-LE25",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1002-9-LQ25",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1002588-10-LR24",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1020-48-LQ24",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1028871-11-LQ25",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1031849-18-LP22",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1057049-170-LQ23",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1057370-71-LE21",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1057384-168-LE24",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1057389-47-LQ22",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1057390-45-LR22",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1057402-230-LP23",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1057404-82-LQ24",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1057404-85-LR23",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1057420-1-LE24",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1057421-27-LE21",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1057422-11-LQ24",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1057428-8-LE25",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1057428-9-LE25",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1057430-17-LP24",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1057430-42-LP24",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1057472-17-LQ24",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1057472-34-LQ22",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1057472-52-LP25",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1057472-64-LQ25",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1057472-80-LE24",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1057472-95-LQ23",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "1057480-30-LE25",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    },
+    {
+      "identificador": "2157-171-LE23",
+      "motivo": "monto_adjudicado_parece_precio_unitario"
+    }
+  ],
+  "confiable": true,
+  "problemas": []
+}

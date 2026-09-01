@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import contextlib
 import logging
+import time
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
@@ -35,6 +36,53 @@ from contratos.validacion import (
 )
 
 log = logging.getLogger(__name__)
+
+
+class Progreso:
+    """Avance con tiempo transcurrido y estimación de lo que falta.
+
+    Una corrida de media hora sin salida es indistinguible de una colgada, y
+    obliga a mirar el proceso por fuera para saber si sigue viva. Peor: sin
+    ritmo medido no se puede decidir si conviene esperarla o acotarla.
+
+    La estimación es lineal a propósito. No pretende ser exacta: pretende
+    responder "¿me quedo o me voy a tomar un café?".
+    """
+
+    def __init__(self, total: int, etiqueta: str, silencioso: bool = False) -> None:
+        self.total = total
+        self.etiqueta = etiqueta
+        self.silencioso = silencioso
+        self.hechos = 0
+        self._inicio = time.monotonic()
+        self._ultimo = self._inicio
+
+    def paso(self, detalle: str = "") -> None:
+        ahora = time.monotonic()
+        self.hechos += 1
+        transcurrido = ahora - self._inicio
+        de_este = ahora - self._ultimo
+        self._ultimo = ahora
+        if self.silencioso:
+            return
+        ritmo = transcurrido / self.hechos
+        faltan = (self.total - self.hechos) * ritmo
+        print(
+            f"  [{self.hechos}/{self.total}] {detalle[:34]:<34} "
+            f"{de_este:5.1f}s | total {transcurrido / 60:5.1f} min "
+            f"| faltan ~{faltan / 60:4.1f} min",
+            flush=True,
+        )
+
+    def cerrar(self) -> None:
+        if not self.silencioso:
+            total = time.monotonic() - self._inicio
+            ritmo = total / self.hechos if self.hechos else 0.0
+            print(
+                f"  {self.etiqueta}: {self.hechos} en {total / 60:.1f} min "
+                f"({ritmo:.1f} s cada uno)",
+                flush=True,
+            )
 
 
 def _ordenes_de(
@@ -120,8 +168,13 @@ def correr(
     n_con: int | None = None,
     n_sin: int | None = None,
     cliente: Cliente | None = None,
+    silencioso: bool = False,
 ) -> Metricas:
-    """Ejecuta el pipeline completo y devuelve sus métricas."""
+    """Ejecuta el pipeline completo y devuelve sus métricas.
+
+    `silencioso` apaga el avance por consola: lo usan los tests, que no
+    necesitan verlo y quedarían ilegibles con él.
+    """
     m = Metricas()
     propio = cliente is None
     c = cliente or Cliente()
@@ -133,21 +186,27 @@ def correr(
         sin = cfg.oc_sin_proceso_por_fecha if n_sin is None else n_sin
 
         ordenes: list[OrdenCompra] = []
+        avance = Progreso(len(fechas), "fechas descubiertas", silencioso)
         for fecha in fechas:
             log.info("descubriendo %s", fecha)
             ordenes.extend(_ordenes_de(c, fecha, con, sin, m))
+            avance.paso(f"{fecha}: {len(ordenes)} órdenes acumuladas")
+        avance.cerrar()
 
         licitaciones: dict[str, Licitacion] = {}
         garantias: dict[str, list[Garantia]] = {}
         pendientes = sorted(
             {o.codigo_licitacion for o in ordenes if o.codigo_licitacion}
         )
+        avance = Progreso(len(pendientes), "licitaciones", silencioso)
         for codigo in pendientes:
             lic, gs = _proceso_de(c, codigo, m, carpeta)
             if lic is not None:
                 licitaciones[codigo] = lic
                 if gs:
                     garantias[codigo] = gs
+            avance.paso(f"{codigo} ({len(gs)} garantías)")
+        avance.cerrar()
 
         # El monto adjudicado solo se puede juzgar con la licitacion Y sus
         # ordenes delante, y eso recien existe aqui. La regla anterior vivia en

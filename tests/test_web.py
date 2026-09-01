@@ -281,7 +281,8 @@ def test_las_tres_preguntas_del_objetivo_siguen_alcanzables(
     en Legal. Si un día dejan de enlazarse, el menú dejó de servir al objetivo.
     """
     assert 'href="/vencimientos"' in cliente.get("/compras").text
-    assert 'href="/garantias"' in cliente.get("/legal").text
+    # "Qué cauciones siguen vivas" ya no es un enlace: es la propia página.
+    assert "cauciones vigentes" in cliente.get("/legal").text
 
 
 def test_lo_operativo_no_ocupa_el_menu(cliente: TestClient) -> None:
@@ -301,7 +302,7 @@ def test_vencimientos_dice_lo_accionable(cliente: TestClient) -> None:
     assert "no tiene vencimiento que vigilar" in cuerpo
 
 
-def test_garantias_separa_la_unidad_sospechosa_del_campo_sin_llenar(
+def test_legal_separa_la_unidad_sospechosa_del_campo_sin_llenar(
     cliente: TestClient,
 ) -> None:
     """Dos defectos distintos no pueden compartir una sola alerta.
@@ -310,7 +311,7 @@ def test_garantias_separa_la_unidad_sospechosa_del_campo_sin_llenar(
     duración en HORAS con una caución de años es una unidad mal cargada. Se
     diagnostican distinto, así que se muestran distinto.
     """
-    cuerpo = cliente.get("/garantias").text
+    cuerpo = cliente.get("/legal").text
 
     assert "1300-43-LP24" in cuerpo, "SENAMA, 36 horas contra 2027"
     assert "unidad sospechosa" in cuerpo
@@ -318,9 +319,9 @@ def test_garantias_separa_la_unidad_sospechosa_del_campo_sin_llenar(
     assert "no se corrige" in cuerpo.lower(), "se marca, no se arregla"
 
 
-def test_garantias_dice_por_que_hubo_que_scrapear(cliente: TestClient) -> None:
+def test_legal_dice_por_que_hubo_que_scrapear(cliente: TestClient) -> None:
     """Es el caso que justifica la capa de scraping."""
-    cuerpo = cliente.get("/garantias").text
+    cuerpo = cliente.get("/legal").text
     assert "54 campos" in cuerpo and "OCDS" in cuerpo
 
 
@@ -513,7 +514,7 @@ def test_una_garantia_marcada_enlaza_a_la_ficha_original(base: Path) -> None:
             (url, "1300-43-LP24"),
         )
 
-    cuerpo = TestClient(crear_app(base)).get("/garantias").text
+    cuerpo = TestClient(crear_app(base)).get("/legal").text
 
     assert url in cuerpo
     assert 'target="_blank"' in cuerpo, "no saca al usuario del dashboard"
@@ -522,7 +523,7 @@ def test_una_garantia_marcada_enlaza_a_la_ficha_original(base: Path) -> None:
 
 def test_sin_url_guardada_la_fila_no_muestra_un_enlace_roto(base: Path) -> None:
     """Una licitación sin ficha no puede producir un href vacío."""
-    cuerpo = TestClient(crear_app(base)).get("/garantias").text
+    cuerpo = TestClient(crear_app(base)).get("/legal").text
     assert 'href=""' not in cuerpo
 
 
@@ -627,7 +628,21 @@ def test_la_tabla_de_garantias_no_tapa_la_vigencia_con_la_marca(
     Una caución vencida marcada como "duración en cero" se veía solo como
     "duración en cero", y no había forma de saber que ya no cubre nada.
     """
-    cuerpo = cliente.get("/garantias").text
+    cuerpo = cliente.get("/legal").text
 
     assert "<th>Estado</th>" in cuerpo
     assert "<th>Marca</th>" in cuerpo, "la marca va en su propia columna"
+
+
+def test_garantias_redirige_a_legal(cliente: TestClient) -> None:
+    """Eran dos rutas sobre el mismo dato, con nombres distintos.
+
+    La URL se conserva porque está enlazada desde los documentos y desde el
+    guion de la demo: romperla sería peor que la duplicación que tenía.
+    """
+    r = cliente.get("/garantias", follow_redirects=False)
+
+    assert r.status_code == 308
+    assert r.headers["location"] == "/legal"
+    # Y siguiéndola se llega a la página real.
+    assert "cauciones vigentes" in cliente.get("/garantias").text
