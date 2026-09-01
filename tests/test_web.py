@@ -588,3 +588,27 @@ def test_la_ficha_no_repite_el_piso_legal_y_destaca_el_disparador(
     )
     # La trazabilidad no se pierde por clasificar.
     assert "llama3.1:8b" in html and "poner término anticipado" in html
+
+
+def test_una_corrida_de_inferencia_cortada_se_declara(base: Path) -> None:
+    """El embudo describe la corrida; las cláusulas vienen de la base.
+
+    Si la corrida se cortó, mezclarlos sin avisar produce una página que se
+    contradice: "0 cláusulas" arriba y tres listadas abajo.
+    """
+    _registro(base, licitaciones=218, procesadas=2, clausulas=0)
+    html = TestClient(crear_app(base)).get("/inferencia").text
+
+    assert "se cortó en" in html
+    assert "2 de 218" in html
+    assert "pueden venir de corridas anteriores" in html
+    # Y no se publica un porcentaje calculado sobre lo que no se completó.
+    assert "no necesitaron el modelo" not in html
+
+
+def test_una_corrida_completa_si_publica_el_porcentaje(base: Path) -> None:
+    _registro(base, licitaciones=100, procesadas=100, resueltas_por_el_filtro=67)
+    html = TestClient(crear_app(base)).get("/inferencia").text
+
+    assert "67" in html and "no necesitaron el modelo" in html
+    assert "se cortó en" not in html

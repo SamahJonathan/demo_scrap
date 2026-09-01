@@ -29,6 +29,12 @@
       <td class="proc">—</td>
     </tr>
     <tr>
+      <td>Procesadas en la última corrida</td>
+      <td class="{{ 'alerta' if r.get('procesadas', r.licitaciones) < r.licitaciones else '' }}">
+        <b>{{ r.get("procesadas", r.licitaciones) }}</b></td>
+      <td class="proc">{{ r.segundos | round(0) | int }} s</td>
+    </tr>
+    <tr>
       <td>Resueltas por el <b>filtro de pasajes</b>, sin llamar al modelo</td>
       <td class="ok"><b>{{ r.resueltas_por_el_filtro }}</b></td>
       <td class="proc">0 s</td>
@@ -44,7 +50,18 @@
       <td class="proc">modelo {{ r.modelo }}</td>
     </tr>
   </table>
-  {% if r.licitaciones %}
+  {% if r.get("procesadas", r.licitaciones) < r.licitaciones %}
+  <p class="sub" style="margin:10px 0 0">
+    <b class="alerta">La última corrida se cortó en
+    {{ r.get("procesadas") }} de {{ r.licitaciones }}.</b>
+    El modelo tarda minutos por documento en CPU y la cartera completa pedía
+    horas. <b>El embudo de arriba describe solo lo que corrió</b>; las cláusulas
+    de más abajo pueden venir de corridas anteriores, porque el guardado es por
+    documento y nada se pierde al interrumpir. Se dice en vez de disimularlo con
+    un porcentaje calculado sobre una muestra que no se completó.
+  </p>
+  {% endif %}
+  {% if r.licitaciones and r.get("procesadas", r.licitaciones) >= r.licitaciones %}
   <p class="sub" style="margin:10px 0 0">
     <b>{{ (100 * r.resueltas_por_el_filtro / r.licitaciones) | round(0) | int }}%
     de los documentos no necesitaron el modelo.</b>

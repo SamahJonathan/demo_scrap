@@ -180,6 +180,10 @@ def _cmd_inferir(args: argparse.Namespace) -> int:
                     "momento": datetime.now().isoformat(timespec="seconds"),
                     "modelo": modelo.nombre,
                     "licitaciones": len(codigos),
+                    # Cuantas se alcanzaron a procesar. Si es menor que
+                    # `licitaciones`, la corrida se corto: el embudo describe
+                    # solo lo que corrio, y decirlo es parte del dato.
+                    "procesadas": len(detalle),
                     "resueltas_por_el_filtro": sin_pasajes,
                     "llamadas_al_modelo": len(codigos) - sin_pasajes - pendientes(),
                     "clausulas": clausulas,
