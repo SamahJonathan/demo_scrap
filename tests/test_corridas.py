@@ -141,3 +141,35 @@ def test_la_cuarentena_se_desglosa_por_motivo() -> None:
 
     reg = instantanea(m, 0.05, 1, [])
     assert reg["cuarentena_por_motivo"][Motivo.ESQUEMA.value] == 2
+
+
+def test_el_historial_ignora_los_archivos_que_no_son_corridas(tmp_path: Path) -> None:
+    """El mismo directorio guarda el registro de inferencia.
+
+    Leerlo como si fuera una corrida tumbaba `cli corridas` con KeyError.
+    """
+    import json
+
+    d = tmp_path / "corridas"
+    guardar(_reg(momento="2026-08-31T10:00:00"), d)
+    (d / "inferencia.json").write_text(
+        json.dumps({"modelo": "llama3.1:8b", "licitaciones": 218}), encoding="utf-8"
+    )
+
+    corridas = historial(d)
+
+    assert len(corridas) == 1
+    assert "procesados" in corridas[0]
+    assert "sin regresiones" in tabla(corridas) or corridas  # no revienta
+
+
+def test_una_fuente_que_cae_a_cero_se_delata_aunque_el_total_no_cambie() -> None:
+    """El caso real: 299 garantías pasaron a 0 y los 450 contratos siguieron.
+
+    Sin comparar contra la corrida anterior, el total intacto lo disimulaba.
+    """
+    anterior = _reg(procesados=450, por_fuente={"licitaciones": 218, "garantias": 299})
+    actual = _reg(procesados=450, por_fuente={"licitaciones": 218, "garantias": 0})
+
+    avisos = regresiones(actual, anterior)
+    assert any("garantias" in a and "299" in a for a in avisos)

@@ -268,3 +268,20 @@ def test_una_duracion_real_sigue_calculandose() -> None:
 
     assert fin == date(2025, 3, 10) + timedelta(days=300)
     assert estado is EstadoVencimiento.CALCULADO
+
+
+def test_licitacion_es_inmutable_y_por_eso_se_copia() -> None:
+    """Asignarle un campo lanza ValidationError, no lo asigna en silencio.
+
+    Costó las 299 garantías de una corrida: `lic.url_ficha = ...` reventaba
+    dentro del try de la ficha y se llevaba el parseo entero. La forma correcta
+    es `model_copy`, y este test deja constancia de por qué.
+    """
+    lic = Licitacion(codigo="1-1-LP25")
+
+    with pytest.raises(Exception, match="[Ff]rozen"):
+        lic.url_ficha = "https://ejemplo"  # type: ignore[misc]
+
+    copia = lic.model_copy(update={"url_ficha": "https://ejemplo"})
+    assert copia.url_ficha == "https://ejemplo"
+    assert lic.url_ficha is None, "el original no se toca"

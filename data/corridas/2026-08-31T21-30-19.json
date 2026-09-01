@@ -1,0 +1,45 @@
+{
+  "momento": "2026-08-31T21:30:19",
+  "fechas": [
+    "2025-01-15",
+    "2025-05-15",
+    "2025-10-15"
+  ],
+  "duracion_s": 21.0,
+  "requests_emitidos": 0,
+  "aciertos_cache": 889,
+  "ahorro_cache": 1.0,
+  "procesados": 450,
+  "por_fuente": {
+    "contratos": 450,
+    "filas_persistidas": 450,
+    "licitaciones": 218,
+    "oc_detalladas": 450,
+    "oc_listadas": 450,
+    "ocds": 218
+  },
+  "fuentes_fallidas": {
+    "ficha_web": "2157-88-LQ23: 1 validation error for Licitacion\nurl_ficha\n  Instance is frozen [type=frozen_instance, input_value='https://www.mercadopubli...8e0o57abOxGn61TCgMS8%3D', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/frozen_instance"
+  },
+  "cuarentena": 0,
+  "tasa_cuarentena": 0.0,
+  "cuarentena_por_motivo": {},
+  "hallazgos": [
+    {
+      "identificador": "1002588-160-L124",
+      "motivo": "unidad_de_duracion_sin_decodificar"
+    },
+    {
+      "identificador": "1057404-85-LR23",
+      "motivo": "unidad_de_duracion_sin_decodificar"
+    },
+    {
+      "identificador": "1057472-99-LQ25",
+      "motivo": "items_no_cuadran_con_ocds"
+    }
+  ],
+  "confiable": false,
+  "problemas": [
+    "solo 0 garantías para 218 licitaciones (0%, mínimo 50%): el parser de la ficha probablemente se rompió"
+  ]
+}

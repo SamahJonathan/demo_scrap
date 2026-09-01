@@ -75,12 +75,25 @@ def guardar(registro: dict[str, Any], directorio: Path) -> Path:
     return ruta
 
 
+# Los registros de corrida se llaman por su marca de tiempo ISO. El glob se
+# ata a ese formato y no a "*.json": el mismo directorio guarda el registro de
+# inferencia, y leerlo como si fuera una corrida reventaba con KeyError.
+_NOMBRE = "[0-9][0-9][0-9][0-9]-[0-9][0-9]-*.json"
+
+
 def historial(directorio: Path, limite: int = 10) -> list[dict[str, Any]]:
     """Las últimas corridas, de la más nueva a la más vieja."""
     if not directorio.is_dir():
         return []
-    archivos = sorted(directorio.glob("*.json"), reverse=True)[:limite]
-    return [json.loads(a.read_text(encoding="utf-8")) for a in archivos]
+    archivos = sorted(directorio.glob(_NOMBRE), reverse=True)[:limite]
+    corridas = []
+    for a in archivos:
+        datos = json.loads(a.read_text(encoding="utf-8"))
+        # Defensa en profundidad: un archivo que no tenga la forma de una
+        # corrida se ignora en vez de tumbar el comando que lo lee.
+        if "procesados" in datos:
+            corridas.append(datos)
+    return corridas
 
 
 def regresiones(actual: dict[str, Any], anterior: dict[str, Any]) -> list[str]:

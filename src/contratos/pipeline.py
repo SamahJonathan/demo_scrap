@@ -11,12 +11,14 @@ eso cada fallo queda en las métricas.
 
 from __future__ import annotations
 
+import contextlib
 import logging
 from datetime import date
 from pathlib import Path
 
 from contratos.cliente import Cliente, ErrorDeLaFuente, RespuestaDefinitiva
 from contratos.fuentes import api_licitacion, api_oc, ocds
+from contratos.fuentes.api_licitacion import SinFicha
 from contratos.fuentes.ficha_web import FichaIlegible, parsear_garantias
 from contratos.metricas import Metricas
 from contratos.modelos import Garantia, Licitacion, OrdenCompra
@@ -76,11 +78,24 @@ def _proceso_de(
     except Exception as e:  # noqa: BLE001 — se registra, la corrida sigue
         m.falla("ocds", f"{codigo}: {e}")
 
+    # `Licitacion` es frozen: se copia con el campo nuevo, no se muta. Asignar
+    # sobre ella lanza ValidationError, y hacerlo dentro del try de la ficha
+    # se llevaba por delante TODAS las garantias de la corrida.
+    #
+    # Va en su propio try: una licitacion sin UrlActa no tiene ficha, pero eso
+    # no debe parecerse a un parser roto.
+    # Sin UrlActa queda en None: el dashboard no muestra enlace, y ya.
+    with contextlib.suppress(SinFicha):
+        lic = lic.model_copy(
+            update={
+                "url_ficha": api_licitacion.url_ficha(
+                    lic, cliente.config.mp_web_base_url
+                )
+            }
+        )
+
     garantias: list[Garantia] = []
     try:
-        # Se guarda ANTES de parsear: aunque la ficha resulte ilegible, el
-        # enlace a la fuente sigue siendo util para revisarla a mano.
-        lic.url_ficha = api_licitacion.url_ficha(lic, cliente.config.mp_web_base_url)
         html = api_licitacion.bajar_ficha(cliente, lic)
         garantias = parsear_garantias(html, codigo)
         m.suma("garantias", len(garantias))
