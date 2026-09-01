@@ -105,7 +105,16 @@
   <table style="margin-bottom:14px">
     <tr><th style="width:20%">Licitación</th>
         <td class="codigo">{{ cl.licitacion_codigo }}</td></tr>
-    <tr><th>Causales</th><td>{{ cl.texto.replace(" | ", " · ") }}</td></tr>
+    <tr><th>Causales leídas</th>
+        <td>{{ cl.texto.replace(" | ", " · ") }}</td></tr>
+    <tr><th>Sobre el mínimo legal</th>
+        <td class="{{ 'alerta' if cl.riesgo == 'con_disparador_cuantificado' else '' }}">
+        {% if cl.riesgo == 'solo_causales_estandar' %}
+          nada: son las que la ley impone a todo contrato público
+        {% else %}
+          {{ cl.adicionales|length }} propias del organismo{% if cl.riesgo == 'con_disparador_cuantificado' %},
+          una de ellas <b>cuantificada</b>{% endif %}
+        {% endif %}</td></tr>
     <tr><th>Fragmento leído</th>
         <td class="proc">…{{ cl.fragmento_origen }}…</td></tr>
     <tr><th>Trazabilidad</th>

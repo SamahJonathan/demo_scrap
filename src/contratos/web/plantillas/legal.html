@@ -8,7 +8,6 @@ ven las demás áreas, leído desde las cauciones y las cláusulas.</p>
   <div class="tarjeta"><b>{{ vivas|length }}</b><span>cauciones vigentes</span></div>
   <div class="tarjeta"><b>{{ licitaciones }}</b><span>procesos con garantía</span></div>
   <div class="tarjeta"><b>{{ renovables }}</b><span>renovables</span></div>
-  <div class="tarjeta"><b>{{ clausulas|length }}</b><span>causales extraídas</span></div>
 </div>
 
 <div class="caja">
@@ -73,29 +72,4 @@ ven las demás áreas, leído desde las cauciones y las cláusulas.</p>
   nosotros y se omite si el monto adjudicado parece un precio unitario.</p>
 </div>
 
-{% if clausulas %}
-<div class="caja">
-  <b>Causales de término anticipado</b>
-  <p class="sub" style="margin:6px 0 10px">Viven solo en la prosa de las bases.
-  Importan porque un contrato con causales amplias puede caerse antes de su
-  vencimiento. <a href="/inferencia">Cómo se extrajeron</a>.</p>
-  <table>
-    <tr><th>Licitación</th><th>Clasificación</th><th>Sobre el mínimo legal</th></tr>
-    {% for cl in clausulas %}
-    <tr>
-      <td class="codigo"><a href="/contratos?organismo=">{{ cl.licitacion_codigo }}</a></td>
-      <td class="{{ 'alerta' if cl.riesgo == 'con_disparador_cuantificado' else '' }}">
-        {% if cl.riesgo == 'solo_causales_estandar' %}solo las estándar
-        {% elif cl.riesgo == 'con_causales_adicionales' %}con adicionales
-        {% else %}disparador cuantificado{% endif %}</td>
-      <td>{{ cl.adicionales|length }}</td>
-    </tr>
-    {% endfor %}
-  </table>
-  <p class="sub" style="margin-top:10px"><b>Un contrato con disparador
-  cuantificado puede terminar antes de su fecha declarada</b> —por alcanzar un
-  monto, no por incumplir—. Es el único caso en que el vencimiento que publica
-  este panel puede quedarse corto, y por eso se separa.</p>
-</div>
-{% endif %}
 {% endblock %}

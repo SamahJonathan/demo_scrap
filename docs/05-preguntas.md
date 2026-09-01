@@ -105,12 +105,17 @@ fila. Ni el parseo ni el modelo ganan por defecto.
 
 ## Lo único que produce un modelo de lenguaje
 
-Las **causales de término anticipado**, visibles en la ficha de cada contrato
-(`/contratos/<código>`). Viven solo en la prosa de las bases: ningún campo de la
-API las expone.
+Las **causales de término anticipado**, y **están fuera del dashboard por
+decisión**. Se pueden auditar en `/inferencia`, no se publican como reportería.
 
-Importan para P1: un contrato con causales amplias puede caerse antes de su
-vencimiento, y entonces hay que relicitar antes de lo que dice la fecha.
+La razón: una lista de causales por contrato no se compara ni se agrega, y
+medido sobre fichas reales **cuatro de cada cinco son idénticas palabra por
+palabra entre organismos distintos**, porque son el mínimo que la ley impone.
+Publicar el párrafo repetía el piso legal en cada contrato y escondía lo poco
+excepcional que había.
+
+Se conserva la capacidad y la medición —incluida la clasificación contra ese
+piso legal, que sí separa lo excepcional— pero fuera de la línea de corte.
 
 Es lo único de la página que declara **qué modelo** lo produjo y **en qué
 carácter** del documento lo leyó, porque es lo único que no es determinista.

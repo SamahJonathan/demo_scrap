@@ -351,12 +351,12 @@ def test_la_portada_dice_sobre_que_universo_habla(cliente: TestClient) -> None:
 # --------------------------------------------------------------------------
 
 
-def test_las_causales_extraidas_se_ven_en_la_ficha_con_su_origen(base: Path) -> None:
-    """Una cláusula sin modelo ni posición no es defendible: no se publica sola.
+def test_la_ficha_de_contrato_NO_publica_las_causales(base: Path) -> None:
+    """Retiradas del dashboard por decisión: no eran reportería.
 
-    Las causales de término anticipado solo viven en la prosa de las bases, y
-    son lo único de la página que produjo un modelo. Por eso la ficha declara
-    cuál lo produjo y en qué carácter del documento lo leyó.
+    Una lista de causales por contrato no se compara ni se agrega, y cuatro de
+    cada cinco son idénticas entre organismos porque la ley las impone. Lo que
+    el modelo produjo sigue auditable en /inferencia, con su trazabilidad.
     """
     from contratos.modelos import ClausulaExtraida
     from contratos.persistencia import abrir, guardar_clausula
@@ -367,25 +367,24 @@ def test_las_causales_extraidas_se_ven_en_la_ficha_con_su_origen(base: Path) -> 
             ClausulaExtraida(
                 licitacion_codigo="1300-43-LP24",
                 tipo="causales_termino",
-                texto="incumplimiento grave | quiebra del proveedor",
-                fragmento_origen="…podrá poner término anticipado al contrato…",
-                posicion_inicio=60039,
+                texto="quiebra del proveedor",
+                fragmento_origen="…término anticipado…",
+                posicion_inicio=10,
                 modelo="llama3.1:8b",
             ),
         )
 
-    html = TestClient(crear_app(base)).get("/contratos/2-1-SE25").text
+    cliente = TestClient(crear_app(base))
 
-    assert "incumplimiento grave" in html
-    assert "llama3.1:8b" in html, "sin decir qué modelo lo produjo, no se publica"
-    assert "60039" in html, "sin la posición no se puede auditar contra la ficha"
-    assert "poner término anticipado" in html, "el fragmento de origen se muestra"
+    for ruta in ("/contratos/2-1-SE25", "/legal"):
+        cuerpo = cliente.get(ruta).text
+        assert "quiebra del proveedor" not in cuerpo, ruta
+        assert "Causales de término" not in cuerpo, ruta
 
-
-def test_sin_clausulas_la_ficha_no_muestra_el_bloque_vacio(cliente: TestClient) -> None:
-    """Con 0 cláusulas el bloque desaparece, no queda una tabla sin filas."""
-    html = cliente.get("/contratos/2-1-SE25").text
-    assert "Causales de término anticipado" not in html
+    # Pero el dato NO se borró: sigue auditable donde corresponde.
+    auditoria = cliente.get("/inferencia").text
+    assert "quiebra del proveedor" in auditoria
+    assert "llama3.1:8b" in auditoria
 
 
 # --------------------------------------------------------------------------
@@ -581,45 +580,6 @@ def test_comercial_agrupa_por_rut_y_lo_dice(cliente: TestClient) -> None:
     """El mismo organismo aparece escrito de varias formas en la fuente."""
     cuerpo = cliente.get("/comercial").text
     assert "RUT y no por" in cuerpo
-
-
-def test_la_ficha_no_repite_el_piso_legal_y_destaca_el_disparador(
-    base: Path,
-) -> None:
-    """Repetir en cada contrato lo que la ley obliga esconde lo excepcional.
-
-    Se publica el SOBRANTE. Y un disparador cuantificado se separa porque
-    significa que el vencimiento publicado puede no ser el real.
-    """
-    from contratos.modelos import ClausulaExtraida
-    from contratos.persistencia import abrir, guardar_clausula
-
-    with abrir(base) as con:
-        guardar_clausula(
-            con,
-            ClausulaExtraida(
-                licitacion_codigo="1300-43-LP24",
-                tipo="causales_termino",
-                texto=(
-                    "c) El incumplimiento grave de las obligaciones contraídas "
-                    "por el proveedor. | Si se alcanzare el monto de 2.000 UTM "
-                    "autorizado antes del término del periodo de vigencia."
-                ),
-                fragmento_origen="…podrá poner término anticipado…",
-                posicion_inicio=100,
-                modelo="llama3.1:8b",
-            ),
-        )
-
-    html = TestClient(crear_app(base)).get("/contratos/2-1-SE25").text
-
-    assert "2.000 UTM" in html, "lo excepcional se publica"
-    assert "antes de su fecha declarada" in html, "y se dice qué implica"
-    assert "El incumplimiento grave de las obligaciones" not in html, (
-        "el piso legal no se repite: es idéntico en todos los contratos"
-    )
-    # La trazabilidad no se pierde por clasificar.
-    assert "llama3.1:8b" in html and "poner término anticipado" in html
 
 
 def test_una_corrida_de_inferencia_cortada_se_declara(base: Path) -> None:
