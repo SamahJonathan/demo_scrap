@@ -1,13 +1,13 @@
 {
-  "momento": "2026-08-31T21:11:42",
+  "momento": "2026-08-31T23:36:25",
   "modelo": "llama3.1:8b",
   "licitaciones": 218,
-  "resueltas_por_el_filtro": 32,
-  "llamadas_al_modelo": 2,
-  "clausulas": 2,
+  "resueltas_por_el_filtro": 2,
+  "llamadas_al_modelo": 0,
+  "clausulas": 0,
   "discrepancias": 0,
   "no_parseables": 0,
-  "segundos": 1003.0,
+  "segundos": 0.6,
   "detalle": [
     {
       "codigo": "1000-1-LE24",
@@ -16,168 +16,6 @@
     },
     {
       "codigo": "1000813-64-LE24",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1002-25-LE25",
-      "via": "modelo",
-      "segundos": 778.5,
-      "clausula": true
-    },
-    {
-      "codigo": "1002-9-LQ25",
-      "via": "modelo",
-      "segundos": 205.1,
-      "clausula": true
-    },
-    {
-      "codigo": "1002588-10-LR24",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1002588-160-L124",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1002588-24-LE25",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1002588-38-LR24",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1002588-4-LP25",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1002588-46-LQ21",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1002588-71-LE23",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1002592-3-LE25",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1002772-113-R123",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1002772-127-LR23",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1002772-25-LP24",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1002772-26-LR23",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1002772-27-LR23",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1002772-30-LQ23",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1002772-30-LQ25",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1002772-5-LQ23",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1002772-58-LR19",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1002772-61-LR24",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1002772-64-LQ24",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1002772-74-LR24",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1002772-77-LQ24",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1002772-78-LR24",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1002772-87-LE24",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1002772-96-LQ23",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1003473-1-LE24",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1003473-132-LE25",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1003473-65-LQ23",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1003473-76-LQ22",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1003473-80-LQ23",
-      "via": "filtro",
-      "segundos": 0.0
-    },
-    {
-      "codigo": "1003473-88-LQ22",
       "via": "filtro",
       "segundos": 0.0
     }

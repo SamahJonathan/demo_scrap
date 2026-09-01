@@ -22,6 +22,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from contratos.analisis import PREGUNTAS, responder
+from contratos.clasificacion import clasificar
 from contratos.config import cargar
 from contratos.reconstruccion import PROCEDENCIAS
 
@@ -80,6 +81,20 @@ def crear_app(base: Path | None = None) -> FastAPI:
                 timespec="seconds"
             ),
         }
+
+    def _clasificar(clausulas: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """Agrega a cada cláusula su riesgo y lo que sobra del piso legal.
+
+        Publicar la lista entera repite en cada contrato lo que la ley obliga
+        a todos, y eso esconde lo excepcional. Se publica el sobrante.
+        """
+        salida = []
+        for cl in clausulas:
+            riesgo, extra = clasificar(
+                [t.strip() for t in cl["texto"].split(" | ") if t.strip()]
+            )
+            salida.append({**cl, "riesgo": riesgo.value, "adicionales": extra})
+        return salida
 
     def _fichas(ruta: Path) -> dict[str, str]:
         """URL publica de cada licitacion, para enlazar a la fuente."""
@@ -146,7 +161,7 @@ def crear_app(base: Path | None = None) -> FastAPI:
                 "sospechosas": [
                     g for g in garantias if g["motivo"] == "unidad_sospechosa"
                 ],
-                "clausulas": clausulas,
+                "clausulas": _clasificar(clausulas),
                 "renovables": renovables,
                 "licitaciones": len({g["licitacion_codigo"] for g in garantias}),
                 "fichas": _fichas(ruta),
@@ -419,7 +434,7 @@ def crear_app(base: Path | None = None) -> FastAPI:
                 "c": contrato,
                 "licitacion": licitacion,
                 "garantias": garantias,
-                "clausulas": clausulas,
+                "clausulas": _clasificar(clausulas),
                 # Sin procedencia el dato no es defendible: se muestra siempre.
                 "procedencias": {k: v.value for k, v in PROCEDENCIAS.items()},
             },

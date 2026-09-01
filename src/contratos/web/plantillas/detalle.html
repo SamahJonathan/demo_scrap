@@ -83,12 +83,33 @@
   y <b>en qué posición</b> del documento lo leyó. Están en la prosa de las bases:
   ningún campo de la API las expone. Importan porque un contrato con causales
   amplias puede caerse antes de su vencimiento, y entonces hay que relicitar
-  antes de lo que dice la fecha.</p>
+  antes de lo que dice la fecha.
+  <br>
+  <b>No se repite el piso legal.</b> Cuatro de cada cinco causales son idénticas
+  palabra por palabra entre organismos distintos: es el mínimo que la ley impone.
+  Lo que se publica acá es <b>lo que sobra</b> por encima de ese mínimo.</p>
   {% for cl in clausulas %}
-  <table>
-    <tr><th style="width:22%">Causales leídas</th>
-        <td>{{ cl.texto.replace(" | ", " · ") }}</td></tr>
-    <tr><th>Fragmento de origen</th>
+  <table style="margin-bottom:14px">
+    <tr><th style="width:22%">Licitación</th>
+        <td class="codigo">{{ cl.licitacion_codigo }}</td></tr>
+    <tr><th>Clasificación</th>
+        <td class="{{ 'alerta' if cl.riesgo == 'con_disparador_cuantificado' else '' }}">
+        {% if cl.riesgo == 'solo_causales_estandar' %}
+          Solo las causales que la ley impone a todo contrato público.
+          <b>Nada excepcional que revisar.</b>
+        {% elif cl.riesgo == 'con_causales_adicionales' %}
+          El organismo agregó {{ cl.adicionales|length }} causal(es) sobre el
+          mínimo legal. <b>Leer antes de renovar.</b>
+        {% else %}
+          <b>Disparador cuantificado.</b> Este contrato puede terminar
+          <b>antes de su fecha declarada</b> por alcanzar un monto o un tope,
+          no por incumplir: su vencimiento publicado puede no ser el real.
+        {% endif %}</td></tr>
+    {% if cl.adicionales %}
+    <tr><th>Lo que agrega este organismo</th>
+        <td>{% for a in cl.adicionales %}· {{ a }}<br>{% endfor %}</td></tr>
+    {% endif %}
+    <tr><th>Fragmento leído</th>
         <td class="proc">…{{ cl.fragmento_origen }}…</td></tr>
     <tr><th>Trazabilidad</th>
         <td class="proc">modelo <b>{{ cl.modelo }}</b>, carácter

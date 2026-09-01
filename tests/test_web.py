@@ -549,3 +549,42 @@ def test_comercial_agrupa_por_rut_y_lo_dice(cliente: TestClient) -> None:
     """El mismo organismo aparece escrito de varias formas en la fuente."""
     cuerpo = cliente.get("/comercial").text
     assert "RUT y no por" in cuerpo
+
+
+def test_la_ficha_no_repite_el_piso_legal_y_destaca_el_disparador(
+    base: Path,
+) -> None:
+    """Repetir en cada contrato lo que la ley obliga esconde lo excepcional.
+
+    Se publica el SOBRANTE. Y un disparador cuantificado se separa porque
+    significa que el vencimiento publicado puede no ser el real.
+    """
+    from contratos.modelos import ClausulaExtraida
+    from contratos.persistencia import abrir, guardar_clausula
+
+    with abrir(base) as con:
+        guardar_clausula(
+            con,
+            ClausulaExtraida(
+                licitacion_codigo="1300-43-LP24",
+                tipo="causales_termino",
+                texto=(
+                    "c) El incumplimiento grave de las obligaciones contraídas "
+                    "por el proveedor. | Si se alcanzare el monto de 2.000 UTM "
+                    "autorizado antes del término del periodo de vigencia."
+                ),
+                fragmento_origen="…podrá poner término anticipado…",
+                posicion_inicio=100,
+                modelo="llama3.1:8b",
+            ),
+        )
+
+    html = TestClient(crear_app(base)).get("/contratos/2-1-SE25").text
+
+    assert "2.000 UTM" in html, "lo excepcional se publica"
+    assert "antes de su fecha declarada" in html, "y se dice qué implica"
+    assert "El incumplimiento grave de las obligaciones" not in html, (
+        "el piso legal no se repite: es idéntico en todos los contratos"
+    )
+    # La trazabilidad no se pierde por clasificar.
+    assert "llama3.1:8b" in html and "poner término anticipado" in html
