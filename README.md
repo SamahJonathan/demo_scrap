@@ -37,7 +37,7 @@ cp .env.example .env                   # luego edita MP_API_TICKET
 Verificar que quedó bien, en unos 25 segundos y **sin tocar la red**:
 
 ```bash
-ruff check . && mypy src/ && pytest -q     # 182 tests
+ruff check . && mypy src/ && pytest -q     # 187 tests
 ```
 
 ## Los comandos
@@ -149,7 +149,8 @@ Honestidad antes que cobertura.
   por reCAPTCHA Enterprise. El token de redirección viene en el HTML y permitiría
   saltarse el chequeo; **no se hace**, porque es evadir detección de bots. Es una
   decisión, no una limitación técnica.
-- **La muestra es chica, a propósito.** Profundidad sobre volumen: el criterio de
+- **La muestra es acotada, a propósito.** 450 contratos sobre 3 fechas, no la
+  cobertura exhaustiva de la fuente. Profundidad sobre volumen: el criterio de
   éxito es la trazabilidad de cada contrato reconstruido, no cuántos son. El
   volumen es una variable de configuración.
 - **La ficha web es el punto frágil.** Se parsea con IDs estables de GridView, no
@@ -164,8 +165,15 @@ Honestidad antes que cobertura.
 - **El repositorio no se ejecuta solo en el servidor.** El servidor solo sirve un
   SQLite de lectura; el pipeline corre en la máquina de desarrollo, donde vive el
   ticket.
-- **Sin contenedor todavía.** La reproducibilidad en máquina limpia está
-  pendiente (Fase 4).
+- **Las dependencias no están fijadas.** Se declaran con `>=` y sin techo, y no
+  hay lockfile: una versión nueva de `pydantic` o `fastapi` puede romper el build
+  sin que cambie una línea del repositorio. Es el riesgo real de
+  reproducibilidad de este proyecto.
+- **No hay contenedor, y es a propósito.** No resolvería las dos barreras
+  reales: quien clone necesita **su propio `MP_API_TICKET`** —personal, con
+  Clave Única y renovado a diario— y, para la inferencia, Ollama con 4,9 GB de
+  pesos. Para explorar los datos sin instalar nada está el HTML autocontenido
+  que produce `cli exportar`.
 - **P4 y P5 no tienen página.** Existen como SQL y salen por `cli analizar`, pero
   ninguna ruta del dashboard las publica.
 
@@ -179,8 +187,8 @@ Método completo en [docs/00-metodo.md](docs/00-metodo.md).
 | Spike 0 — Validación de supuesto | [`docs/00-spike.md`](docs/00-spike.md) | ✅ |
 | Fase 1 — Análisis | [`docs/01-analisis.md`](docs/01-analisis.md) | ✅ |
 | Fase 2 — Diseño | [`docs/02-diseno.md`](docs/02-diseno.md), [`docs/03-plan-codificacion.md`](docs/03-plan-codificacion.md) | ✅ |
-| Fase 3 — Codificación | 14 incrementos, 182 tests | ✅ |
-| Fase 4 — Despliegue | Reproducibilidad, corridas, README, [`docs/demo.md`](docs/demo.md) | 🟡 |
+| Fase 3 — Codificación | 14 incrementos, 187 tests | ✅ |
+| Fase 4 — Despliegue | Registro de corridas, README, [`docs/demo.md`](docs/demo.md) | 🟡 |
 
 ## Regla de este README
 
