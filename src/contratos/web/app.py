@@ -81,6 +81,20 @@ def crear_app(base: Path | None = None) -> FastAPI:
             ),
         }
 
+    def _fichas(ruta: Path) -> dict[str, str]:
+        """URL publica de cada licitacion, para enlazar a la fuente."""
+        con = _conectar(ruta)
+        try:
+            return {
+                f["codigo"]: f["url_ficha"]
+                for f in con.execute(
+                    "SELECT codigo, url_ficha FROM licitacion "
+                    "WHERE url_ficha IS NOT NULL"
+                ).fetchall()
+            }
+        finally:
+            con.close()
+
     @app.get("/salud")
     def salud() -> dict[str, Any]:
         """Endpoint de maquina: lo consumen la monitorizacion y el despliegue.
@@ -198,14 +212,24 @@ def crear_app(base: Path | None = None) -> FastAPI:
 
     @app.get("/garantias", response_class=HTMLResponse)
     def garantias(request: Request) -> Any:
-        """Qué cauciones siguen vivas: la tercera pregunta del objetivo."""
+        """Qué cauciones siguen vivas: la tercera pregunta del objetivo.
+
+        Las marcadas se separan por MOTIVO: una duración declarada en cero es
+        un campo sin llenar, y una duración en horas con una caución de años es
+        una unidad mal cargada. Mezclarlas daba un solo aviso para dos defectos
+        que se diagnostican distinto.
+        """
         filas = responder(resolver(), PREGUNTAS[1])
         return PLANTILLAS.TemplateResponse(
             request,
             "garantias.html",
             {
                 "filas": filas,
-                "implausibles": [f for f in filas if f["implausible"] == 1],
+                "sospechosas": [f for f in filas if f["motivo"] == "unidad_sospechosa"],
+                "cero": [f for f in filas if f["motivo"] == "duracion_cero"],
+                # Enlace al documento original: lo marcado tiene que poder
+                # contrastarse contra la fuente, no contra nuestra palabra.
+                "fichas": _fichas(resolver()),
             },
         )
 

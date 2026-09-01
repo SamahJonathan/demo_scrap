@@ -5,20 +5,35 @@
 las garantías</b>: ninguno de los 54 campos de la API las expone, y OCDS
 tampoco. Es el caso que justifica el scraping.</p>
 
-{% if implausibles %}
+{% if sospechosas %}
 <div class="caja aviso">
-  <b class="alerta">{{ implausibles|length }} incoherente(s) con el plazo del contrato</b>
+  <b class="alerta">{{ sospechosas|length }} con la unidad de plazo sospechosa</b>
   <p class="sub" style="margin:6px 0 0">
-    La fuente se contradice: uno de los dos datos está mal cargado. No se
-    corrige, se marca — y el hallazgo dice cuántas veces excede el plazo, porque
-    una caución un poco más larga puede ser legítima y una mil veces más larga no.
+    El contrato declara un plazo <b>en horas</b> y su garantía de fiel
+    cumplimiento vive más de un año. Nadie cauciona por años un contrato de
+    horas: casi seguro son <b>meses cargados como horas</b> en el origen.
+    No se corrige ninguno de los dos valores, se marca — y se puede abrir la
+    ficha original para comprobarlo.
+  </p>
+</div>
+{% endif %}
+
+{% if cero %}
+<div class="caja aviso">
+  <b class="alerta">{{ cero|length }} caucionan un contrato con duración
+  declarada en cero</b>
+  <p class="sub" style="margin:6px 0 0">
+    Esto <b>no es una contradicción, es un vacío</b>: el organismo dejó el campo
+    de duración en 0. Un contrato de duración cero no existe, así que de esas
+    licitaciones <b>no se publica fecha de vencimiento</b> — antes se calculaba
+    una igual a la fecha de adjudicación y se marcaba como confiable.
   </p>
 </div>
 {% endif %}
 
 <table>
   <tr><th>Licitación</th><th>Tipo</th><th>Monto</th><th>Vence</th>
-      <th>Duración del contrato</th><th></th></tr>
+      <th>Duración del contrato</th><th>Estado</th><th></th></tr>
   {% for g in filas %}
   <tr{% if g.implausible %} class="alerta"{% endif %}>
     <td class="codigo">{{ g.licitacion_codigo }}</td>
@@ -27,14 +42,22 @@ tampoco. Es el caso que justifica el scraping.</p>
         {% else %}${{ "{:,.0f}".format(g.monto_valor|float) }}{% endif %}</td>
     <td>{{ g.fecha_vencimiento or "—" }}</td>
     <td>{{ g.duracion_valor }} {{ g.duracion_unidad }}</td>
-    <td>{% if g.implausible %}incoherente
+    <td>{% if g.motivo == "duracion_cero" %}duración en cero
+        {% elif g.motivo == "unidad_sospechosa" %}unidad sospechosa
         {% elif g.vigente %}<span class="ok">vigente</span>
         {% else %}vencida{% endif %}</td>
+    <td>{% if fichas.get(g.licitacion_codigo) %}
+        <a href="{{ fichas[g.licitacion_codigo] }}" target="_blank"
+           rel="noopener">ver ficha</a>{% endif %}</td>
   </tr>
   {% endfor %}
 </table>
 <p class="sub" style="margin-top:12px">
   Se cuentan <b>una vez por licitación</b>, no una por contrato: varias órdenes
   del mismo proceso comparten las mismas cauciones.
+  <br>
+  <b>«Ver ficha» abre el documento original en Mercado Público.</b> Un dato que
+  marcamos como dudoso tiene que poder contrastarse contra la fuente en un
+  clic, no de palabra.
 </p>
 {% endblock %}

@@ -6,7 +6,7 @@ Acá aparece la entidad que la fuente no publica y que da nombre al proyecto.
 from __future__ import annotations
 
 import json
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -222,3 +222,49 @@ def test_una_licitacion_que_no_se_pudo_obtener_no_pierde_el_contrato(
     assert cartera.contratos[0].codigo_licitacion == "2678-1-LR25"
     assert cartera.contratos[0].estado_vencimiento is EstadoVencimiento.NO_DECLARADO
     assert any("no se pudo obtener" in r.getMessage() for r in caplog.records)
+
+
+# --------------------------------------------------------------------------
+# Duracion cero: el fallo que publicaba vencimientos falsos como confiables
+# --------------------------------------------------------------------------
+
+
+def test_duracion_cero_no_produce_un_vencimiento() -> None:
+    """Un contrato de duración cero no existe: el campo quedó sin llenar.
+
+    Antes de esta guarda, `0 horas` daba `termino = adjudicacion` y se marcaba
+    CALCULADO. Veinte contratos publicaban que terminaron el mismo día que se
+    adjudicaron, con la misma etiqueta de confianza que un vencimiento real.
+    """
+    lic = Licitacion(
+        codigo="1-1-LP25",
+        fecha_adjudicacion=date(2025, 3, 10),
+        duracion_valor=0,
+        duracion_unidad=UnidadDuracion.HORAS,
+    )
+    fin, estado = calcular_vencimiento(lic)
+
+    assert fin is None, "no se inventa una fecha desde un campo vacío"
+    assert estado is EstadoVencimiento.DURACION_CERO
+    assert estado is not EstadoVencimiento.CALCULADO
+
+
+def test_duracion_cero_se_distingue_de_no_haber_declarado_nada() -> None:
+    """Son dos cosas: la modalidad no declara plazo, o el campo quedó en 0."""
+    sin_nada = Licitacion(codigo="1-1-LP25", fecha_adjudicacion=date(2025, 3, 10))
+    _, estado = calcular_vencimiento(sin_nada)
+    assert estado is EstadoVencimiento.NO_DECLARADO
+
+
+def test_una_duracion_real_sigue_calculandose() -> None:
+    """La guarda no puede haber roto el caso normal."""
+    lic = Licitacion(
+        codigo="1-1-LP25",
+        fecha_adjudicacion=date(2025, 3, 10),
+        duracion_valor=10,
+        duracion_unidad=UnidadDuracion.MESES,
+    )
+    fin, estado = calcular_vencimiento(lic)
+
+    assert fin == date(2025, 3, 10) + timedelta(days=300)
+    assert estado is EstadoVencimiento.CALCULADO

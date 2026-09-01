@@ -238,6 +238,10 @@ class Licitacion(BaseModel):
 
     items: tuple[ItemAdjudicado, ...] = ()
     url_acta: str | None = None
+    # URL publica de la ficha, derivada del token `qs` de `url_acta`. La arma
+    # `fuentes.api_licitacion.url_ficha`, que es la unica que conoce la ruta;
+    # aca solo se transporta para que el dashboard pueda enlazarla.
+    url_ficha: str | None = None
 
     # De OCDS, que no consume cupo de requests.
     monto_adjudicado_total: Decimal | None = None
@@ -291,14 +295,19 @@ class Licitacion(BaseModel):
 class EstadoVencimiento(StrEnum):
     """Por que falta la fecha de termino, en vez de un NULL mudo.
 
-    Un nulo mezcla tres situaciones que exigen respuestas distintas:
+    Un nulo mezcla situaciones que exigen respuestas distintas:
     NO_DECLARADO es una caracteristica de la modalidad de compra y no hay nada
-    que arreglar; UNIDAD_DESCONOCIDA es deuda nuestra y hay que investigarla.
+    que arreglar; UNIDAD_DESCONOCIDA es deuda nuestra y hay que investigarla;
+    DURACION_CERO es un campo que el organismo dejo sin llenar.
     """
 
     CALCULADO = "calculado"
     NO_DECLARADO = "no_declarado"
     UNIDAD_DESCONOCIDA = "unidad_desconocida"
+    # Un contrato de duracion cero no existe: el organismo dejo el campo en 0.
+    # Sin este estado, `0 horas` producia termino = adjudicacion y se publicaba
+    # como CALCULADO, o sea con la misma confianza que un vencimiento real.
+    DURACION_CERO = "duracion_declarada_cero"
 
 
 class ClausulaExtraida(BaseModel):

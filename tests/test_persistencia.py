@@ -213,3 +213,39 @@ def test_garantias_sin_su_licitacion_se_omiten_con_aviso(
 
     assert guardar(base, cartera)["garantia"] == 0
     assert any("sin su licitación" in r.getMessage() for r in caplog.records)
+
+
+def test_una_base_vieja_recibe_las_columnas_nuevas(tmp_path: Path) -> None:
+    """`CREATE TABLE IF NOT EXISTS` no agrega columnas a una tabla que ya existe.
+
+    Sin la migración, una base creada antes de `url_ficha` reventaría con
+    "no such column" en el primer INSERT — y eso pasa en el servidor, no acá.
+    """
+    import sqlite3
+
+    ruta = tmp_path / "vieja.db"
+    con = sqlite3.connect(ruta)
+    con.execute(
+        "CREATE TABLE licitacion ("
+        "codigo TEXT PRIMARY KEY, nombre TEXT NOT NULL DEFAULT '', "
+        "fecha_publicacion TEXT, fecha_adjudicacion TEXT, duracion_valor INTEGER, "
+        "duracion_unidad TEXT NOT NULL DEFAULT 'desconocido', "
+        "es_renovable INTEGER NOT NULL DEFAULT 0, "
+        "monto_adjudicado_total TEXT, n_oferentes INTEGER)"
+    )
+    con.commit()
+    con.close()
+
+    with abrir(ruta) as c:
+        columnas = {f[1] for f in c.execute("PRAGMA table_info(licitacion)")}
+
+    assert "url_ficha" in columnas
+
+
+def test_migrar_dos_veces_no_falla(tmp_path: Path) -> None:
+    """Es idempotente: el pipeline abre la base en cada corrida."""
+    ruta = tmp_path / "c.db"
+    with abrir(ruta):
+        pass
+    with abrir(ruta) as c:  # no debe reventar con "duplicate column"
+        assert "url_ficha" in {f[1] for f in c.execute("PRAGMA table_info(licitacion)")}

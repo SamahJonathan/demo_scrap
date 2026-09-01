@@ -35,14 +35,34 @@ def _texto(valor: object) -> str | None:
     return None if valor is None else str(valor)
 
 
+# Columnas agregadas despues de que existieran bases en uso. `CREATE TABLE IF
+# NOT EXISTS` no las anade a una base ya creada: sin esto, una base vieja
+# reventaria con "no such column" en el primer INSERT.
+_COLUMNAS_NUEVAS: tuple[tuple[str, str, str], ...] = (
+    ("licitacion", "url_ficha", "TEXT"),
+)
+
+
+def _migrar(con: sqlite3.Connection) -> None:
+    """Agrega las columnas que falten. Idempotente: releerlo no hace nada."""
+    for tabla, columna, tipo in _COLUMNAS_NUEVAS:
+        existentes = {f[1] for f in con.execute(f"PRAGMA table_info({tabla})")}
+        if not existentes:
+            continue  # la tabla aun no existe; el esquema la creara completa
+        if columna not in existentes:
+            log.info("migrando %s: agrego la columna %s", tabla, columna)
+            con.execute(f"ALTER TABLE {tabla} ADD COLUMN {columna} {tipo}")
+
+
 @contextmanager
 def abrir(ruta: Path) -> Iterator[sqlite3.Connection]:
-    """Abre la base, creando el esquema si hace falta."""
+    """Abre la base, creando el esquema si hace falta y migrando si es vieja."""
     ruta.parent.mkdir(parents=True, exist_ok=True)
     con = sqlite3.connect(ruta)
     try:
         con.execute("PRAGMA foreign_keys = ON")
         con.executescript(ESQUEMA.read_text(encoding="utf-8"))
+        _migrar(con)
         yield con
         con.commit()
     finally:
@@ -54,8 +74,8 @@ def guardar_licitacion(con: sqlite3.Connection, lic: Licitacion) -> None:
         """
         INSERT INTO licitacion (codigo, nombre, fecha_publicacion,
             fecha_adjudicacion, duracion_valor, duracion_unidad, es_renovable,
-            monto_adjudicado_total, n_oferentes)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            monto_adjudicado_total, n_oferentes, url_ficha)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(codigo) DO UPDATE SET
             nombre = excluded.nombre,
             fecha_publicacion = excluded.fecha_publicacion,
@@ -64,7 +84,8 @@ def guardar_licitacion(con: sqlite3.Connection, lic: Licitacion) -> None:
             duracion_unidad = excluded.duracion_unidad,
             es_renovable = excluded.es_renovable,
             monto_adjudicado_total = excluded.monto_adjudicado_total,
-            n_oferentes = excluded.n_oferentes
+            n_oferentes = excluded.n_oferentes,
+            url_ficha = excluded.url_ficha
         """,
         (
             lic.codigo,
@@ -76,6 +97,7 @@ def guardar_licitacion(con: sqlite3.Connection, lic: Licitacion) -> None:
             int(lic.es_renovable),
             _texto(lic.monto_adjudicado_total),
             lic.n_oferentes,
+            lic.url_ficha,
         ),
     )
 

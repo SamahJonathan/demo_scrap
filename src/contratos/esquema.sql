@@ -18,7 +18,11 @@ CREATE TABLE IF NOT EXISTS licitacion (
     duracion_unidad         TEXT NOT NULL DEFAULT 'desconocido',
     es_renovable            INTEGER NOT NULL DEFAULT 0,
     monto_adjudicado_total  TEXT,
-    n_oferentes             INTEGER
+    n_oferentes             INTEGER,
+    -- URL de la ficha publica. Se guarda para que el dashboard pueda enlazar
+    -- al documento original: un dato marcado como dudoso tiene que poder
+    -- contrastarse contra la fuente en un clic, no de palabra.
+    url_ficha               TEXT
 );
 
 -- La unidad de la demo: una orden de compra, un proveedor, un monto real.

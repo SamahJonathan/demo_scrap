@@ -78,6 +78,9 @@ def _proceso_de(
 
     garantias: list[Garantia] = []
     try:
+        # Se guarda ANTES de parsear: aunque la ficha resulte ilegible, el
+        # enlace a la fuente sigue siendo util para revisarla a mano.
+        lic.url_ficha = api_licitacion.url_ficha(lic, cliente.config.mp_web_base_url)
         html = api_licitacion.bajar_ficha(cliente, lic)
         garantias = parsear_garantias(html, codigo)
         m.suma("garantias", len(garantias))

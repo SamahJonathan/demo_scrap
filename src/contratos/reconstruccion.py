@@ -121,9 +121,9 @@ def calcular_vencimiento(
 ) -> tuple[date | None, EstadoVencimiento]:
     """Devuelve la fecha de término y **por qué** falta cuando falta.
 
-    Un `None` mudo mezcla tres situaciones que exigen respuestas distintas:
-    la modalidad no declara plazo, no sabemos leer la unidad, o sí se pudo
-    calcular.
+    Un `None` mudo mezcla situaciones que exigen respuestas distintas: la
+    modalidad no declara plazo, el organismo dejó el campo en cero, no sabemos
+    leer la unidad, o sí se pudo calcular.
     """
     if licitacion is None:
         # Compra ágil, convenio marco, trato directo: compra puntual, no
@@ -132,6 +132,12 @@ def calcular_vencimiento(
 
     if licitacion.fecha_adjudicacion is None or licitacion.duracion_valor is None:
         return None, EstadoVencimiento.NO_DECLARADO
+
+    # Un contrato de duracion cero no existe. Sin esta guarda, `0 horas` daba
+    # termino = adjudicacion y se marcaba CALCULADO: 20 contratos publicaban
+    # que terminaron el dia que se adjudicaron, con etiqueta de confiable.
+    if licitacion.duracion_valor == 0:
+        return None, EstadoVencimiento.DURACION_CERO
 
     if licitacion.duracion_unidad is UnidadDuracion.MESES:
         fin = licitacion.fecha_adjudicacion + timedelta(

@@ -273,15 +273,21 @@ def test_vencimientos_dice_lo_accionable(cliente: TestClient) -> None:
     assert "no tiene vencimiento que vigilar" in cuerpo
 
 
-def test_garantias_destaca_las_incoherentes_y_explica_el_criterio(
+def test_garantias_separa_la_unidad_sospechosa_del_campo_sin_llenar(
     cliente: TestClient,
 ) -> None:
+    """Dos defectos distintos no pueden compartir una sola alerta.
+
+    Una duración declarada en CERO es un campo que el organismo no llenó. Una
+    duración en HORAS con una caución de años es una unidad mal cargada. Se
+    diagnostican distinto, así que se muestran distinto.
+    """
     cuerpo = cliente.get("/garantias").text
 
     assert "1300-43-LP24" in cuerpo, "SENAMA, 36 horas contra 2027"
-    assert "incoherente" in cuerpo
-    # El matiz que evita que la alerta sea ruido.
-    assert "mil veces más larga" in cuerpo
+    assert "unidad sospechosa" in cuerpo
+    assert "meses cargados como horas" in cuerpo, "dice cuál es la hipótesis"
+    assert "no se corrige" in cuerpo.lower(), "se marca, no se arregla"
 
 
 def test_garantias_dice_por_que_hubo_que_scrapear(cliente: TestClient) -> None:
@@ -425,3 +431,34 @@ def test_el_metodo_no_ocupa_el_menu_del_gestor(base: Path) -> None:
 
     assert 'href="/inferencia"' not in encabezado
     assert 'href="/inferencia"' in pie
+
+
+def test_una_garantia_marcada_enlaza_a_la_ficha_original(base: Path) -> None:
+    """Lo que marcamos como dudoso tiene que poder contrastarse en un clic.
+
+    Sin el enlace, el usuario tiene que creernos. Con él, abre el documento de
+    Mercado Público y lo comprueba con sus propios ojos.
+    """
+    from contratos.persistencia import abrir
+
+    url = (
+        "https://www.mercadopublico.cl/Procurement/Modules/RFB/"
+        "DetailsAcquisition.aspx?qs=TOKEN"
+    )
+    with abrir(base) as con:
+        con.execute(
+            "UPDATE licitacion SET url_ficha = ? WHERE codigo = ?",
+            (url, "1300-43-LP24"),
+        )
+
+    cuerpo = TestClient(crear_app(base)).get("/garantias").text
+
+    assert url in cuerpo
+    assert 'target="_blank"' in cuerpo, "no saca al usuario del dashboard"
+    assert 'rel="noopener"' in cuerpo
+
+
+def test_sin_url_guardada_la_fila_no_muestra_un_enlace_roto(base: Path) -> None:
+    """Una licitación sin ficha no puede producir un href vacío."""
+    cuerpo = TestClient(crear_app(base)).get("/garantias").text
+    assert 'href=""' not in cuerpo
