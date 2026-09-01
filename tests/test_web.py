@@ -604,3 +604,30 @@ def test_una_corrida_completa_si_publica_el_porcentaje(base: Path) -> None:
 
     assert "67" in html and "no necesitaron el modelo" in html
     assert "se cortó en" not in html
+
+
+def test_la_alerta_de_garantias_lidera_con_las_vigentes(cliente: TestClient) -> None:
+    """Vigencia y marca son ortogonales, y mezclarlas exagera la alerta.
+
+    De 12 cauciones marcadas en la cartera real, 9 ya habían vencido: un dato
+    mal cargado en un contrato cerrado es un defecto histórico, no un riesgo
+    de hoy. La página tiene que distinguirlo o está inflando el número.
+    """
+    for ruta in ("/", "/garantias"):
+        cuerpo = cliente.get(ruta).text
+        assert "vigente" in cuerpo, ruta
+        assert "en total" in cuerpo, f"{ruta}: declara cuántas son sin filtrar"
+
+
+def test_la_tabla_de_garantias_no_tapa_la_vigencia_con_la_marca(
+    cliente: TestClient,
+) -> None:
+    """La columna de estado mostraba el motivo EN VEZ de si seguía viva.
+
+    Una caución vencida marcada como "duración en cero" se veía solo como
+    "duración en cero", y no había forma de saber que ya no cubre nada.
+    """
+    cuerpo = cliente.get("/garantias").text
+
+    assert "<th>Estado</th>" in cuerpo
+    assert "<th>Marca</th>" in cuerpo, "la marca va en su propia columna"

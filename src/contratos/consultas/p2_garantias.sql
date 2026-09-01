@@ -55,7 +55,16 @@ SELECT
     CASE
         WHEN g.monto_es_porcentaje = 1 AND l.monto_es_unitario = 0
         THEN CAST(l.monto_adjudicado_total AS REAL)
-    END AS base_calculo
+    END AS base_calculo,
+    -- POR QUE no hay cifra. Una celda vacia se lee como un error nuestro; el
+    -- motivo la convierte en un hecho sobre la fuente. Son dos causas
+    -- distintas y se defienden distinto.
+    CASE
+        WHEN g.monto_es_porcentaje = 0 THEN NULL
+        WHEN l.monto_es_unitario = 1 THEN 'monto_no_confiable'
+        WHEN l.monto_adjudicado_total IS NULL
+          OR CAST(l.monto_adjudicado_total AS REAL) = 0 THEN 'sin_monto_adjudicado'
+    END AS sin_cifra_porque
 FROM garantia g
 JOIN licitacion l ON l.codigo = g.licitacion_codigo
 ORDER BY implausible DESC, g.fecha_vencimiento;

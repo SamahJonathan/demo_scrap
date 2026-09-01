@@ -53,7 +53,9 @@ ven las demás áreas, leído desde las cauciones y las cláusulas.</p>
       <td class="codigo">{{ g.licitacion_codigo }}</td>
       <td>{{ g.tipo }}</td>
       <td>{% if g.monto_es_porcentaje %}{{ g.monto_valor }} %
-          {% if g.monto_pesos %}<br><span class="proc">≈ ${{ "{:,.0f}".format(g.monto_pesos) }}</span>{% endif %}
+          {% if g.monto_pesos %}<br><span class="proc">≈ ${{ "{:,.0f}".format(g.monto_pesos) }}</span>
+          {% elif g.sin_cifra_porque == "sin_monto_adjudicado" %}<br><span class="proc">sin monto adjudicado en la fuente</span>
+          {% elif g.sin_cifra_porque == "monto_no_confiable" %}<br><span class="proc">monto parece precio unitario</span>{% endif %}
         {% else %}${{ "{:,.0f}".format(g.monto_valor|float) }}{% endif %}</td>
       <td>{{ g.fecha_vencimiento }}</td>
       <td>{% if fichas.get(g.licitacion_codigo) %}

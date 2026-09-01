@@ -54,20 +54,24 @@ publica como tales: se arman uniendo orden de compra, licitación, OCDS y ficha 
 
 {% if sospechosas %}
 <div class="caja aviso">
-  <b class="alerta">{{ sospechosas|length }} garantía(s) con la unidad del plazo
-  sospechosa</b>
+  <b class="alerta">{{ sospechosas|selectattr("vigente")|list|length }}
+  garantía(s) <b>vigentes</b> con la unidad del plazo sospechosa</b>
+  <span class="proc">({{ sospechosas|length }} marcadas en total; el resto ya
+  venció y es un defecto histórico, no un riesgo de hoy)</span>
   <p class="sub" style="margin:6px 0 10px">El contrato declara un plazo <b>en
   horas</b> y su caución de fiel cumplimiento vive años. Nadie cauciona por años
   un contrato de horas: casi seguro son <b>meses cargados como horas</b> en el
   origen. No se corrige ninguno de los dos valores, se marca — y se abre la
   ficha para comprobarlo.</p>
   <table>
-    <tr><th>Licitación</th><th>Garantía vence</th><th>Duración declarada</th>
-        <th></th></tr>
+    <tr><th>Licitación</th><th>Garantía vence</th><th>Estado</th>
+        <th>Duración declarada</th><th></th></tr>
     {% for g in sospechosas %}
     <tr>
       <td class="codigo">{{ g.licitacion_codigo }}</td>
       <td>{{ g.fecha_vencimiento }}</td>
+      <td>{% if g.vigente %}<span class="ok">vigente</span>
+          {% else %}vencida{% endif %}</td>
       <td class="alerta">{{ g.duracion_valor }} {{ g.duracion_unidad }}</td>
       <td>{% if fichas.get(g.licitacion_codigo) %}
           <a href="{{ fichas[g.licitacion_codigo] }}" target="_blank"
@@ -80,8 +84,10 @@ publica como tales: se arman uniendo orden de compra, licitación, OCDS y ficha 
 
 {% if cero %}
 <div class="caja aviso">
-  <b class="alerta">{{ cero|length }} garantía(s) caucionan un contrato con
-  duración declarada en cero</b>
+  <b class="alerta">{{ cero|selectattr("vigente")|list|length }}
+  garantía(s) <b>vigentes</b> caucionan un contrato con duración declarada en
+  cero</b>
+  <span class="proc">({{ cero|length }} marcadas en total)</span>
   <p class="sub" style="margin:6px 0 0">Esto <b>no es una contradicción, es un
   vacío</b>: el organismo dejó el campo de duración en 0. De esas licitaciones
   <b>no se publica fecha de vencimiento</b> — antes se calculaba una igual a la
