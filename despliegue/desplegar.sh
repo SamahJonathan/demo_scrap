@@ -120,7 +120,7 @@ echo ""
 # fallo sin serlo. Se recorren TODAS: un despliegue que solo prueba la portada
 # no detecta una ruta rota.
 echo "  rutas publicas:"
-for r in / /vencimientos /garantias /plazos /contratos /inferencia /estado /salud; do
+for r in / /contratos /legal /compras /finanzas /comercial /vencimientos /garantias /plazos /inferencia /estado /salud; do
     printf '    %-14s HTTP %s\n' "$r" \
         "$(curl -sS -o /dev/null -w '%{http_code}' "https://$DOMINIO$r")"
 done

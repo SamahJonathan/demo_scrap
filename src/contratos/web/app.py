@@ -114,6 +114,106 @@ def crear_app(base: Path | None = None) -> FastAPI:
             request, "estado.html", {"d": _diagnostico()}
         )
 
+    # -- Vistas por area -----------------------------------------------------
+    #
+    # El mismo contrato reconstruido, leido por cinco areas distintas. Es la
+    # propuesta de valor de un CLM hecha visible: no son cinco sistemas ni
+    # cinco planillas, es UNA entidad que cada area interroga distinto.
+    #
+    # Reusan las consultas que ya existian; solo cambia quien pregunta.
+
+    @app.get("/legal", response_class=HTMLResponse)
+    def legal(request: Request) -> Any:
+        """Obligaciones vivas: cauciones, causales de termino, renovacion."""
+        ruta = resolver()
+        garantias = responder(ruta, PREGUNTAS[1])
+        con = _conectar(ruta)
+        try:
+            clausulas = [
+                dict(c)
+                for c in con.execute("SELECT * FROM clausula_extraida").fetchall()
+            ]
+            renovables = con.execute(
+                "SELECT COUNT(*) FROM licitacion WHERE es_renovable = 1"
+            ).fetchone()[0]
+        finally:
+            con.close()
+        return PLANTILLAS.TemplateResponse(
+            request,
+            "legal.html",
+            {
+                "vivas": [g for g in garantias if g["vigente"] == 1],
+                "sospechosas": [
+                    g for g in garantias if g["motivo"] == "unidad_sospechosa"
+                ],
+                "clausulas": clausulas,
+                "renovables": renovables,
+                "licitaciones": len({g["licitacion_codigo"] for g in garantias}),
+                "fichas": _fichas(ruta),
+            },
+        )
+
+    @app.get("/compras", response_class=HTMLResponse)
+    def compras(request: Request, meses: int = 12) -> Any:
+        """Que relicitar y con cuanta anticipacion empezar."""
+        ruta = resolver()
+        return PLANTILLAS.TemplateResponse(
+            request,
+            "compras.html",
+            {
+                "vencimientos": responder(ruta, PREGUNTAS[0], meses=meses),
+                "plazos": responder(ruta, PREGUNTAS[2]),
+                "meses": meses,
+            },
+        )
+
+    @app.get("/finanzas", response_class=HTMLResponse)
+    def finanzas(request: Request) -> Any:
+        """Comprometido frente a ejecutado, y lo que no cuenta como gasto."""
+        ruta = resolver()
+        con = _conectar(ruta)
+        try:
+            estados = [
+                dict(r)
+                for r in con.execute(
+                    "SELECT estado, COUNT(*) n, "
+                    "SUM(CAST(monto_ejecutado AS REAL)) monto, "
+                    "es_comprometido, es_ejecutado FROM contrato "
+                    "GROUP BY estado ORDER BY monto DESC"
+                ).fetchall()
+            ]
+        finally:
+            con.close()
+        return PLANTILLAS.TemplateResponse(
+            request,
+            "finanzas.html",
+            {
+                "estados": estados,
+                "organismos": responder(ruta, PREGUNTAS[3])[:15],
+                "origen": responder(ruta, PREGUNTAS[4]),
+            },
+        )
+
+    @app.get("/comercial", response_class=HTMLResponse)
+    def comercial(request: Request) -> Any:
+        """Con quien se vuelve a contratar: relaciones, no montos sueltos."""
+        ruta = resolver()
+        con = _conectar(ruta)
+        try:
+            totales = dict(
+                con.execute(
+                    "SELECT COUNT(DISTINCT proveedor_rut) proveedores, "
+                    "COUNT(DISTINCT organismo_rut) organismos FROM contrato"
+                ).fetchone()
+            )
+        finally:
+            con.close()
+        return PLANTILLAS.TemplateResponse(
+            request,
+            "comercial.html",
+            {"pares": responder(ruta, PREGUNTAS[7]), "t": totales},
+        )
+
     @app.get("/inferencia", response_class=HTMLResponse)
     def inferencia(request: Request) -> Any:
         """Donde intervino el modelo, y sobre todo donde NO hizo falta.

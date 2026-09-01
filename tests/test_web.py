@@ -256,12 +256,32 @@ def test_salud_sigue_siendo_json_para_la_monitorizacion(cliente: TestClient) -> 
 # siguen vivas. El menu debe ofrecerlas; lo operativo va al pie.
 
 
-def test_el_menu_ofrece_lo_que_el_objetivo_nombra(cliente: TestClient) -> None:
+def test_el_menu_ofrece_las_areas_y_la_entidad_compartida(
+    cliente: TestClient,
+) -> None:
+    """El menú se organiza por QUIÉN pregunta, no por pregunta suelta.
+
+    Es la propuesta de valor de un CLM hecha visible: no son cinco sistemas,
+    es una entidad que cinco áreas leen distinto. `/contratos` va primero
+    porque es la entidad que todas comparten.
+    """
     encabezado = cliente.get("/").text.split("</header>")[0]
 
-    assert 'href="/vencimientos"' in encabezado, "que relicitar y que renovar"
-    assert 'href="/garantias"' in encabezado, "que cauciones siguen vivas"
-    assert 'href="/contratos"' in encabezado
+    assert 'href="/contratos"' in encabezado, "la entidad compartida"
+    for area in ("/legal", "/compras", "/finanzas", "/comercial"):
+        assert f'href="{area}"' in encabezado, area
+
+
+def test_las_tres_preguntas_del_objetivo_siguen_alcanzables(
+    cliente: TestClient,
+) -> None:
+    """Reorganizar por área no puede esconder el objetivo.
+
+    Qué relicitar y qué renovar viven en Compras; qué cauciones siguen vivas,
+    en Legal. Si un día dejan de enlazarse, el menú dejó de servir al objetivo.
+    """
+    assert 'href="/vencimientos"' in cliente.get("/compras").text
+    assert 'href="/garantias"' in cliente.get("/legal").text
 
 
 def test_lo_operativo_no_ocupa_el_menu(cliente: TestClient) -> None:
@@ -304,9 +324,12 @@ def test_garantias_dice_por_que_hubo_que_scrapear(cliente: TestClient) -> None:
     assert "54 campos" in cuerpo and "OCDS" in cuerpo
 
 
-def test_plazos_esta_en_el_menu_y_muestra_percentiles(cliente: TestClient) -> None:
-    """Convierte el vencimiento en un plazo para actuar."""
-    encabezado = cliente.get("/").text.split("</header>")[0]
+def test_plazos_vive_en_compras_y_muestra_percentiles(cliente: TestClient) -> None:
+    """Convierte el vencimiento en un plazo para actuar.
+
+    Ya no está en el menú: es una pregunta de Compras, no de todos.
+    """
+    encabezado = cliente.get("/compras").text
     assert 'href="/plazos"' in encabezado
 
     cuerpo = cliente.get("/plazos").text
@@ -470,3 +493,59 @@ def test_sin_url_guardada_la_fila_no_muestra_un_enlace_roto(base: Path) -> None:
     """Una licitación sin ficha no puede producir un href vacío."""
     cuerpo = TestClient(crear_app(base)).get("/garantias").text
     assert 'href=""' not in cuerpo
+
+
+# --------------------------------------------------------------------------
+# Vistas por area: la misma entidad, cinco lecturas
+# --------------------------------------------------------------------------
+
+
+def test_las_cuatro_areas_responden(cliente: TestClient) -> None:
+    for area in ("/legal", "/compras", "/finanzas", "/comercial"):
+        assert cliente.get(area).status_code == 200, area
+
+
+def test_las_areas_leen_el_mismo_contrato_y_no_copias(cliente: TestClient) -> None:
+    """El argumento de la vista por área: una entidad, no cinco planillas.
+
+    Si Legal y Compras hablaran de universos distintos, serían dos sistemas
+    con el mismo maquillaje. Ambas tienen que llegar al MISMO contrato.
+    """
+    legal = cliente.get("/legal").text
+    compras = cliente.get("/compras").text
+    detalle = cliente.get("/contratos/2-1-SE25").text
+
+    # Legal llega por la caución, Compras por el organismo que adjudica...
+    assert "1300-43-LP24" in legal, "Legal ve la licitación por sus cauciones"
+    assert "SENAMA" in compras, "Compras la ve por su plazo de adjudicación"
+    # ...y las dos desembocan en la MISMA ficha, que nombra esa licitación.
+    assert "1300-43-LP24" in detalle
+
+
+def test_legal_explica_por_que_las_garantias_no_salen_de_la_api(
+    cliente: TestClient,
+) -> None:
+    """Sin ese porqué, la página parece un listado más."""
+    cuerpo = cliente.get("/legal").text
+    assert "54 campos" in cuerpo
+    assert "ficha web" in cuerpo.lower()
+
+
+def test_finanzas_avisa_que_lo_cancelado_no_es_gasto(cliente: TestClient) -> None:
+    """Una orden cancelada CONSERVA su monto: sumarla infla el gasto."""
+    cuerpo = cliente.get("/finanzas").text
+    assert "cancelada" in cuerpo.lower()
+    assert "infla el gasto" in cuerpo
+
+
+def test_finanzas_declara_lo_que_no_puede_responder(cliente: TestClient) -> None:
+    """El monto adjudicado no es comparable: en suministro es precio unitario."""
+    cuerpo = cliente.get("/finanzas").text
+    assert "NO responde" in cuerpo
+    assert "precio" in cuerpo and "unitario" in cuerpo
+
+
+def test_comercial_agrupa_por_rut_y_lo_dice(cliente: TestClient) -> None:
+    """El mismo organismo aparece escrito de varias formas en la fuente."""
+    cuerpo = cliente.get("/comercial").text
+    assert "RUT y no por" in cuerpo

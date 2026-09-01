@@ -42,6 +42,9 @@ PREGUNTAS = (
     # puede CONFIAR en lo que las otras muestran.
     Pregunta(6, "Sobre qué parte de la cartera se puede hablar", "p6_cobertura.sql"),
     Pregunta(7, "Contratos con datos que se contradicen", "p7_discrepancias.sql"),
+    # Nacio de la vista por area: Comercial no pregunta cuanto se gasto, sino
+    # con quien se vuelve a contratar.
+    Pregunta(8, "Pares comprador-proveedor que se repiten", "p8_relaciones.sql"),
 )
 
 

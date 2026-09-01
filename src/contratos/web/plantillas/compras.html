@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block cuerpo %}
+<h1>Compras</h1>
+<p class="sub">Qué hay que relicitar y con cuánta anticipación empezar. Mismo
+contrato que ve Legal, leído desde la vigencia.</p>
+
+<div class="caja">
+  <b>La fecha de vencimiento no existe en la fuente</b>
+  <p class="sub" style="margin:6px 0 0">Ningún campo dice cuándo termina un
+  contrato. Se <b>deriva</b> de la fecha de adjudicación más la duración
+  declarada, y cuando la duración viene en cero o con una unidad que la fuente
+  no documenta, <b>no se inventa una fecha</b>: se marca.</p>
+</div>
+
+<div class="caja">
+  <b>Vencen en los próximos {{ meses }} meses</b>
+  <p class="sub" style="margin:6px 0 10px">Renovar o relicitar es la decisión.
+  <a href="/vencimientos">Ver todos</a>.</p>
+  {% if vencimientos %}
+  <table>
+    <tr><th>Contrato</th><th>Organismo</th><th>Vence</th><th>Días</th>
+        <th>Acción</th></tr>
+    {% for v in vencimientos[:15] %}
+    <tr>
+      <td class="codigo"><a href="/contratos/{{ v.codigo_oc }}">{{ v.codigo_oc }}</a></td>
+      <td>{{ v.organismo[:34] }}</td>
+      <td>{{ v.fecha_termino_estimada }}</td>
+      <td{% if v.dias_restantes < 90 %} class="alerta"{% endif %}>{{ v.dias_restantes }}</td>
+      <td>{{ v.accion }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p class="sub">Ninguno en la ventana.</p>
+  {% endif %}
+</div>
+
+<div class="caja">
+  <b>Cuánto tarda cada organismo en adjudicar</b>
+  <p class="sub" style="margin:6px 0 10px">Esto convierte un vencimiento en un
+  <b>plazo para actuar</b>: un contrato que vence en 90 días no da margen si su
+  organismo tarda 215 en adjudicar. Se muestran percentiles y no promedio,
+  porque la dispersión entre organismos es de casi 5x.
+  <a href="/plazos">Ver todos los organismos</a>.</p>
+  <table>
+    <tr><th>Organismo</th><th>Procesos</th><th>p25</th><th>Mediana</th><th>p75</th></tr>
+    {% for p in plazos[:15] %}
+    <tr>
+      <td>{{ p.organismo[:40] }}</td>
+      <td>{{ p.procesos }}</td>
+      <td>{{ p.p25 }}</td>
+      <td><b>{{ p.mediana }}</b></td>
+      <td>{{ p.p75 }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

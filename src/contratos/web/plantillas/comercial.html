@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block cuerpo %}
+<h1>Comercial</h1>
+<p class="sub">Con quién se vuelve a contratar. Mismo contrato que ven las demás
+áreas, leído desde la relación y no desde el monto.</p>
+
+<div class="tarjetas">
+  <div class="tarjeta"><b>{{ t.proveedores }}</b><span>proveedores</span></div>
+  <div class="tarjeta"><b>{{ t.organismos }}</b><span>organismos</span></div>
+  <div class="tarjeta"><b>{{ pares|length }}</b><span>relaciones que se repiten</span></div>
+</div>
+
+<div class="caja">
+  <b>Una relación que se repite es una cuenta viva</b>
+  <p class="sub" style="margin:6px 0 10px">Una venta suelta no dice nada; un
+  comprador que vuelve dos, seis u ocho veces sí. Se agrupa por <b>RUT y no por
+  nombre</b>: el mismo organismo aparece escrito de varias formas en la fuente
+  —«MINISTERIO DE OBRAS PUBLICAS DIREC CION GRAL» y «MOP - DIRECCION DE
+  VIALIDAD»— y agrupar por texto los separaría en dos.</p>
+  <table>
+    <tr><th>Organismo</th><th>Proveedor</th><th>Veces</th><th>Ejecutado</th>
+        <th>Desde</th><th>Hasta</th><th>Sin proceso</th></tr>
+    {% for p in pares[:20] %}
+    <tr>
+      <td>{{ p.organismo[:30] }}</td>
+      <td>{{ p.proveedor[:28] }}</td>
+      <td><b>{{ p.contratos }}</b></td>
+      <td>${{ "{:,.0f}".format(p.ejecutado or 0) }}</td>
+      <td>{{ p.desde or "—" }}</td>
+      <td>{{ p.hasta or "—" }}</td>
+      <td>{{ p.sin_proceso }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <p class="sub" style="margin-top:10px">La columna <b>sin proceso</b> cuenta
+  cuántas de esas órdenes no pasaron por licitación. Una relación que se repite
+  por trato directo se lee distinto que una ganada en licitación abierta.</p>
+</div>
+{% endblock %}

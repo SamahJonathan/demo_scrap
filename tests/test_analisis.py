@@ -80,16 +80,19 @@ def base(tmp_path: Path) -> Path:
     return ruta
 
 
-def test_las_siete_preguntas_se_ejecutan(base: Path) -> None:
-    """Cinco responden al gestor; la 6 y la 7 dicen si se puede confiar."""
+def test_las_ocho_preguntas_se_ejecutan(base: Path) -> None:
+    """Cinco responden al gestor, la 6 y la 7 dicen si se puede confiar, y la
+    8 nació de la vista por área: Comercial pregunta con quién se repite."""
     resultados = responder_todas(base, hoy=HOY)
-    assert set(resultados) == {1, 2, 3, 4, 5, 6, 7}
+    assert set(resultados) == {1, 2, 3, 4, 5, 6, 7, 8}
 
     for numero in (1, 2, 3, 4, 5, 6):
         assert resultados[numero], f"la pregunta {numero} no devolvió filas"
 
     # La 7 vacía es una respuesta válida: no hay contradicciones detectadas.
     assert resultados[7] == []
+    # La 8 también: en esta muestra ningún par comprador-proveedor se repite.
+    assert isinstance(resultados[8], list)
 
 
 # --------------------------------------------------------------------------

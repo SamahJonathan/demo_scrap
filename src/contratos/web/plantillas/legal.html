@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block cuerpo %}
+<h1>Legal</h1>
+<p class="sub">Qué obligaciones siguen vivas. El mismo contrato reconstruido que
+ven las demás áreas, leído desde las cauciones y las cláusulas.</p>
+
+<div class="tarjetas">
+  <div class="tarjeta"><b>{{ vivas|length }}</b><span>cauciones vigentes</span></div>
+  <div class="tarjeta"><b>{{ licitaciones }}</b><span>procesos con garantía</span></div>
+  <div class="tarjeta"><b>{{ renovables }}</b><span>renovables</span></div>
+  <div class="tarjeta"><b>{{ clausulas|length }}</b><span>causales extraídas</span></div>
+</div>
+
+<div class="caja">
+  <b>Por qué esto no sale de ninguna API</b>
+  <p class="sub" style="margin:6px 0 0">Se revisaron los <b>54 campos</b> que
+  devuelve la API de licitaciones: <b>ninguno</b> trae garantías. OCDS tampoco.
+  Solo la ficha web las publica, con beneficiario, vencimiento, monto y glosa.
+  Es el único caso del proyecto que justifica scrapear HTML.</p>
+</div>
+
+{% if sospechosas %}
+<div class="caja aviso">
+  <b class="alerta">{{ sospechosas|length }} caución(es) con la unidad del plazo
+  sospechosa</b>
+  <p class="sub" style="margin:6px 0 10px">El contrato declara plazo <b>en
+  horas</b> y la caución vive años. Casi seguro son meses cargados como horas.
+  No se corrige: se marca y se enlaza el original.</p>
+  <table>
+    <tr><th>Licitación</th><th>Vence</th><th>Duración declarada</th><th></th></tr>
+    {% for g in sospechosas %}
+    <tr>
+      <td class="codigo">{{ g.licitacion_codigo }}</td>
+      <td>{{ g.fecha_vencimiento }}</td>
+      <td class="alerta">{{ g.duracion_valor }} {{ g.duracion_unidad }}</td>
+      <td>{% if fichas.get(g.licitacion_codigo) %}
+          <a href="{{ fichas[g.licitacion_codigo] }}" target="_blank"
+             rel="noopener">ver ficha</a>{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endif %}
+
+<div class="caja">
+  <b>Cauciones vigentes</b>
+  <p class="sub" style="margin:6px 0 10px">Las que aún puede cobrar el organismo.
+  Una vencida antes que su contrato deja al Estado descubierto.
+  <a href="/garantias">Ver las {{ vivas|length }} con detalle</a>.</p>
+  <table>
+    <tr><th>Licitación</th><th>Tipo</th><th>Monto</th><th>Vence</th><th></th></tr>
+    {% for g in vivas[:15] %}
+    <tr>
+      <td class="codigo">{{ g.licitacion_codigo }}</td>
+      <td>{{ g.tipo }}</td>
+      <td>{% if g.monto_es_porcentaje %}{{ g.monto_valor }} %
+          {% else %}${{ "{:,.0f}".format(g.monto_valor|float) }}{% endif %}</td>
+      <td>{{ g.fecha_vencimiento }}</td>
+      <td>{% if fichas.get(g.licitacion_codigo) %}
+          <a href="{{ fichas[g.licitacion_codigo] }}" target="_blank"
+             rel="noopener">ver ficha</a>{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <p class="sub" style="margin-top:10px"><b>Un porcentaje no es un vacío.</b> La
+  seriedad de la oferta va en pesos porque se exige <b>antes</b> de que exista
+  monto; el fiel cumplimiento va en porcentaje porque se exige <b>después</b> de
+  adjudicar, cuando ya hay una cifra a la que referirse.</p>
+</div>
+
+{% if clausulas %}
+<div class="caja">
+  <b>Causales de término anticipado</b>
+  <p class="sub" style="margin:6px 0 10px">Viven solo en la prosa de las bases.
+  Importan porque un contrato con causales amplias puede caerse antes de su
+  vencimiento. <a href="/inferencia">Cómo se extrajeron</a>.</p>
+  {% for cl in clausulas %}
+  <table style="margin-bottom:12px">
+    <tr><th style="width:20%">{{ cl.licitacion_codigo }}</th>
+        <td>{{ cl.texto.replace(" | ", " · ") }}</td></tr>
+  </table>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

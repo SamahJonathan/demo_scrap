@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block cuerpo %}
+<h1>Finanzas</h1>
+<p class="sub">Qué está comprometido, qué se ejecutó y qué no cuenta como gasto.
+Mismo contrato que ven Legal y Compras, leído desde la plata.</p>
+
+<div class="caja">
+  <b>Un estado no es una etiqueta: decide si el peso cuenta</b>
+  <p class="sub" style="margin:6px 0 10px">
+    <b>Comprometido</b> es que la orden existe y no fue anulada.
+    <b>Ejecutado</b> es que el proveedor aceptó o entregó. Una orden
+    <b>cancelada conserva su monto</b> en la fuente: sumarla sin mirar el estado
+    infla el gasto.</p>
+  <table>
+    <tr><th>Estado</th><th>Órdenes</th><th>Monto</th><th>¿Comprometido?</th>
+        <th>¿Ejecutado?</th></tr>
+    {% for e in estados %}
+    <tr>
+      <td>{{ e.estado }}</td>
+      <td>{{ e.n }}</td>
+      <td{% if not e.es_comprometido %} class="alerta"{% endif %}>${{ "{:,.0f}".format(e.monto or 0) }}</td>
+      <td>{{ "sí" if e.es_comprometido else "NO" }}</td>
+      <td>{{ "sí" if e.es_ejecutado else "no" }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+<div class="caja">
+  <b>Gasto con proceso frente a gasto sin proceso</b>
+  <p class="sub" style="margin:6px 0 10px">Compra ágil, convenio marco y trato
+  directo <b>no nacen de una licitación</b>. Son contratos válidos, no errores —
+  y para un CLM son el caso difícil: contratos sin proceso previo que ingestar.</p>
+  <table>
+    <tr><th>Origen</th><th>Contratos</th><th>% del total</th><th>Ejecutado</th></tr>
+    {% for o in origen %}
+    <tr>
+      <td>{{ o.origen }}</td>
+      <td>{{ o.contratos }}</td>
+      <td>{{ o.pct_contratos }} %</td>
+      <td>${{ "{:,.0f}".format(o.ejecutado or 0) }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+<div class="caja">
+  <b>Concentración por organismo</b>
+  <p class="sub" style="margin:6px 0 10px">Cuántos proveedores distintos tiene
+  cada comprador. Pocos proveedores sobre mucho monto es una dependencia.</p>
+  <table>
+    <tr><th>Organismo</th><th>Contratos</th><th>Proveedores</th>
+        <th>Ejecutado</th><th>Comprometido</th></tr>
+    {% for o in organismos %}
+    <tr>
+      <td>{{ o.organismo[:40] }}</td>
+      <td>{{ o.contratos }}</td>
+      <td>{{ o.proveedores }}</td>
+      <td>${{ "{:,.0f}".format(o.ejecutado or 0) }}</td>
+      <td>${{ "{:,.0f}".format(o.comprometido or 0) }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+<div class="caja">
+  <b>Lo que este panel NO responde</b>
+  <p class="sub" style="margin:6px 0 0"><code>monto_adjudicado</code> no es
+  comparable entre contratos: en un convenio de suministro es un <b>precio
+  unitario</b>. Puerto Montt adjudica $783,19 el litro de diésel y su convenio
+  vale $1.500 millones. Por eso los totales usan el monto <b>ejecutado</b> de la
+  orden de compra, que sí es un peso gastado.</p>
+</div>
+{% endblock %}
