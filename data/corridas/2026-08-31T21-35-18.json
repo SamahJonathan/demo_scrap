@@ -1,0 +1,108 @@
+{
+  "momento": "2026-08-31T21:35:18",
+  "fechas": [
+    "2025-01-15",
+    "2025-05-15",
+    "2025-10-15"
+  ],
+  "duracion_s": 129.8,
+  "requests_emitidos": 0,
+  "aciertos_cache": 1107,
+  "ahorro_cache": 1.0,
+  "procesados": 450,
+  "por_fuente": {
+    "contratos": 450,
+    "filas_persistidas": 450,
+    "garantias": 299,
+    "licitaciones": 218,
+    "oc_detalladas": 450,
+    "oc_listadas": 450,
+    "ocds": 218
+  },
+  "fuentes_fallidas": {
+    "ficha_web": "2157-76-LE24: no se encontró la tabla #grvGarantias. La ficha cambió de estructu"
+  },
+  "cuarentena": 0,
+  "tasa_cuarentena": 0.0,
+  "cuarentena_por_motivo": {},
+  "hallazgos": [
+    {
+      "identificador": "1002588-160-L124",
+      "motivo": "unidad_de_duracion_sin_decodificar"
+    },
+    {
+      "identificador": "1002772-127-LR23",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1002772-30-LQ23",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1002772-5-LQ23",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1002772-58-LR19",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1002772-96-LQ23",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1004-56-LP24",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1027-14-LQ25",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1031849-11-LP22",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1036-8-LR24",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1057055-69-LP24",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1057402-120-LP24",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1057404-82-LQ24",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1057404-85-LR23",
+      "motivo": "unidad_de_duracion_sin_decodificar"
+    },
+    {
+      "identificador": "1057417-209-LR23",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1057439-19-LR22",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1057472-4-LQ25",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1057472-99-LQ25",
+      "motivo": "garantia_vence_antes_del_contrato"
+    },
+    {
+      "identificador": "1057472-99-LQ25",
+      "motivo": "items_no_cuadran_con_ocds"
+    }
+  ],
+  "confiable": true,
+  "problemas": []
+}

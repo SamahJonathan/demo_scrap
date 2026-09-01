@@ -181,16 +181,20 @@ def crear_app(base: Path | None = None) -> FastAPI:
         finally:
             con.close()
 
-        implausibles = [
-            f for f in responder(ruta, PREGUNTAS[1]) if f["implausible"] == 1
-        ]
+        garantias_p2 = responder(ruta, PREGUNTAS[1])
         return PLANTILLAS.TemplateResponse(
             request,
             "inicio.html",
             {
                 "ind": dict(ind),
                 "por_vencer": por_vencer,
-                "implausibles": implausibles,
+                # Separadas por motivo, igual que en /garantias: una duracion
+                # en cero es un campo sin llenar y no una contradiccion.
+                "sospechosas": [
+                    f for f in garantias_p2 if f["motivo"] == "unidad_sospechosa"
+                ],
+                "cero": [f for f in garantias_p2 if f["motivo"] == "duracion_cero"],
+                "fichas": _fichas(ruta),
                 "vencimientos": responder(ruta, PREGUNTAS[0], meses=12)[:10],
                 # Sobre que universo habla la pagina, y si se puede confiar.
                 "cobertura": responder(ruta, PREGUNTAS[5]),

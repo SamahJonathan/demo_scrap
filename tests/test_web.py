@@ -121,13 +121,21 @@ def test_el_inicio_muestra_los_indicadores(cliente: TestClient) -> None:
     assert "ejecutado" in cuerpo
 
 
-def test_el_inicio_destaca_la_garantia_implausible(cliente: TestClient) -> None:
-    """SENAMA: 36 horas de contrato con garantía hasta 2027."""
+def test_el_inicio_destaca_la_garantia_con_unidad_sospechosa(
+    cliente: TestClient,
+) -> None:
+    """SENAMA: 36 horas de contrato con garantía hasta 2027.
+
+    La portada usa el MISMO criterio que /garantias: separa la unidad
+    sospechosa del campo sin llenar. Antes decía "12 incoherentes" para dos
+    defectos distintos, y sin enlace a la fuente.
+    """
     cuerpo = cliente.get("/").text
 
-    assert "incoherente" in cuerpo
+    assert "unidad del plazo" in cuerpo
     assert "1300-43-LP24" in cuerpo
     assert "36 horas" in cuerpo
+    assert "meses cargados como horas" in cuerpo, "dice cuál es la hipótesis"
 
 
 # --------------------------------------------------------------------------
