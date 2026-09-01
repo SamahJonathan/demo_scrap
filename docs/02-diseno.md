@@ -437,6 +437,12 @@ entre 8 y 65 minutos por documento. Corre en lote, offline, y persiste.
 
 ## 5. Estructura de carpetas
 
+> **Actualizada el 2026-08-31, al detectar que el código había divergido.**
+> Lo que sigue es la estructura REAL, verificada contra el árbol de archivos.
+> Las diferencias con la versión original de este documento están listadas
+> abajo, con la fase en que aparecieron. No se reescribe en silencio: que el
+> diseño se quedara atrás es el hecho, y esconderlo sería el error de verdad.
+
 ```
 demo_scrap/
 ├── CLAUDE.md
@@ -448,7 +454,11 @@ demo_scrap/
 │   ├── 00-spike.md
 │   ├── 01-analisis.md
 │   ├── 02-diseno.md
-│   └── 03-plan-codificacion.md
+│   ├── 03-plan-codificacion.md
+│   ├── 04-operacion.md      # operación y diagnóstico
+│   ├── 05-preguntas.md      # qué responde el dashboard
+│   ├── demo.md              # guion de 5 minutos
+│   └── webdoxresumen.md     # contexto de la empresa
 ├── src/contratos/
 │   ├── config.py            # carga y valida el entorno
 │   ├── cli.py               # subcomandos; cada incremento suma el suyo
@@ -461,11 +471,17 @@ demo_scrap/
 │   ├── modelos.py           # entidades Pydantic
 │   ├── validacion.py        # esquema + reglas de plausibilidad
 │   ├── reconstruccion.py    # arma el Contrato con procedencia
+│   ├── pipeline.py          # orquesta descubrir → detallar → reconstruir
+│   ├── metricas.py          # contadores, umbrales y código de salida
+│   ├── corridas.py          # registro por corrida y comparación entre ellas
+│   ├── analisis.py          # las 7 preguntas y su ejecución
+│   ├── consultas/           # un .sql por pregunta, con su justificación
 │   ├── inferencia/
 │   │   ├── interfaz.py
 │   │   ├── local.py         # Ollama
 │   │   ├── hosted.py
-│   │   └── recuperacion.py  # filtro de pasajes
+│   │   ├── recuperacion.py  # filtro de pasajes
+│   │   └── extraccion.py    # causales y verificación cruzada
 │   ├── persistencia.py      # SQLite, upsert idempotente
 │   └── web/
 │       ├── app.py           # FastAPI
@@ -474,13 +490,41 @@ demo_scrap/
 ├── tests/
 │   └── fixtures/            # HTML y JSON reales guardados
 ├── data/
-│   ├── raw/                 # no versionado
-│   ├── quarantine/          # no versionado
+│   ├── cache/               # respuestas HTTP, no versionado
+│   ├── corridas/            # registro por corrida, no versionado
 │   └── samples/             # sí versionado
 └── despliegue/
     ├── nginx.conf
+    ├── contratos.service
     └── desplegar.sh         # scp del .db + reinicio del servicio
 ```
+
+### Lo que divergió, y cuándo
+
+| Módulo | Apareció en | Por qué no estaba en el diseño |
+|---|---|---|
+| `pipeline.py` | Fase 3 | El diseño describía el flujo pero no le puso módulo |
+| `metricas.py` | Fase 3 | Los umbrales estaban en § 6 sin decir dónde viven |
+| `analisis.py` + `consultas/` | Fase 3 | Las preguntas venían de la Fase 1, sin sitio asignado |
+| `inferencia/extraccion.py` | Fase 3 | El diseño listó los adaptadores, no quién los usa |
+| `corridas.py` | Fase 4 | Nació de una necesidad que el diseño no previó: comparar corridas |
+| `docs/04`, `05`, `demo.md` | Fases 3 y 4 | Documentos posteriores a este |
+
+**Dos promesas que el diseño hizo y el código no cumplió:** `data/raw/` y
+`data/quarantine/` nunca se crearon. El crudo se guarda como `JSONB` junto al
+registro normalizado —lo que § 1 llama "el crudo no entra a la base" se
+implementó como caché HTTP en `data/cache/`— y los cuarentenados viven en las
+métricas de la corrida, no en archivos. **Queda pendiente decidir** si se
+implementan esas carpetas o se corrige § 1.
+
+### Rutas del dashboard
+
+| Ruta | Para quién |
+|---|---|
+| `/`, `/vencimientos`, `/garantias`, `/plazos`, `/contratos` | el gestor: las tres preguntas del objetivo |
+| `/contratos/{codigo}` | ficha con procedencia campo a campo |
+| `/estado`, `/inferencia` | quien mantiene el pipeline; van en el pie, no en el menú |
+| `/salud` | máquinas: monitorización y despliegue |
 
 ---
 
