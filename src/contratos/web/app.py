@@ -242,6 +242,12 @@ def crear_app(base: Path | None = None) -> FastAPI:
         archivo = ruta.parent / "corridas" / "inferencia.json"
         if archivo.is_file():
             registro = json.loads(archivo.read_text(encoding="utf-8"))
+            # `detalle` es la fuente de verdad de cuantas se procesaron: esta
+            # en todos los registros y no se puede desincronizar del contador.
+            # Un registro escrito por una version anterior no traia el campo
+            # `procesadas`, y la plantilla lo asumia COMPLETO: publicaba un
+            # porcentaje calculado sobre una corrida cortada en el documento 3.
+            registro["procesadas"] = len(registro.get("detalle", []))
 
         con = _conectar(ruta)
         try:

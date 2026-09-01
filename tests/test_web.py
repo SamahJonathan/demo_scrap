@@ -409,6 +409,14 @@ def _registro(base: Path, **cambios: object) -> None:
         "detalle": [],
     }
     datos.update(cambios)
+    # `detalle` es la fuente de verdad de cuántas se procesaron: la app deriva
+    # `procesadas` de su largo. Un fixture con detalle vacío describiría una
+    # corrida que no procesó nada, diga lo que diga el contador.
+    procesadas = int(datos.pop("procesadas", datos["licitaciones"]))
+    datos["detalle"] = [
+        {"codigo": f"{i}-1-LE25", "via": "filtro", "segundos": 0.0}
+        for i in range(procesadas)
+    ]
     d = base.parent / "corridas"
     d.mkdir(parents=True, exist_ok=True)
     (d / "inferencia.json").write_text(
