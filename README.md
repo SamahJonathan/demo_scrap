@@ -66,7 +66,7 @@ así se encadena en cron o CI sin revisarla a ojo.
 | | |
 |---|---|
 | Qué preguntas responde el dashboard | [docs/05-preguntas.md](docs/05-preguntas.md) |
-| Operación y qué hacer cuando falla | [docs/04-operacion.md](docs/04-operacion.md) |
+| Operación, despliegue y qué hacer cuando falla | [docs/04-operacion.md](docs/04-operacion.md) |
 | Recorrido de demo de 5 minutos | [docs/demo.md](docs/demo.md) |
 
 ---

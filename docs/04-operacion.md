@@ -143,21 +143,29 @@ python -m contratos.cli correr --reporte   # 0 requests si ya está en caché
 
 ---
 
-## Antes de desplegar: la clave SSH
+## Desplegar
 
-El script asume la clave en `~/.ssh/LightsailDefaultKey-sa-east-1.pem`. Si no
-está ahí, se le indica dónde:
+En **Git Bash** —el script no corre en PowerShell—, desde la raíz del proyecto:
 
 ```bash
-CLAVE="/c/Users/.../LightsailDefaultKey-sa-east-1.pem" bash despliegue/desplegar.sh
+bash despliegue/desplegar.sh              # código, datos, nginx y TLS
+bash despliegue/desplegar.sh --solo-datos # solo el .db y reiniciar
 ```
 
-Sin eso el despliegue **falla en el primer `ssh`** con `Permission denied
-(publickey)`, que parece un problema de permisos en el servidor y no lo es. La
-clave nunca entra al repo: es una ruta local, no un secreto versionado.
+Sin variables en la línea de comandos. El script lee `LIGHTSAIL_KEY` del `.env`
+y genera solo la copia publicable de la base.
 
-`SERVIDOR`, `DOMINIO` y `BASE_LOCAL` se sobrescriben igual, por variable de
-entorno.
+**La copia se hace con la API de backup de SQLite, no con `cp`:** si algo está
+escribiendo la base —la inferencia, por ejemplo— un copiado plano puede
+capturarla a mitad de una transacción.
+
+**Si falta `LIGHTSAIL_KEY`**, el despliegue falla en el primer `ssh` con
+`Permission denied (publickey)`, que parece un problema de permisos en el
+servidor y es una ruta mal supuesta. La clave no entra al repositorio: no es un
+secreto, pero es personal.
+
+`SERVIDOR`, `DOMINIO`, `BASE_LOCAL` y `FUENTE` se sobrescriben por variable de
+entorno si hace falta.
 
 ---
 

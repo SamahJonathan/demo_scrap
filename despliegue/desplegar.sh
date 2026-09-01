@@ -13,14 +13,39 @@
 # Uso:
 #     bash despliegue/desplegar.sh              # despliega
 #     bash despliegue/desplegar.sh --solo-datos # solo copia el .db y reinicia
+#
+# Sin variables en la linea de comandos: la ruta de la clave sale de
+# LIGHTSAIL_KEY en el .env, y la copia publicable de la base se genera sola.
 
 set -euo pipefail
 
-SERVIDOR="${SERVIDOR:-ubuntu@54.207.164.201}"
-CLAVE="${CLAVE:-$HOME/.ssh/LightsailDefaultKey-sa-east-1.pem}"
-DOMINIO="${DOMINIO:-contratos.54-207-164-201.sslip.io}"
+# La configuracion se lee del .env, que NO esta versionado. Antes habia que
+# recordar tres variables en la linea de comandos y el valor por defecto de
+# CLAVE apuntaba a una ruta que no existe en esta maquina: el despliegue
+# fallaba en el primer ssh con "Permission denied (publickey)", que parece un
+# problema del servidor y es una ruta mal supuesta.
+#
+# La ruta de la clave no es un secreto, pero es personal: por eso vive en el
+# .env y no en el repositorio.
+if [ -f .env ]; then
+    # Solo las claves de despliegue, y sin ejecutar el archivo.
+    while IFS='=' read -r k v; do
+        case "$k" in
+            LIGHTSAIL_KEY|DEPLOY_SERVIDOR|DEPLOY_DOMINIO)
+                v="${v%\"}"; v="${v#\"}"
+                export "$k=$v" ;;
+        esac
+    done < <(grep -E '^(LIGHTSAIL_KEY|DEPLOY_SERVIDOR|DEPLOY_DOMINIO)=' .env || true)
+fi
+
+SERVIDOR="${SERVIDOR:-${DEPLOY_SERVIDOR:-ubuntu@54.207.164.201}}"
+CLAVE="${CLAVE:-${LIGHTSAIL_KEY:-$HOME/.ssh/LightsailDefaultKey-sa-east-1.pem}}"
+DOMINIO="${DOMINIO:-${DEPLOY_DOMINIO:-contratos.54-207-164-201.sslip.io}}"
 DESTINO=/opt/contratos
-BASE_LOCAL="${BASE_LOCAL:-data/contratos.db}"
+PY="${PY:-./.venv/Scripts/python.exe}"
+[ -x "$PY" ] || PY=python
+BASE_LOCAL="${BASE_LOCAL:-data/publicar.db}"
+FUENTE="${FUENTE:-data/contratos.db}"
 SOLO_DATOS=0
 [ "${1:-}" = "--solo-datos" ] && SOLO_DATOS=1
 
@@ -34,16 +59,21 @@ paso() { printf '\n\033[1m== %s\033[0m\n' "$1"; }
 # --------------------------------------------------------------------------
 paso "Comprobaciones previas"
 
-[ -f "$BASE_LOCAL" ] || {
-    echo "ERROR: no existe $BASE_LOCAL. Corre el pipeline antes de desplegar."
+[ -f "$FUENTE" ] || {
+    echo "ERROR: no existe $FUENTE. Corre el pipeline antes de desplegar."
     exit 1
 }
+
+# Copia CONSISTENTE con la API de backup de SQLite, no `cp`: si algo esta
+# escribiendo la base —la inferencia, por ejemplo— un copiado plano puede
+# capturarla a mitad de una transaccion.
+"$PY" -c "import sqlite3,sys; o=sqlite3.connect('file:'+sys.argv[1]+'?mode=ro',uri=True); d=sqlite3.connect(sys.argv[2]); o.backup(d); d.close(); o.close()" "$FUENTE" "$BASE_LOCAL"
+echo "  copia consistente: $FUENTE -> $BASE_LOCAL"
 echo "  base local: $(du -h "$BASE_LOCAL" | cut -f1)"
 
 # Un .db casi vacio es una corrida a medias: mejor no publicarla.
 # Se usa Python y no el CLI sqlite3: el CLI no siempre esta instalado, y una
 # comprobacion que falla en silencio es peor que no tenerla.
-PY=${PY:-python}
 FILAS=$("$PY" -c "import sqlite3,sys; print(sqlite3.connect(sys.argv[1]).execute('SELECT COUNT(*) FROM contrato').fetchone()[0])" "$BASE_LOCAL")
 echo "  contratos en la base: $FILAS"
 [ "$FILAS" -gt 0 ] || { echo "ERROR: la base no tiene contratos."; exit 1; }
